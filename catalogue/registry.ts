@@ -1,11 +1,13 @@
-import {LoginSplit} from './login-split/LoginSplit';
-import {Sidebar} from './sidebar/Sidebar';
+import {UserMenuExample} from '../examples/user-menu/UserMenuExample';
+import {LoginSplitExample} from '../examples/login-split/LoginSplitExample';
+import {SidebarExample} from '../examples/sidebar/SidebarExample';
 import {catalogueMetadata} from './metadata';
 import type {CatalogueItem} from './types';
 
 const components: Record<string, CatalogueItem['Component']> = {
-  'login-split': LoginSplit,
-  sidebar: Sidebar,
+  'login-split': LoginSplitExample,
+  sidebar: SidebarExample,
+  'user-menu': UserMenuExample,
 };
 
 export const catalogue: CatalogueItem[] = catalogueMetadata.map((item) => ({

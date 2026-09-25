@@ -1,9 +1,9 @@
 import {useEffect, useState} from 'react';
-import {LibraryMenu} from './components/library-menu/LibraryMenu';
-import {LibraryTweaksProvider} from './components/library-menu/LibraryTweaks';
+import {LibraryMenu} from './controls/LibraryMenu';
+import {LibraryTweaksProvider} from './controls/LibraryTweaks';
 import {Theme} from '@astryxdesign/core/theme';
 import {neutralTheme} from '@astryxdesign/theme-neutral/built';
-import {getCatalogueItem} from './templates/registry';
+import {getCatalogueItem} from './registry';
 import {migrateLegacyLink, navigate, readRoute, templatePath} from './navigation';
 
 export function App() {

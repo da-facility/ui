@@ -1,7 +1,7 @@
 import {useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent} from 'react';
-import {catalogue, getCatalogueItem} from '../../templates/registry';
+import {catalogue, getCatalogueItem} from '../registry';
 import './library-menu.css';
-import {readRoute, templatePath} from '../../navigation';
+import {readRoute, templatePath} from '../navigation';
 import {Switch} from '@astryxdesign/core/Switch';
 import {Theme} from '@astryxdesign/core/theme';
 import {neutralTheme} from '@astryxdesign/theme-neutral/built';
@@ -98,7 +98,9 @@ export function LibraryMenu({selectedId, onSelect}: {selectedId: string; onSelec
           <kbd>esc</kbd>
         </div>
         <nav aria-label="UI library layouts">
-          {items.map((item) => <a key={item.id} href={templatePath(item.id)} aria-current={item.id === selectedId ? 'page' : undefined} onClick={(event) => {
+          {(['Template', 'Component'] as const).map(category => <section key={category} aria-label={`${category}s`}>
+          {items.some(item => item.category === category) && <h3 className="library-menu__category">{category}s</h3>}
+          {items.filter(item => item.category === category).map((item) => <a key={item.id} href={templatePath(item.id)} aria-current={item.id === selectedId ? 'page' : undefined} onClick={(event) => {
             if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
             event.preventDefault(); onSelect(item.id);
           }}>
@@ -106,11 +108,13 @@ export function LibraryMenu({selectedId, onSelect}: {selectedId: string; onSelec
             <span>{item.name}<small>{item.category}</small></span>
             {item.id === selectedId && <span className="library-menu__active" aria-hidden="true">●</span>}
           </a>)}
+          </section>)}
           {items.length === 0 && <p className="library-menu__empty">No layouts match “{query}”.</p>}
         </nav>
         <section className="library-menu__tweaks" aria-label="Tweaks">
           <h3>Tweaks</h3>
           <Theme theme={neutralTheme} mode="dark">
+            <Switch label="Left-handed navigation" value={tweaks.navigationSide === 'left'} onChange={left => tweaks.setNavigationSide(left ? 'left' : 'right')} labelPosition="start" labelSpacing="spread" size="sm" />
             <Switch label="100 extra sidebar items" value={tweaks.enabled} onChange={tweaks.setEnabled} labelPosition="start" labelSpacing="spread" size="sm" />
           </Theme>
         </section>

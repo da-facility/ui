@@ -3,7 +3,7 @@ import {tmpdir} from 'node:os';
 import {spawn, type ChildProcess} from 'node:child_process';
 import {resolve} from 'node:path';
 import {chromium, type Browser} from 'playwright';
-import {catalogueMetadata} from '../src/templates/metadata';
+import {catalogueMetadata} from '../catalogue/metadata';
 
 type Format = 'html' | 'png' | 'jpeg';
 type ViewportName = 'desktop' | 'mobile';
@@ -67,7 +67,7 @@ let previewProcess: ChildProcess | undefined;
 let browser: Browser | undefined;
 try {
   await new Promise<void>((resolveBuild, reject) => {
-    const child = spawn('bun', ['run', 'build', '--outDir', buildDirectory], {cwd: projectRoot, stdio: ['ignore', 'pipe', 'pipe']});
+    const child = spawn('bun', ['run', 'build:catalogue', '--outDir', buildDirectory], {cwd: projectRoot, stdio: ['ignore', 'pipe', 'pipe']});
     let output = '';
     child.stdout.on('data', (chunk) => { output += chunk; });
     child.stderr.on('data', (chunk) => { output += chunk; });

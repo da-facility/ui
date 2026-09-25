@@ -1,74 +1,13 @@
-// Copyright (c) Meta Platforms, Inc. and affiliates.
-// Copied from facebook/astryx settings-dialog at b92b07613fbf941392a2138bd22b42c71e2707f0.
-// Adapted to a full-page catalogue entry; dialog frame and inert close controls removed.
-// Original MIT license: ./LICENSE.astryx
-
+// Adapted from Meta Astryx settings-dialog. See LICENSE.third-party.
 'use client';
 
-/**
- * A settings dialog for a product with enough preferences to need navigation,
- * search, grouping and responsive behavior—not just a short form.
- *
- * The side navigation and panel content read from one registry, so adding or
- * renaming a destination updates both desktop and narrow layouts. Settings are
- * grouped into muted cards of aligned rows; visual choices show live previews;
- * every row switches to the same stacked layout when the panel runs out of
- * width.
- *
- * The dialog is named by the visible Settings heading via `aria-labelledby`,
- * the close control stays reachable while the panel scrolls, and the side rail
- * becomes a right-hand drawer on small viewports rather than being squeezed into
- * an unusable narrow column.
- *
- * ## Extending this template
- *
- * **Add a row before you add a panel.** A setting is one row in an existing
- * subject. A panel is a navigation destination, so adding one is a hierarchy
- * decision rather than a convenient place to put one control. The grouped
- * registry below is the one list both shells read; add a panel there only when
- * its settings cannot be named honestly by an existing destination.
- *
- * **Customise from the system outward.** Stop at the first level that works:
- * (1) an Astryx component prop, (2) a theme token or component override when
- * the value belongs across the surface, (3) local `xstyle` for layout the
- * component cannot express. Anything after that needs a comment recording the
- * missing system capability; otherwise one local fix becomes the next
- * contributor's copy-paste pattern.
- *
- * **Choose a control from the value's shape, not taste:** on/off → `Switch`;
- * 2–3 named choices → `SegmentedControl`; 4+ named choices → `Selector`;
- * number → `NumberInput`; free text → `TextInput`; action rather than value →
- * `Button`. A visual choice is the exception: use `SelectableCard` only when
- * comparing the previews IS how someone decides. The row owns the visible
- * label, so every control inside one keeps `isLabelHidden`.
- *
- * **Cards group one subject.** A heading that needs “and” names two cards.
- * Cards carry no description: if a group needs a second sentence to explain
- * why its rows belong together, the rows are not similar enough. Put the
- * explanation on the setting it qualifies instead.
- *
- * **Separate settings by who they affect.** Most panels have one scope and need
- * no extra heading. If a panel mixes settings that change something for a team
- * with settings that change only the current person's experience, group the
- * two scopes explicitly and state who is affected. Never interleave them for
- * topical convenience: mistaking “only me” for “everyone” is a correctness and
- * privacy bug, not a grouping preference.
- *
- * **Preview the result, not the control.** A few visual choices can show one
- * preview per `SelectableCard`; many choices use one `Selector` and one live
- * preview below it. Prefer the real component being configured so the sample
- * cannot drift. For detail most readers do not need, expand a `Collapsible`
- * inside the row. Never open a dialog from this dialog: nested focus traps and
- * two overlapping dismiss paths are not progressive disclosure. If the detail
- * is too large to expand in place, it belongs on a page.
- */
-
 import {Button} from '@astryxdesign/core/Button';
+import {UserMenu, SidebarLayout, type SidebarLayoutProps} from '../../src';
+import './settings-example.css';
 import {LongTable} from './LongTable';
 import {LongParagraphs} from './LongParagraphs';
-import {useLibraryTweaks} from '../../components/library-menu/LibraryTweaks';
-import {SettingsMobileShell} from './SettingsMobileShell';
-import {navigate, readRoute, templatePath} from '../../navigation';
+import {useLibraryTweaks} from '../../catalogue/controls/LibraryTweaks';
+import {navigate, readRoute, templatePath} from '../../catalogue/navigation';
 import {AspectRatio} from '@astryxdesign/core/AspectRatio';
 import {Card} from '@astryxdesign/core/Card';
 import {Divider} from '@astryxdesign/core/Divider';
@@ -79,14 +18,13 @@ import {Icon} from '@astryxdesign/core/Icon';
 import {IconButton} from '@astryxdesign/core/IconButton';
 import {Kbd} from '@astryxdesign/core/Kbd';
 import {LayoutContent} from '@astryxdesign/core/Layout';
-import {ListItem} from '@astryxdesign/core/List';
 import {
   SegmentedControl,
   SegmentedControlItem,
 } from '@astryxdesign/core/SegmentedControl';
 import {SelectableCard} from '@astryxdesign/core/SelectableCard';
 import {Selector} from '@astryxdesign/core/Selector';
-import {SideNav, SideNavItem, SideNavSection} from '@astryxdesign/core/SideNav';
+import {SideNavItem, SideNavSection} from '@astryxdesign/core/SideNav';
 import {Stack, StackItem} from '@astryxdesign/core/Stack';
 import {Switch} from '@astryxdesign/core/Switch';
 import {Heading, Text} from '@astryxdesign/core/Text';
@@ -108,7 +46,6 @@ import {
   BriefcaseIcon,
   CalendarDaysIcon,
   ChatBubbleLeftRightIcon,
-  ChevronRightIcon,
   ClockIcon,
   CodeBracketIcon,
   Cog6ToothIcon,
@@ -156,76 +93,32 @@ import {
   type CSSProperties,
   useCallback,
   useEffect,
-  useId,
   useLayoutEffect,
-  useMemo,
   useState,
-  type ComponentProps,
   type ReactNode,
   type SVGProps,
 } from 'react';
 
-/**
- * Where the hub swaps its two-column shell for the one-column phone layout.
- *
- * The SHELL's breakpoint only. Rows do not read it — they stack on the panel's
- * own width instead (`ROW_STACK`), because the two questions have different
- * answers: the pane is the dialog's width less a 260px rail, and the rail goes
- * away below this line, so the panel is ~380px at a 700px viewport and ~390px
- * at 420px. Keyed to the viewport, rows would stack hardest exactly where they
- * had just been handed the most room.
- */
 const NARROW_VIEWPORT = '(max-width: 768px), (max-height: 600px)';
 
-/** The panel column rows measure themselves against. */
 const PANEL_CONTAINER = 'settings-panel';
 
-/**
- * The ONE width at which every row on a panel goes from two columns to one.
- *
- * Deliberately one number for the whole panel rather than per-row wrapping.
- * Wrapping each row on its own contents is more precise and reads as chaos:
- * every row has a different control, so they cross over at half a dozen
- * different widths and the panel appears to come apart a line at a time as it
- * narrows. Rows that break together read as one layout changing; rows that
- * break separately read as a bug.
- *
- * 480px is where the tightest row stops fitting — a ~260px name column, a 12px
- * gutter, and the widest control on the surface. Rows with smaller controls
- * have room to spare at that width and stack anyway, which is the point.
- */
 const ROW_STACK = `@container ${PANEL_CONTAINER} (max-width: 480px)`;
 
-/** The one inset for this surface: spacing step 4 === 16px. */
 const ROW_PADDING = 4;
 
-/**
- * The one width every selector and text input in a row takes, so a single
- * control column runs down the panel instead of each control sizing to its own
- * longest label — which is what makes the column scannable rather than ragged.
- */
 const CONTROL_WIDTH = 192;
 
 const styles = stylex.create({
-  // `SideNav`'s root sets a starting width but no `flex-shrink`, so as a flex
-  // child it gives that width back to whatever the content pane demands — the
-  // rail visibly narrows as you click through panels until labels ellipsize.
   sideNav: {
     flexShrink: 0,
   },
-  // Neither `SideNav` nor `SideNavSection` sets a gap, so the only separation
-  // between two groups is each section's own block padding. The default reads
-  // as one long list rather than five groups.
   sideNavSection: {
     paddingBlock: 'var(--spacing-2)',
   },
 });
 
-/** The panel column, and the settings row that measures itself against it. */
 const row = stylex.create({
-  // The column every row asks its width question of. It is this element and
-  // not the scroll pane, because a row is as wide as the column, and the
-  // column is what a future `contentWidth` cap would narrow.
   panel: {
     containerType: 'inline-size',
     containerName: PANEL_CONTAINER,
@@ -233,22 +126,13 @@ const row = stylex.create({
   line: {
     display: 'flex',
     flexDirection: {default: 'row', [ROW_STACK]: 'column'},
-    // The one alignment that moves: centred against the control beside it,
-    // stretched to the full row above it — which is what puts a stacked control
-    // on the row's own inset, the edge the icon starts at.
     alignItems: {default: 'center', [ROW_STACK]: 'stretch'},
-    // Stacked, the control drops into the same column as `detail`, which the
-    // row already spaces at 8px — so 8px here too, and a stacked row reads as
-    // one rhythm rather than a 12px step to the control and an 8px step to its
-    // detail.
     gap: {
       default: 'var(--spacing-3)',
       [ROW_STACK]: 'var(--spacing-2)',
     },
   },
   textColumn: {
-    // Lifted once stacked: holding 420px inside a ~400px column would just be a
-    // narrower column for no reason.
     maxWidth: {default: 420, [ROW_STACK]: 'none'},
   },
   control: {
@@ -256,10 +140,7 @@ const row = stylex.create({
   },
 });
 
-/** The miniature drawn inside each theme card. */
 const preview = stylex.create({
-  // One bar of "text". Astryx has no primitive for a content placeholder at
-  // this scale — `Skeleton` is the near miss, and it animates.
   bar: {
     height: 4,
     width: '50%',
@@ -273,8 +154,6 @@ const preview = stylex.create({
     overflow: 'hidden',
     borderRadius: 'var(--radius-element)',
   },
-  // The two borderless regions of the miniature. `Theme` re-declares these
-  // tokens for the mode it is previewing, so Light stays light in a dark app.
   mutedSurface: {
     backgroundColor: 'var(--color-background-muted)',
   },
@@ -286,15 +165,6 @@ const preview = stylex.create({
   },
 });
 
-/**
- * The chosen face, as a TOKEN override rather than a `font-family` on the
- * words. Astryx's type rules resolve `var(--font-family-body)`, so
- * re-declaring the token re-points every `Text` inside the preview whatever
- * specificity those rules carry; setting `font-family` reaches only what
- * inherits it, and a preview built that way silently keeps showing the system
- * font. It rides on `style` because StyleX's `xstyle` types accept only known
- * CSS properties, and a custom property is not one.
- */
 function faceStyle(stack: string): CSSProperties {
   const style: Record<string, string> = {'--font-family-body': stack};
   return style;
@@ -314,15 +184,6 @@ type PanelId =
   | 'long-table'
   | 'long-paragraphs';
 
-/**
- * Icons are heroicons outline, and only heroicons outline.
- *
- * Not a style preference: Astryx's own semantic icons — what
- * `<Icon icon="close" />` renders — are drawn at strokeWidth 1.5 to match
- * heroicons, and this dialog uses one for its close control. lucide draws at
- * 2, so a lucide row icon puts two stroke weights in one surface. One set
- * means one weight, one optical size and one visual language down the column.
- */
 type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
 interface PanelConfig {
@@ -332,11 +193,6 @@ interface PanelConfig {
   icon: IconComponent;
 }
 
-/**
- * The one list both shells read. Groups are the navigation's sections and the
- * tab strip's order, so a panel cannot drift out of one by being added to the
- * other.
- */
 const PANEL_GROUPS: {label: string; panels: PanelConfig[]}[] = [
   {
     label: 'Account',
@@ -434,138 +290,6 @@ function panelConfig(id: PanelId): PanelConfig {
   return PANELS.find(panel => panel.id === id) ?? PANELS[0];
 }
 
-interface SearchableSetting {
-  title: string;
-  description: string;
-  panel: PanelId;
-  icon: IconComponent;
-}
-
-/**
- * The search catalog. It is a list rather than something derived from the
- * rendered rows on purpose: a setting stays findable by the words people
- * actually reach for, which are rarely the words on its label.
- */
-const SEARCHABLE_SETTINGS: SearchableSetting[] = [
-  {title: 'Long paragraphs', description: 'Trains, railway stories, and lorem ipsum', panel: 'long-paragraphs', icon: DocumentTextIcon},
-  {title: 'Long table', description: '500 sample records for testing scrolling', panel: 'long-table', icon: DocumentTextIcon},
-  {
-    title: 'Display name',
-    description: 'The name shown on your posts and comments',
-    panel: 'profile',
-    icon: UserCircleIcon,
-  },
-  {
-    title: 'Two-factor authentication',
-    description: 'Require a second step when signing in',
-    panel: 'security',
-    icon: KeyIcon,
-  },
-  {
-    title: 'Active sessions',
-    description: 'Devices currently signed in to this account',
-    panel: 'security',
-    icon: ComputerDesktopIcon,
-  },
-  {
-    title: 'Plan',
-    description: 'Your current subscription and seat count',
-    panel: 'billing',
-    icon: CreditCardIcon,
-  },
-  {
-    title: 'Color theme',
-    description: 'Light, dark, or follow the system',
-    panel: 'appearance',
-    icon: PaintBrushIcon,
-  },
-  {
-    title: 'Interface density',
-    description: 'How much breathing room rows and lists get',
-    panel: 'appearance',
-    icon: PaintBrushIcon,
-  },
-  {
-    title: 'Email notifications',
-    description: 'Mentions, comments, and the weekly digest',
-    panel: 'notifications',
-    icon: EnvelopeIcon,
-  },
-  {
-    title: 'Quiet hours',
-    description: 'Hold desktop notifications until the morning',
-    panel: 'notifications',
-    icon: ClockIcon,
-  },
-  {
-    title: 'Keyboard shortcuts',
-    description: 'Rebind a shortcut, or switch one off',
-    panel: 'shortcuts',
-    icon: CommandLineIcon,
-  },
-  {
-    title: 'Time zone',
-    description: 'Used for scheduling and timestamps',
-    panel: 'language',
-    icon: GlobeAltIcon,
-  },
-  {
-    title: 'Read receipts',
-    description: 'Let people see when you have read a message',
-    panel: 'privacy',
-    icon: ShieldCheckIcon,
-  },
-  {
-    title: 'Export my data',
-    description: 'Download everything this account holds',
-    panel: 'privacy',
-    icon: ArrowDownTrayIcon,
-  },
-  {
-    title: 'Connected apps',
-    description: 'Calendar, storage, and chat integrations',
-    panel: 'integrations',
-    icon: PuzzlePieceIcon,
-  },
-  {
-    title: 'API access',
-    description: 'Personal access tokens and webhooks',
-    panel: 'developer',
-    icon: CodeBracketIcon,
-  },
-];
-
-function settingMatchesSearch(
-  setting: SearchableSetting,
-  normalizedQuery: string,
-): boolean {
-  return (
-    setting.title.toLowerCase().includes(normalizedQuery) ||
-    setting.description.toLowerCase().includes(normalizedQuery) ||
-    panelConfig(setting.panel).label.toLowerCase().includes(normalizedQuery)
-  );
-}
-
-/* ------------------------------------------------------------------ *
- * The settings row idiom
- * ------------------------------------------------------------------ */
-
-/**
- * A filled, divided group of settings rows.
- *
- * `variant="muted"` does two jobs: it is the well the group reads as against
- * the dialog canvas, and — because Astryx draws a border on the `default`
- * variant only — it is also what removes the hairline, so the group is
- * separated once rather than twice.
- *
- * `padding={0}` because the rows carry the inset themselves. A padded Card
- * around padded rows double-pads every edge, and the rows' own padding is what
- * keeps the dividers full-bleed.
- *
- * A card has a subject heading and no description. If the group needs a second
- * sentence, put it on the row it qualifies or split the card — a reader should
- * know why these settings belong together from the heading and row names.
- */
 function SettingsCard({
   title,
   children,
@@ -578,13 +302,6 @@ function SettingsCard({
   return (
     <VStack gap={1.5}>
       {title != null && (
-        // Flush with the card's edge, NOT inset to meet the row titles inside
-        // it: the heading labels the card as an object, and lining it up with
-        // the rows would read as the first row of content instead.
-        //
-        // Typed to match `SideNavSection`'s own title — the navigation and
-        // these cards are the same idea at two scales, so a reader meets one
-        // grouping label, not two.
         <Text type="supporting" weight="semibold" color="secondary">
           {title}
         </Text>
@@ -603,18 +320,6 @@ function SettingsCard({
   );
 }
 
-/**
- * One setting: name and explanation on the left, the control on the right —
- * or, below the panel's stacking width, the control underneath and full width.
- *
- * Every row on a panel makes that switch at the same moment, on the panel's
- * own width rather than the viewport's — see `ROW_STACK`. There is deliberately
- * no per-row opt-out: a row that keeps two columns while its neighbours have
- * given up reads as a bug rather than as a decision.
- *
- * Pass the control `isLabelHidden`. This row is its visible label, and a
- * control that keeps its own prints every row's name twice.
- */
 function SettingsRow({
   title,
   titleAccessory,
@@ -624,70 +329,24 @@ function SettingsRow({
   detail,
 }: {
   title: string;
-  /**
-   * A chip that is part of the setting's NAME rather than a fact about it — a
-   * plan tier, a "beta" tag. It sits on the title's own line: the supporting
-   * line below is prose the eye reads second, so a chip parked there stops
-   * reading as part of the name.
-   */
+  
   titleAccessory?: ReactNode;
   description?: ReactNode;
-  /**
-   * REQUIRED, and required on purpose. An icon shifts its row's title 24px
-   * right, so a card where only some rows carry one has its titles on two
-   * different vertical lines — the one-content-line rule broken inside a
-   * single group, and the most visible way a settings surface stops looking
-   * designed. Optional, it drifts: a row added later quietly leaves its icon
-   * out and the column goes ragged with no error. The type is the enforcement.
-   */
+  
   icon: IconComponent;
   control?: ReactNode;
-  /**
-   * Content belonging to this setting that cannot fit beside it — a live
-   * preview, a picker of tiles. It rides INSIDE the row's own box rather than
-   * as a following sibling, because Astryx stacks take only two padding axes:
-   * a sibling would pay a second full inset and land twice as far from the
-   * control it belongs to.
-   *
-   * The row is the one inset owner, so pass the block bare and its own edge
-   * lands on the panel's content line — the line the row titles sit on. A
-   * block that pays a second inset of its own puts its contents half a step
-   * past every title above it, which is the double-padding the layout docs
-   * name as an anti-pattern.
-   */
+  
   detail?: ReactNode;
 }) {
   return (
     <VStack padding={ROW_PADDING} gap={2}>
-      {/* `Stack` with the direction in `xstyle` rather than in `direction`:
-          the switch happens inside a container query, which a prop cannot
-          express. There is no cascade fight to lose here — `Stack` spreads
-          `xstyle` LAST into its own `stylex.props`, so StyleX resolves the two
-          by property rather than by stylesheet order.
-
-          The `data-` marks are for tests: "every row on the panel stacks at
-          the same width" is the invariant this layout is FOR, and it is only
-          checkable by reading the computed direction off every line at once. */}
       <Stack xstyle={row.line} data-settings-line>
-        {/* `fill` means "take the width the control leaves", and carries the
-            flex `min-width: 0` reset that lets the text wrap instead of
-            widening the row. */}
-        <StackItem size="fill">
+          <StackItem size="fill">
           <HStack gap={2} align="start">
-            {/* 2px down, which is spacing step 0.5. The stack aligns the
-                icon's BOX to the title's box, but a glyph is optically centred
-                in its box while a cap-height sits low in its line box, so box
-                alignment leaves the icon reading high. */}
-            <VStack paddingBlockStart={0.5}>
+                  <VStack paddingBlockStart={0.5}>
               <Icon icon={icon} size="sm" color="secondary" />
             </VStack>
-            {/* Capped so a description wraps on its own terms instead of
-                against the control. `fill` hands the text every pixel the
-                control does not take, which on a switch row puts the last word
-                a hair from the thumb; the cap turns that surplus into the
-                gutter the layout reads by. Lifted once stacked — there is no
-                control beside the text, so no gutter to protect. */}
-            <VStack gap={0.5} xstyle={row.textColumn}>
+                  <VStack gap={0.5} xstyle={row.textColumn}>
               {titleAccessory == null ? (
                 <Text type="label">{title}</Text>
               ) : (
@@ -705,13 +364,6 @@ function SettingsRow({
           </HStack>
         </StackItem>
         {control != null && (
-          // The control does not shrink: a flex item shrinks by default, and a
-          // shrinking `SegmentedControl` puts its longest label on two lines
-          // rather than admitting it has run out of room. Stacked, the wrapper
-          // stretches to the row and the control keeps the `CONTROL_WIDTH` it
-          // has above the breakpoint — so the control column reads the same
-          // either way, and a control with no width of its own (a switch, a
-          // button) stays hugged to its own size.
           <VStack data-settings-control xstyle={row.control}>
             {control}
           </VStack>
@@ -721,10 +373,6 @@ function SettingsRow({
     </VStack>
   );
 }
-
-/* ------------------------------------------------------------------ *
- * Panel bodies
- * ------------------------------------------------------------------ */
 
 interface SettingsState {
   displayName: string;
@@ -1016,34 +664,8 @@ function BillingPanel({settings, update}: PanelProps) {
   );
 }
 
-/* ------------------------------------------------------------------ *
- * The theme picker: a radio group of pictures
- * ------------------------------------------------------------------ */
-
-/**
- * A miniature of the app used as a theme swatch — a title bar and a card of
- * rows, i.e. this dialog, drawn small.
- *
- * ## How a Light swatch survives inside a dark app
- *
- * It cannot be drawn with `--color-background-card` and friends. Every Astryx
- * colour ships as a `light-dark()` pair, and `light-dark()` resolves where the
- * custom property is DECLARED, not where it is used: by the time a token
- * inherits down from the theme root it is already the flat dark value, and no
- * local `color-scheme` reopens it.
- *
- * The supported answer is a nested `Theme`: it re-declares semantic tokens for
- * the mode it is drawing. A Light swatch therefore stays light in a dark app
- * with no copied colours. This template uses the bundled neutral theme—the
- * same stable composition used by the docsite and generated applications.
- */
 function ThemePreviewCanvas({mode}: {mode: 'light' | 'dark'}) {
   const canvas = (
-    // No Cards here. A Card's default variant owns a border, and nesting one
-    // inside a selected SelectableCard produced three competing outlines: the
-    // selection ring, a frame around the preview, and another around its body.
-    // These are decorative regions, not content containers, so flat token
-    // surfaces are the weaker and correct grouping primitive.
     <VStack padding={2} gap={1.5} height="100%" xstyle={preview.mutedSurface}>
       <VStack gap={1} align="center">
         <VStack xstyle={[preview.bar, preview.barWide]} />
@@ -1065,11 +687,6 @@ function ThemePreviewCanvas({mode}: {mode: 'light' | 'dark'}) {
   );
 
   return (
-    // Use the bundled theme directly rather than discovering the ambient theme
-    // through registry hooks. Template previews run against the installed
-    // package's runtime surface, which can lag this repository's source types;
-    // `Theme` + `neutralTheme` is the stable public composition the docsite and
-    // generated applications already use.
     <Theme theme={neutralTheme} mode={mode}>
       {canvas}
     </Theme>
@@ -1078,9 +695,6 @@ function ThemePreviewCanvas({mode}: {mode: 'light' | 'dark'}) {
 
 function ThemePreviewMock({scheme}: {scheme: 'light' | 'dark' | 'system'}) {
   return (
-    // One AspectRatio path for every option. System splits that same 3:2 frame
-    // into two equal regions rather than drawing two full windows on top of one
-    // another, so there are no absolute layers and no seams with stray borders.
     <AspectRatio ratio={3 / 2} xstyle={preview.inert}>
       <VStack aria-hidden="true" height="100%" xstyle={preview.clip}>
         {scheme === 'system' ? (
@@ -1116,35 +730,6 @@ const THEME_CHOICES: {
   },
 ];
 
-/**
- * The choices as pictures of what they do, the way macOS and VS Code put
- * appearance settings — a segmented control names the options, a card shows
- * them.
- *
- * `SelectableCard` is the Astryx card that carries selection: it owns the
- * accent border, the pressed semantics, the hover and the focus ring, so a
- * tile here is a picture and a name and nothing else. Keep the preview inset,
- * as this example does with `padding={2}`: the component draws its selection
- * ring as an inset shadow, underneath its children, so a full-bleed child with
- * an opaque background paints over the selected state.
- *
- * Note what it is NOT: its control is a checkbox, so three mutually exclusive
- * choices are three independent tab stops rather than one arrow-key group.
- * Single-select is enforced here instead — `onChange` only ever selects, so
- * re-picking the current theme is the no-op it should be — and the group is
- * named for a screen reader by the `radiogroup` around it. If you need the
- * roving tab stop, that is a native `<input type="radio">` group, not this.
- *
- * `RadioList` is out for a different reason: it lays a radio, a label and a
- * description on one line, and each choice here is a picture with a name under
- * it.
- *
- * Driving this from a test: click the CARD, not the checkbox. `SelectableCard`
- * puts the click handler on the card surface and keeps a visually-hidden
- * `<input type="checkbox">` for the role, name and checked state — so
- * `getByRole('checkbox').click()` aims at an element the card's own content
- * covers, and times out on a control a user can click perfectly well.
- */
 function ThemeChoiceCards({
   value,
   onChange,
@@ -1156,27 +741,18 @@ function ThemeChoiceCards({
     <Grid
       role="radiogroup"
       aria-label="Color theme"
-      // Three across wherever three fit; below that the icon and the name stop
-      // fitting the card, so the grid folds rather than drawing slivers.
       columns={{minWidth: 96, max: 3}}
       gap={2}
-      // Capped, or the tiles grow with the dialog: three stretched tracks in a
-      // 1120px shell make a ~250px picture of a window per option, which is a
-      // hero image rather than a control. The cap holds them at a size the row
-      // can carry, and the grid still folds to two-then-one below it.
       maxWidth={480}>
       {THEME_CHOICES.map(choice => {
         const isSelected = choice.value === value;
         return (
           <SelectableCard
             key={choice.value}
-            // Pinned here rather than taken from the card's contents, so the
-            // accessible name cannot drift with the picture.
             label={choice.label}
             isSelected={isSelected}
             padding={2}
             onChange={() => {
-              // Select-only: a card cannot deselect itself into "no theme".
               if (!isSelected) {
                 onChange(choice.value);
               }
@@ -1215,28 +791,9 @@ function interfaceFont(value: string) {
   );
 }
 
-/**
- * The selector-plus-preview pattern: a control that changes how something
- * READS gets a sample of the thing itself, not a description of it.
- *
- * The face is applied by re-declaring `--font-family-body` on the surface, not
- * by setting `font-family` on the words. Astryx's own type rules resolve that
- * token, so overriding it re-points every `Text` inside; setting `font-family`
- * instead reaches only what inherits it, and a preview built that way silently
- * keeps showing the system font whatever the selector says.
- *
- * It sits on the dialog's canvas inside the card's muted fill, so it reads as a
- * window onto another surface rather than as more of the settings form.
- */
 function FontPreview({value}: {value: string}) {
   const font = interfaceFont(value);
   return (
-    // A `default` Card — the white one — inside the group's muted fill. The
-    // sample is a window onto another surface, and the two variants are what
-    // says so: muted inside muted has no contrast and reads as more of the
-    // settings form. The card's own EDGE sits on the panel's content line, the
-    // same line the theme tiles' edges sit on, so the previews in this panel
-    // line up with each other and with the row titles above them.
     <Card padding={3} width="100%">
       <VStack gap={1} style={faceStyle(font.stack)}>
         <Text type="label">Weekly digest</Text>
@@ -1251,8 +808,6 @@ function FontPreview({value}: {value: string}) {
 function AppearancePanel({settings, update}: PanelProps) {
   return (
     <VStack gap={5}>
-      {/* Unlabelled on purpose: a "Theme" heading under an "Appearance" title
-          says the same word twice. */}
       <SettingsCard>
         <SettingsRow
           title="Color theme"
@@ -1441,12 +996,8 @@ function NotificationsPanel({settings, update}: PanelProps) {
   );
 }
 
-/* ------------------------------------------------------------------ *
- * Keyboard shortcuts
- * ------------------------------------------------------------------ */
-
 interface Chord {
-  /** The platform's command key — ⌘ on a Mac, Ctrl elsewhere. `Kbd` decides. */
+  
   mod?: boolean;
   shift?: boolean;
   alt?: boolean;
@@ -1499,14 +1050,6 @@ const SHORTCUTS: ShortcutDef[] = [
   },
 ];
 
-/**
- * `KeyboardEvent.key` names `Kbd` does not already understand.
- *
- * `Kbd` lowercases each part and falls back to `key.toUpperCase()`, so "k",
- * "F2" and "?" need no entry. These do: the arrows have short names in `Kbd`'s
- * own map, and "+" is the character it SPLITS `keys` on — a literal plus has to
- * take the "plus" escape or the chord renders as two blank keycaps.
- */
 const KBD_KEY_NAMES: Record<string, string> = {
   ArrowUp: 'up',
   ArrowDown: 'down',
@@ -1516,14 +1059,6 @@ const KBD_KEY_NAMES: Record<string, string> = {
   ' ': 'space',
 };
 
-/**
- * A chord as `Kbd`'s `keys` string — the whole thing in one component,
- * "+"-separated, in modifier order so the chip reads left to right.
- *
- * `mod` is handed over UNRESOLVED, because resolving it is `Kbd`'s job and it
- * does that through `useSyncExternalStore` — so unlike a hand-rolled
- * `navigator.platform` check it agrees with its own server render.
- */
 function chordKeys(chord: Chord): string {
   const parts: string[] = [];
   if (chord.mod) {
@@ -1539,7 +1074,6 @@ function chordKeys(chord: Chord): string {
   return parts.join('+');
 }
 
-/** The chord as words, for the accessible name behind the keycaps. */
 function chordLabel(chord: Chord): string {
   const parts: string[] = [];
   if (chord.mod) {
@@ -1555,19 +1089,8 @@ function chordLabel(chord: Chord): string {
   return parts.join(' + ');
 }
 
-/** Wide enough to hold a chord like ⌘⇧F without the row jumping. */
 const RECORDER_WIDTH = 96;
 
-/**
- * The rebinding capture: an input that swallows every keystroke and reports the
- * chord instead of typing it.
- *
- * It stays an `<input>` on purpose. Shortcut dispatchers skip events whose
- * target is editable, so a recorder built out of a `div` with a key handler
- * fires the very shortcut it is trying to record. `TextInput` has no
- * `isReadOnly` equivalent that keeps focus, so the value is pinned to `""` and
- * every keydown is `preventDefault`ed — which is what keeps it empty.
- */
 function ShortcutRecorder({
   onCapture,
   onCancel,
@@ -1584,7 +1107,6 @@ function ShortcutRecorder({
         onCancel();
         return;
       }
-      // A modifier alone is not a chord — wait for the key it modifies.
       if (['Control', 'Meta', 'Alt', 'Shift'].includes(event.key)) {
         return;
       }
@@ -1601,8 +1123,6 @@ function ShortcutRecorder({
 
   return (
     <TextInput
-      // A real label rather than leaning on the placeholder: the placeholder is
-      // not an accessible name, and this control has no visible one of its own.
       label="Type a shortcut"
       isLabelHidden
       placeholder="Type it"
@@ -1662,15 +1182,7 @@ function ShortcutRow({
             />
           ) : (
             <Button
-              // `Kbd` goes in as CHILDREN and `label` stays the words: Astryx
-              // makes `label` the `aria-label` as soon as there are children,
-              // so the keycaps are what you see and the chord is what a screen
-              // reader says.
               label={isEnabled ? chordLabel(chord) : 'No shortcut'}
-              // Ghost, not secondary: `Kbd` fills its own keycaps from the same
-              // neutral token a secondary button fills with, so a filled button
-              // around them is a chip inside a chip in one flat grey. The
-              // keycaps are the chip; the button is the hit target.
               variant="ghost"
               size="sm"
               isDisabled={!isEnabled}
@@ -1698,14 +1210,6 @@ function ShortcutRow({
   );
 }
 
-/**
- * Every shortcut on one card: the binding as keycaps you can click to rebind,
- * and a switch to turn it off entirely.
- *
- * Overrides are held as a sparse map rather than as a copy of the list, so
- * "custom" is a fact about the map (the key is present) rather than a
- * comparison against defaults that has to be kept honest.
- */
 function ShortcutsPanel() {
   const [overrides, setOverrides] = useState<Record<string, Chord | false>>({});
 
@@ -1734,9 +1238,6 @@ function ShortcutsPanel() {
             def={def}
             chord={isEnabled ? resolved : def.binding}
             isEnabled={isEnabled}
-            // A disabled shortcut is an override too, but its switch already
-            // restores the default — a reset button beside it would be a
-            // second control for the same act.
             isCustom={overrides[def.id] != null && overrides[def.id] !== false}
             onRebind={chord => {
               setOverride(def.id, chord);
@@ -1755,9 +1256,6 @@ function ShortcutsPanel() {
         );
       })}
       {hasOverrides && (
-        // A row of its own at the foot of the group, so it takes the card's
-        // divider above it like any other row — the action belongs to the whole
-        // group rather than to the last shortcut in it.
         <VStack padding={ROW_PADDING}>
           <HStack>
             <Button
@@ -1835,10 +1333,6 @@ function LanguagePanel({settings, update}: PanelProps) {
             value={settings.timezone}
             onChange={value => update('timezone', value)}
             options={[
-              // Zone first, offset second. Led by the offset, every option
-              // starts with the same five characters and the list can only be
-              // read to its end — and the longest of them then truncates
-              // inside the control column.
               {value: 'PT', label: 'Pacific (GMT-08:00)'},
               {value: 'MT', label: 'Mountain (GMT-07:00)'},
               {value: 'CT', label: 'Central (GMT-06:00)'},
@@ -2038,10 +1532,6 @@ function DeveloperPanel({settings, update}: PanelProps) {
   );
 }
 
-/**
- * The body for a panel. Every entry is reachable from the same registry, so a
- * panel cannot be dropped from the hub by being forgotten here.
- */
 function SettingsPanelBody({
   panel,
   settings,
@@ -2079,219 +1569,6 @@ function SettingsPanelBody({
   }
 }
 
-/* ------------------------------------------------------------------ *
- * Search
- * ------------------------------------------------------------------ */
-
-/**
- * The query, the filtered results, and the keyboard traversal that drives
- * `aria-activedescendant`. Split out of the dialog so the hub reads as wiring.
- */
-function useSettingsSearch(onSelectPanel: (panel: PanelId) => void) {
-  const [query, setQuery] = useState('');
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  const normalized = query.trim().toLowerCase();
-  const isActive = normalized.length > 0;
-
-  const results = useMemo(
-    () =>
-      isActive
-        ? SEARCHABLE_SETTINGS.filter(setting =>
-            settingMatchesSearch(setting, normalized),
-          )
-        : [],
-    [isActive, normalized],
-  );
-
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [normalized]);
-
-  const onKeyDown: ComponentProps<'input'>['onKeyDown'] = event => {
-    if (event.key === 'Escape' && query) {
-      // Clear before Escape reaches the Dialog, so the first press empties the
-      // box and only the second closes the hub.
-      event.preventDefault();
-      setQuery('');
-      return;
-    }
-    if (!isActive || results.length === 0) {
-      return;
-    }
-    if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      setActiveIndex(index => (index + 1) % results.length);
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      setActiveIndex(index => (index - 1 + results.length) % results.length);
-    } else if (event.key === 'Enter') {
-      event.preventDefault();
-      const result = results[activeIndex];
-      if (result) {
-        onSelectPanel(result.panel);
-      }
-    }
-  };
-
-  return {
-    query,
-    setQuery,
-    isActive,
-    results,
-    activeIndex,
-    setActiveIndex,
-    onKeyDown,
-    activeResultId:
-      isActive && results.length > 0
-        ? `settings-search-result-${activeIndex}`
-        : undefined,
-  };
-}
-
-type SettingsSearch = ReturnType<typeof useSettingsSearch>;
-
-function SettingsSearchResults({
-  results,
-  activeIndex,
-  onActiveIndexChange,
-  onSelect,
-}: {
-  results: SearchableSetting[];
-  activeIndex: number;
-  onActiveIndexChange: (index: number) => void;
-  onSelect: (setting: SearchableSetting) => void;
-}) {
-  if (results.length === 0) {
-    return (
-      <VStack id="settings-search-results" gap={0.5} padding={2}>
-        <Text type="label">No settings found</Text>
-        <Text type="supporting" color="secondary">
-          Try theme, notifications, or sessions.
-        </Text>
-      </VStack>
-    );
-  }
-
-  // `ListItem` rather than `SideNavItem`: these are listbox options, not
-  // navigation, and a result has to say which panel it lives on — which
-  // `SideNavItem` has no slot for.
-  //
-  // The container is a plain `VStack as="ul"` and NOT `List`, which destructures
-  // a fixed prop set and never spreads the rest: `id`, `role="listbox"` and
-  // `aria-label` would vanish with no type error and no runtime warning, and
-  // the input's `aria-controls` would point at nothing.
-  return (
-    <VStack
-      as="ul"
-      gap={0}
-      id="settings-search-results"
-      role="listbox"
-      aria-label="Search results"
-      isScrollable>
-      {results.map((setting, index) => (
-        <ListItem
-          key={`${setting.panel}-${setting.title}`}
-          id={`settings-search-result-${index}`}
-          role="option"
-          aria-selected={index === activeIndex}
-          label={setting.title}
-          description={`${panelConfig(setting.panel).label} · ${
-            setting.description
-          }`}
-          startContent={
-            <Icon icon={setting.icon} size="sm" color="secondary" />
-          }
-          endContent={
-            <Icon icon={ChevronRightIcon} size="sm" color="secondary" />
-          }
-          isSelected={index === activeIndex}
-          onMouseEnter={() => onActiveIndexChange(index)}
-          onClick={() => onSelect(setting)}
-        />
-      ))}
-    </VStack>
-  );
-}
-
-/**
- * The search box, shared by both shells. `hasClear` gives the clear button and
- * its live status for free; only the RESULTS list is hand-built.
- */
-function SettingsSearchInput({search}: {search: SettingsSearch}) {
-  return (
-    <TextInput
-      label="Search settings"
-      isLabelHidden
-      placeholder="Search settings"
-      size="sm"
-      // Search is a region control, not a settings-row control. The row fields
-      // deliberately share `CONTROL_WIDTH`; applying that same 192px budget
-      // here left a dead strip in SideNav's wider `topContent` region and made
-      // the search look detached from the navigation it filters.
-      width="100%"
-      hasClear
-      // The bare component, NOT `<Icon icon={...} />`: `TextInput` tints an icon
-      // it renders itself, and returns an already-rendered element verbatim —
-      // which leaves the magnifier a step darker than the placeholder beside it.
-      startIcon={MagnifyingGlassIcon}
-      role="combobox"
-      aria-autocomplete="list"
-      aria-controls="settings-search-results"
-      aria-expanded={search.isActive ? search.results.length > 0 : false}
-      aria-activedescendant={search.activeResultId}
-      value={search.query}
-      onChange={search.setQuery}
-      onKeyDown={search.onKeyDown}
-    />
-  );
-}
-
-/* ------------------------------------------------------------------ *
- * Shells
- * ------------------------------------------------------------------ */
-
-/**
- * The whole left column: title, search box, and either results or the nav.
- * Desktop only — phone width renders `SettingsMobileShell` instead, so there is
- * deliberately no collapsed state to configure here.
- */
-function SettingsSideNav({
-  titleId,
-  search,
-  activePanel,
-  onSelectPanel,
-}: {
-  titleId: string;
-  search: SettingsSearch;
-  activePanel: PanelId;
-  onSelectPanel: (panel: PanelId) => void;
-}) {
-  return (
-    <SideNav
-      aria-label="Settings sections"
-      className="settings-fixed-sidebar"
-      xstyle={styles.sideNav}
-      // Hand-composed rather than `SideNavHeading`, whose `heading` is typed
-      // `string` and pinned to the large text size — a step above heading-4,
-      // with no prop to reach the heading scale. The inset and row height here
-      // reproduce `SideNavHeading`'s own, so the title stays aligned with the
-      // nav labels below it.
-      header={
-        <HStack gap={2} align="center" paddingInline={2} minHeight={32}>
-          {/* Also the dialog's accessible name (`aria-labelledby`), so the
-              painted title and the announced one cannot drift apart. */}
-          <Heading level={4} id={titleId}>
-            Settings
-          </Heading>
-        </HStack>
-      }
-      topContent={<SettingsSearchInput search={search} />}>
-      <SettingsNavigation activePanel={activePanel} onSelectPanel={onSelectPanel} />
-    </SideNav>
-  );
-}
-
 function SettingsNavigation({activePanel, onSelectPanel}: {activePanel: PanelId; onSelectPanel: (panel: PanelId) => void}) {
   const {extraItems} = useLibraryTweaks();
   return <>{
@@ -2301,16 +1578,9 @@ function SettingsNavigation({activePanel, onSelectPanel}: {activePanel: PanelId;
             title={group.label}
             xstyle={styles.sideNavSection}>
             {group.panels.map(panel => (
-              // Single-line by construction: `SideNavItem` has no description.
-              // The same text is the content pane's subtitle, so nothing leaves
-              // the surface.
               <SideNavItem
                 key={panel.id}
                 label={panel.label}
-                // Pre-rendered, not `icon={panel.icon}`: `SideNavItem` tints an
-                // icon it renders itself `secondary` unless the item is
-                // selected, leaving every unselected glyph a step dimmer than
-                // its own label.
                 icon={<Icon icon={panel.icon} size="sm" color="primary" />}
                 isSelected={panel.id === activePanel}
                 onClick={() => onSelectPanel(panel.id)}
@@ -2325,7 +1595,6 @@ function SettingsNavigation({activePanel, onSelectPanel}: {activePanel: PanelId;
       </>;
 }
 
-/** The panel's own heading — the content title, in both shells. */
 function SettingsPanelHeading({panel}: {panel: PanelId}) {
   const config = panelConfig(panel);
   return (
@@ -2338,9 +1607,6 @@ function SettingsPanelHeading({panel}: {panel: PanelId}) {
   );
 }
 
-/**
- * The main content remains in document flow so the browser owns overscroll.
- */
 function SettingsContentPane({
   panel,
   settings,
@@ -2352,9 +1618,6 @@ function SettingsContentPane({
 } & PanelProps) {
   return (
     <LayoutContent className={isMobile ? "settings-content-pane" : "settings-desktop-panel"} isScrollable={false} padding={4}>
-      {/* The panel column: `@container`, so every row inside it stacks on the
-          width the column actually got rather than on the viewport's — see
-          `ROW_STACK`. */}
       <VStack className="settings-panel-body" gap={4} xstyle={row.panel}>
         {panel !== 'long-paragraphs' && <HStack gap={2} align="start">
           <StackItem size="fill">
@@ -2367,12 +1630,13 @@ function SettingsContentPane({
   );
 }
 
-export function Sidebar() {
+type Props = Pick<SidebarLayoutProps, 'mobileNavigationSide' | 'onMobileNavigationSideChange' | 'mobileNavigationOffset' | 'mobileNavigationArtwork'>;
+
+export function SettingsExample(props: Props) {
   const [activePanel, setActivePanel] = useState<PanelId>(() => {
     const requested = readRoute().pageId;
     return PANELS.find(panel => panel.id === requested)?.id ?? DEFAULT_PANEL;
   });
-  const [mobileOpen, setMobileOpen] = useState(false);
   useLayoutEffect(() => {
     window.scrollTo({top: 0, left: 0, behavior: 'instant'});
   }, [activePanel]);
@@ -2380,80 +1644,39 @@ export function Sidebar() {
     const syncPanel = () => {
       const requested = readRoute().pageId;
       setActivePanel(PANELS.find(panel => panel.id === requested)?.id ?? DEFAULT_PANEL);
-      setMobileOpen(false);
     };
     window.addEventListener('popstate', syncPanel);
     return () => window.removeEventListener('popstate', syncPanel);
   }, []);
   const [settings, setSettings] = useState<SettingsState>(INITIAL_SETTINGS);
-  const titleId = useId();
-
-  // Mobile and short viewports use a right-hand drawer with a thumb trigger.
   const isNarrow = useMediaQuery(NARROW_VIEWPORT);
 
   const update: UpdateSetting = (key, value) => {
     setSettings(current => ({...current, [key]: value}));
   };
 
-  const search = useSettingsSearch(panel => {
-    selectPanel(panel);
-  });
-
   const selectPanel = (panel: PanelId) => {
     setActivePanel(panel);
-    search.setQuery('');
-    setMobileOpen(false);
     const route = readRoute();
     navigate(templatePath('sidebar', route.clean, panel));
   };
 
-  return (
-    <Theme theme={neutralTheme} mode="light">
-      <div className="astryx-settings-page" data-panel={activePanel}>
-          {isNarrow ? (
-            <SettingsMobileShell
-              titleId={titleId}
-              isOpen={mobileOpen}
-              onOpenChange={setMobileOpen}
-              navigation={<SettingsNavigation activePanel={activePanel} onSelectPanel={selectPanel} />}
-              search={<SettingsSearchInput search={search} />}>
-              {search.isActive ? (
-                <LayoutContent className="settings-content-pane" isScrollable={false} padding={4}>
-                  <SettingsSearchResults results={search.results} activeIndex={search.activeIndex} onActiveIndexChange={search.setActiveIndex} onSelect={setting => selectPanel(setting.panel)} />
-                </LayoutContent>
-              ) : <SettingsContentPane key={activePanel} panel={activePanel} settings={settings} update={update} isMobile />}
-            </SettingsMobileShell>
-          ) : (
-            <div className="settings-desktop-shell">
-              <aside className="settings-sidebar-rail">
-              <SettingsSideNav
-                titleId={titleId}
-                search={search}
-                activePanel={activePanel}
-                onSelectPanel={selectPanel}
-              />
-              </aside>
-              <main className="settings-document-main" role="main" aria-labelledby={titleId}>
-              {search.isActive ? (
-                <LayoutContent className="settings-desktop-panel" isScrollable={false} padding={4}>
-                  <SettingsSearchResults
-                    results={search.results}
-                    activeIndex={search.activeIndex}
-                    onActiveIndexChange={search.setActiveIndex}
-                    onSelect={setting => selectPanel(setting.panel)}
-                  />
-                </LayoutContent>
-              ) : (
-                <SettingsContentPane
-                  panel={activePanel}
-                  settings={settings}
-                  update={update}
-                />
-              )}
-              </main>
-            </div>
-          )}
-      </div>
-    </Theme>
-  );
+  const header = <>
+    <UserMenu
+      user={{name: settings.displayName, description: 'Personal account'}}
+      compact={isNarrow}
+      items={[
+        {id: 'profile', label: 'Profile', icon: UserCircleIcon, onClick: () => selectPanel('profile')},
+        {id: 'appearance', label: 'Appearance', icon: PaintBrushIcon, onClick: () => selectPanel('appearance')},
+        {id: 'security', label: 'Login & security', icon: LockClosedIcon, onClick: () => selectPanel('security')},
+      ]}
+    />
+  </>;
+
+  return <SidebarLayout {...props} title="Da Facility" headerActions={header}
+    navigationTitle="Settings" navigationLabel="Settings navigation" sectionsLabel="Settings sections"
+    navigation={<SettingsNavigation activePanel={activePanel} onSelectPanel={selectPanel} />}
+    navigationKey={activePanel} background={activePanel === 'long-paragraphs' ? '#faf8f2' : '#fff'}>
+    <SettingsContentPane panel={activePanel} settings={settings} update={update} isMobile={isNarrow} />
+  </SidebarLayout>;
 }

@@ -13,7 +13,7 @@ try {
     const pane = page.locator('html');
     await page.getByTestId('record-DF-0500').waitFor({state: 'attached'});
     if (name === 'desktop') {
-      assert(await page.locator('.settings-fixed-sidebar').evaluate(el => el.dispatchEvent(new WheelEvent('wheel', {deltaY: 100, bubbles: true, cancelable: true}))), 'Wheel input must remain native and uncancelled');
+      assert(await page.locator('.sidebar-layout__navigation').evaluate(el => el.dispatchEvent(new WheelEvent('wheel', {deltaY: 100, bubbles: true, cancelable: true}))), 'Wheel input must remain native and uncancelled');
       assert(await pane.evaluate(el => el.scrollTop === 0), 'Synthetic wheel events must not manually move content');
       await page.mouse.move(120, 350);
       await page.mouse.wheel(0, 600);
@@ -22,14 +22,14 @@ try {
       assert(await pane.evaluate(el => el.scrollTop === 0), 'Short sidebar must not move main content');
       await page.mouse.wheel(0, 600);
       await page.waitForFunction(() => document.querySelector('html')!.scrollTop >= 600);
-      assert(await page.locator('.settings-fixed-sidebar > div:last-child').evaluate(el => el.scrollTop === 0), 'Fitting sidebar must remain still');
+      assert(await page.locator('.sidebar-layout__navigation > div:last-child').evaluate(el => el.scrollTop === 0), 'Fitting sidebar must remain still');
       await page.mouse.move(800, 55);
       await page.mouse.wheel(0, 400);
       await page.waitForFunction(() => document.querySelector('html')!.scrollTop >= 1000);
       await pane.evaluate(el => { el.scrollTop = el.scrollHeight; });
-      assert(await page.locator('.settings-fixed-sidebar').evaluate(el => Math.abs(el.getBoundingClientRect().top) < 1), 'Sidebar stays fixed at the bottom of the content');
+      assert(await page.locator('.sidebar-layout__navigation').evaluate(el => Math.abs(el.getBoundingClientRect().top) < 1), 'Sidebar stays fixed at the bottom of the content');
       await pane.evaluate(el => { el.scrollTop = 0; });
-      assert(await page.locator('.settings-fixed-sidebar').evaluate(el => el.getBoundingClientRect().top === 0), 'Navigation stays at the viewport edge');
+      assert(await page.locator('.sidebar-layout__navigation').evaluate(el => el.getBoundingClientRect().top === 0), 'Navigation stays at the viewport edge');
       assert(await pane.evaluate(el => getComputedStyle(el).overscrollBehaviorY === 'contain'), 'Main pane should allow native boundary effects without chaining');
     }
     await page.getByRole('button', {name: 'Open UI library', exact: true}).click();
@@ -40,9 +40,9 @@ try {
     await page.keyboard.press('Escape');
     if (name === 'mobile') {
       await page.getByRole('button', {name: 'Open settings navigation'}).click();
-      await page.waitForFunction(() => Math.abs(document.querySelector('.settings-mobile-drawer > div')!.getBoundingClientRect().right - innerWidth) < 1);
+      await page.waitForFunction(() => Math.abs(document.querySelector('.mobile-sidebar__drawer > div')!.getBoundingClientRect().right - innerWidth) < 1);
     }
-    const nav = page.locator(name === 'desktop' ? '.settings-fixed-sidebar > div:last-child' : '.settings-mobile-sections');
+    const nav = page.locator(name === 'desktop' ? '.sidebar-layout__navigation > div:last-child' : '.mobile-sidebar__sections');
     assert(await nav.getByTestId(/extra-nav-/).count() === 100, 'Exactly 100 sample destinations');
     assert(await nav.evaluate(el => el.scrollHeight > el.clientHeight), 'Expanded navigation must overflow');
     const contentBefore = await pane.evaluate(el => el.scrollTop);
@@ -50,7 +50,7 @@ try {
     assert(box, 'Navigation must be visible');
     await page.mouse.move(box.x + 80, box.y + 100);
     await page.mouse.wheel(0, 700);
-    await page.waitForFunction(selector => document.querySelector(selector)!.scrollTop > 0, name === 'desktop' ? '.settings-fixed-sidebar > div:last-child' : '.settings-mobile-sections');
+    await page.waitForFunction(selector => document.querySelector(selector)!.scrollTop > 0, name === 'desktop' ? '.sidebar-layout__navigation > div:last-child' : '.mobile-sidebar__sections');
     assert(await pane.evaluate(el => el.scrollTop) === contentBefore, 'Overflowing sidebar should scroll independently');
     await nav.evaluate(el => { el.scrollTop = el.scrollHeight; });
     await page.mouse.wheel(0, 700);
@@ -83,7 +83,7 @@ try {
     await page.getByTestId('paragraphs-end').scrollIntoViewIfNeeded();
     await page.screenshot({path: `artifacts/long-paragraphs-end-${name}.png`});
     assert(await page.evaluate(() => scrollY > 0), 'Paragraphs should scroll the document');
-    await page.locator('html').evaluate(el => el.style.setProperty('--settings-scroll-background', 'rgb(220, 230, 240)'));
+    await page.locator('html').evaluate(el => el.style.setProperty('--app-overscroll-background', 'rgb(220, 230, 240)'));
     assert(await pane.evaluate(el => getComputedStyle(el).backgroundColor === 'rgb(220, 230, 240)'), 'Scroll background must be independently configurable');
     assert(errors.length === 0, errors.join('\n'));
     await context.close();

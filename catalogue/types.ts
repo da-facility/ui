@@ -13,6 +13,5 @@ export type CatalogueItem = {
     desktop: {width: number; height: number; deviceScaleFactor: number};
     mobile: {width: number; height: number; deviceScaleFactor: number};
   };
-  styles: string[];
   Component: ComponentType;
 };

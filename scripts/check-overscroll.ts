@@ -29,7 +29,7 @@ try {
       await page.getByRole('heading', {name: route === 'long-table' ? 'Long table' : 'Long paragraphs', exact: true}).waitFor();
       assert(await page.evaluate(() => document.documentElement.scrollHeight > innerHeight * 5), 'Document must own the long scroll range');
       assert(await page.locator('.settings-desktop-panel,.settings-content-pane').evaluate(el => getComputedStyle(el).overflowY === 'visible'), 'Main must not create a nested scroller');
-      const fixed = page.locator(name === 'desktop' ? '.settings-sidebar-rail' : '.settings-mobile-header');
+      const fixed = page.locator(name === 'desktop' ? '.sidebar-layout__rail' : '.mobile-sidebar__header');
       assert(await fixed.evaluate(el => getComputedStyle(el).position === 'fixed'), 'Navigation must be viewport-fixed');
       for (const edge of ['top', 'bottom']) {
         await page.evaluate(edge => window.scrollTo({top: edge === 'top' ? 0 : document.documentElement.scrollHeight, behavior: 'instant'}), edge);
@@ -39,9 +39,9 @@ try {
         if (nativeMac) {
           // A contrasting canvas makes the compositor's boundary displacement
           // measurable in pixels. It changes no geometry or input handling.
-          await page.locator('html').evaluate(el => el.style.setProperty('--settings-scroll-background', 'rgb(255, 0, 255)'));
+          await page.locator('html').evaluate(el => el.style.setProperty('--app-overscroll-background', 'rgb(255, 0, 255)'));
           const x = name === 'desktop' ? 280 : 12;
-          const y = edge === 'bottom' ? viewport.height - 4 : name === 'desktop' ? 4 : Math.ceil((await fixed.boundingBox())!.height) + 4;
+          const y = edge === 'bottom' ? viewport.height - 4 : name === 'desktop' ? 68 : Math.ceil((await fixed.boundingBox())!.height) + 4;
           const before = await page.screenshot();
           assert(await pixel(page, before, x, y) !== '255,0,255', 'Canvas should be covered at rest');
           // Unlike mouse.wheel, this sends explicit began/changed/ended phases.
@@ -56,9 +56,23 @@ try {
           await page.waitForTimeout(900);
           assert(await pixel(page, await page.screenshot(), x, y) !== '255,0,255', 'Native bounce must settle back over the canvas');
           assert(await page.evaluate(() => scrollY) === initialScroll, 'Bounce must settle at the original boundary');
-          await page.locator('html').evaluate(el => el.style.removeProperty('--settings-scroll-background'));
+          await page.locator('html').evaluate(el => el.style.removeProperty('--app-overscroll-background'));
         }
       }
+    }
+    await page.goto(`${base}/sidebar/integrations`);
+    await page.getByRole('heading', {name: 'Connected apps', exact: true}).waitFor();
+    await page.waitForFunction(() => getComputedStyle(document.documentElement).overscrollBehaviorY === 'none');
+    if (nativeMac) {
+      await page.locator('html').evaluate(el => el.style.setProperty('--app-overscroll-background', 'rgb(255, 0, 255)'));
+      const before = await page.screenshot();
+      assert(await pixel(page, before, name === 'desktop' ? 280 : 12, viewport.height - 4) !== '255,0,255', 'Short content must cover the canvas to the bottom at rest');
+      const gesture = session.send('Input.synthesizeScrollGesture', {x: name === 'desktop' ? 1000 : 200, y: 300, yDistance: 1500, speed: 1000, gestureSourceType: 'mouse', preventFling: true});
+      await page.waitForTimeout(600);
+      const held = await page.screenshot({path: `artifacts/native-no-bounce-${name}.png`});
+      await gesture;
+      assert(await pixel(page, held, name === 'desktop' ? 280 : 12, 68) !== '255,0,255', 'A fitting page must not bounce');
+      assert(await page.evaluate(() => scrollY === 0), 'A fitting page must stay still');
     }
     await page.goto(`${base}/login-split`);
     await page.getByRole('heading', {name: 'Welcome back'}).waitFor();

@@ -1,5 +1,10 @@
 # Repository Instructions
 
+## Code Quality
+
+- The main goal of this repository is to have high-quality components, layouts and templates.
+- To achive this the exportable components must be written to prioritize simplicity of import, and code readability.
+
 ## Screenshot Coverage
 
 - Whenever a screenshot is requested, captured, or used for visual verification, capture and review both a desktop and a mobile variant before considering the work complete.

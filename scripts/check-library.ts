@@ -94,12 +94,8 @@ try {
     await selectSection('Profile');
     assert(await displayName.inputValue() === 'Local preview', 'Settings should survive panel navigation');
     assert(!(await localTime.isChecked()), 'Switch should retain its state');
-    const settingsSearch = page.getByRole('combobox', {name: 'Search settings', exact: true});
-    await settingsSearch.fill('quiet');
-    await page.getByRole('option', {name: /Quiet hours/}).waitFor();
-    await settingsSearch.press('ArrowDown');
-    await settingsSearch.press('Enter');
-    await page.getByRole('heading', {name: 'Notifications', exact: true}).waitFor();
+    assert(await page.getByRole('combobox', {name: 'Search settings', exact: true}).count() === 0, 'Sidebar search has been removed');
+    await selectSection('Notifications');
     for (const label of ['Login & security', 'Billing', 'Keyboard shortcuts', 'Language & region', 'Privacy', 'Connected apps', 'Long paragraphs', 'Developer']) {
       await selectSection(label);
       await page.getByRole('heading', {name: label, exact: true}).waitFor();
@@ -114,13 +110,13 @@ try {
     assert(await pane.evaluate((element) => element.scrollHeight > element.clientHeight * 10), 'Long table should force vertical scrolling');
     await page.getByTestId('record-DF-0500').scrollIntoViewIfNeeded();
     assert(await pane.evaluate((element) => element.scrollTop > 10000), 'Last table row must be reachable in the content pane');
-    assert(await page.locator(name === 'desktop' ? '.settings-fixed-sidebar' : '.settings-mobile-header').evaluate(el => el.getBoundingClientRect().top === 0), 'Navigation should stay fixed while the document scrolls');
+    assert(await page.locator(name === 'desktop' ? '.sidebar-layout__navigation' : '.mobile-sidebar__header').evaluate(el => el.getBoundingClientRect().top === 0), 'Navigation should stay fixed while the document scrolls');
     if (name === 'mobile') {
       const scrollBefore = await pane.evaluate((element) => element.scrollTop);
       await page.getByRole('button', {name: 'Open settings navigation'}).click();
       await page.getByRole('dialog', {name: 'Settings navigation'}).waitFor();
       await page.waitForFunction(() => {
-        const drawer = document.querySelector('.settings-mobile-drawer > div')?.getBoundingClientRect();
+        const drawer = document.querySelector('.mobile-sidebar__drawer > div')?.getBoundingClientRect();
         return drawer && Math.abs(drawer.right - innerWidth) < 1;
       });
       await page.screenshot({path: `${output}sidebar-navigation-${name}.png`});
@@ -151,13 +147,13 @@ try {
     await page.keyboard.press('Escape');
     await page.getByRole('button', {name: 'Open settings navigation'}).click();
     await page.waitForFunction(() => {
-      const drawer = document.querySelector('.settings-mobile-drawer > div')?.getBoundingClientRect();
+      const drawer = document.querySelector('.mobile-sidebar__drawer > div')?.getBoundingClientRect();
       return drawer && Math.abs(drawer.right - innerWidth) < 1;
     });
-    assert(await navigation.getByRole('button').evaluateAll((buttons) => buttons.every((button) => {
-      const box = button.getBoundingClientRect();
-      return box.top >= 0 && box.bottom <= innerHeight && box.left >= 0 && box.right <= innerWidth;
-    })), 'Every navigation destination should fit on a short screen');
+    assert(await navigation.getByRole('button').evaluateAll(buttons => buttons.every(button => button.getBoundingClientRect().height >= 44)), 'Navigation must keep full touch targets on short screens');
+    await navigation.getByRole('button', {name: 'Developer', exact: true}).scrollIntoViewIfNeeded();
+    await navigation.getByRole('button', {name: 'Developer', exact: true}).click();
+    await page.getByRole('dialog', {name: 'Settings navigation'}).waitFor({state: 'hidden'});
     await page.goto(`${base}/render/sidebar`);
     await page.getByRole('heading', {name: 'Profile', exact: true}).waitFor();
     assert(await page.locator('.library-menu').count() === 0, 'Clean render must omit menu');
