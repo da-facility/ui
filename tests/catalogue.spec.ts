@@ -89,3 +89,18 @@ test('the clean view shows the example alone', async ({page}) => {
   await page.goto('/render/nothing-here');
   await expect(page.getByText('No example called “nothing-here”.')).toBeVisible();
 });
+
+test('the menu stays anchored while a mobile toolbar resizes the viewport', async ({page}) => {
+  await page.goto('/sidebar/long-table');
+  const viewport = page.viewportSize()!;
+  const gapBelow = () => page.evaluate(() => innerHeight - document.querySelector('.catalogue-menu')!.getBoundingClientRect().bottom);
+  expect(await gapBelow(), 'docked bottom-right by default').toBe(12);
+  expect(await menu(page).evaluate(bar => [bar.style.top, bar.style.bottom !== '']), 'positioned from the bottom edge').toEqual(['', true]);
+
+  // A collapsing toolbar grows the viewport; the bar must follow the bottom edge
+  // in the same frame, without waiting for a resize handler.
+  await page.setViewportSize({width: viewport.width, height: viewport.height + 80});
+  expect(await gapBelow()).toBe(12);
+  await page.setViewportSize(viewport);
+  expect(await gapBelow()).toBe(12);
+});

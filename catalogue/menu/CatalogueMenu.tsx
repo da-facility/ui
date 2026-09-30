@@ -22,10 +22,9 @@ type CatalogueMenuProps = {
 
 /** Floating menu for switching examples and tweaking the current one. Toggle with ⌘K / Ctrl+K. */
 export function CatalogueMenu({selectedId, page, tweaks, onTweakChange}: CatalogueMenuProps) {
-  const {position, isDragging, handleProps, dock} = useFloatingPosition('menu-position', BAR);
+  const {elementRef, style, opensUp, isDragging, handleProps, dock} = useFloatingPosition('menu-anchor', BAR);
   const [isOpen, setOpen] = useStoredState('menu-open', false);
   const [query, setQuery] = useState('');
-  const rootRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -40,7 +39,7 @@ export function CatalogueMenu({selectedId, page, tweaks, onTweakChange}: Catalog
         setOpen(open => !open);
       } else if (event.key === 'Escape' && isOpen) {
         setOpen(false);
-        if (rootRef.current?.contains(document.activeElement)) toggleRef.current?.focus();
+        if (elementRef.current?.contains(document.activeElement)) toggleRef.current?.focus();
       }
     }
     window.addEventListener('keydown', onKeyDown);
@@ -49,23 +48,19 @@ export function CatalogueMenu({selectedId, page, tweaks, onTweakChange}: Catalog
 
   const selected = examples.find(example => example.id === selectedId);
   const matches = examples.filter(example => `${example.name} ${example.kind}`.toLowerCase().includes(query.trim().toLowerCase()));
-  // Open the panel towards whichever side of the screen has more room.
-  const opensUp = position.y > (window.innerHeight - BAR.height) / 2;
-  const panelMaxHeight = opensUp
-    ? position.y - PANEL_GAP - 12
-    : window.innerHeight - position.y - BAR.height - PANEL_GAP - 12;
 
   return (
     <div
-      ref={rootRef}
+      ref={elementRef}
       className="catalogue-menu"
       data-dragging={isDragging || undefined}
-      style={{left: position.x, top: position.y, width: BAR.width}}>
+      style={{...style, width: BAR.width}}>
       {isOpen && <section
         id="catalogue-panel"
         className="catalogue-menu__panel"
         aria-label="Catalogue"
-        style={{[opensUp ? 'bottom' : 'top']: BAR.height + PANEL_GAP, maxHeight: Math.max(0, panelMaxHeight)}}>
+        // The panel opens towards the middle of the screen; its height limit is in CSS.
+        style={{[opensUp ? 'bottom' : 'top']: BAR.height + PANEL_GAP}}>
         <header className="catalogue-menu__header">
           <h2>Da Facility UI</h2>
           <span>{examples.length} examples</span>

@@ -109,6 +109,8 @@
 .catalogue-menu__panel {
   position: absolute;
   width: 100%;
+  /* Whatever the screen has left between the bar and the far edge. */
+  max-height: calc(100dvh - var(--floating-offset) - 80px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   padding: 16px 10px 8px;
   overflow-y: auto;
   overscroll-behavior: contain;
