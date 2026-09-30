@@ -12,6 +12,10 @@ Breaking changes:
 
 New:
 
+- `StatusBar`: the accreditation apps' environment banner as a component, with automatic text contrast.
+- `Assistant`: a chat bar at the bottom of the screen. In `SidebarLayout` the layout contracts into a card above the open chat on desktop; phones get a bottom sheet.
+- `SidebarLayout`: `statusBar`, `assistant` and page `footer` slots; `title` is optional and the header goes away without it; `navigationFade` and `navigationBounce`.
+- `ScrollArea` takes `bounce`, and `fade={0}` turns fading off.
 - `PageScroll`: makes the document the page's scroller, with native bounce only while the page overflows. Pure CSS; it replaces the layout's scroll-measuring effect.
 - `ScrollArea` and `scrollAreaClassName`: scroll boxes inside fixed chrome with native bounce while they overflow and a `fade` under their edges.
 - `ProjectSelector`: the current project, with a searchable menu. The search starts compact and widens once there is a query.
@@ -24,7 +28,9 @@ Other changes:
 - Added the `UserMenuItem` and `LoginCredentials` types, and the `@da-facility/ui/style.css` export.
 - `LoginSplit` uses Astryx theme tokens and an Astryx `Button`, so it follows the app's theme.
 - The mobile menu and close buttons use Astryx's own icons, and `@heroicons/react` is no longer a dependency.
-- The package is 20 KB of JavaScript instead of 437 KB.
+- `SidebarLayout` renders both its desktop rail and phone drawer and picks one with CSS, so server-rendered pages start with the right layout.
+- Dark mode works across every component: colours come from the Astryx theme, and `PageScroll` defaults to the theme's surface colour instead of white.
+- The package is 28 KB of JavaScript instead of 437 KB.
 
 ## 0.1.0
 

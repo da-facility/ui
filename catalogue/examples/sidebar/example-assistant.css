@@ -1,0 +1,26 @@
+.example-assistant {
+  display: grid;
+  align-content: end;
+  gap: 12px;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.example-assistant li {
+  max-width: 72ch;
+}
+
+.example-assistant li[data-from="you"] {
+  justify-self: end;
+  padding: 8px 12px;
+  border-radius: var(--radius-container);
+  background: var(--color-background-surface);
+}
+
+.example-assistant li[data-from="assistant"] {
+  color: var(--color-text-secondary);
+}

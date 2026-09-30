@@ -1,4 +1,5 @@
 import {useLayoutEffect, useState} from 'react';
+import {Button} from '@astryxdesign/core/Button';
 import {Heading, Text} from '@astryxdesign/core/Text';
 import {Icon} from '@astryxdesign/core/Icon';
 import {LayoutContent} from '@astryxdesign/core/Layout';
@@ -6,12 +7,13 @@ import {SideNavItem, SideNavSection} from '@astryxdesign/core/SideNav';
 import {VStack} from '@astryxdesign/core/VStack';
 import {DocumentTextIcon, LockClosedIcon, PaintBrushIcon, UserCircleIcon} from '@heroicons/react/24/outline';
 import * as stylex from '@stylexjs/stylex';
-import {ProjectSelector, SidebarLayout, UserMenu} from '@da-facility/ui';
+import {ProjectSelector, SidebarLayout, StatusBar, UserMenu} from '@da-facility/ui';
 import type {ExampleProps} from '../../types';
 import {PROJECTS} from '../project-selector/projects';
 import {PAGE_GROUPS, findPage} from './pages';
 import {INITIAL_SETTINGS, type SettingsPageProps} from './pages/settings';
 import {SettingsPage} from './pages/SettingsList';
+import {ExampleAssistant} from './ExampleAssistant';
 import clearSky from './clear-sky.svg';
 import './sidebar-example.css';
 
@@ -76,17 +78,31 @@ export function SidebarExample({page: pageId, onPageChange, tweaks, onTweakChang
     ]}
   />;
 
+  const project = PROJECTS.find(item => item.id === projectId)!;
+
   return <SidebarLayout
-    title={PROJECTS.find(project => project.id === projectId)!.name}
+    title={tweaks.header ? project.name : undefined}
+    footer={tweaks.footer && <>
+      <Text type="supporting" color="secondary">Changes save automatically.</Text>
+      <span className="sidebar-example__footer-actions">
+        <Button label="Discard" variant="secondary" size="sm" />
+        <Button label="Done" variant="primary" size="sm" />
+      </span>
+    </>}
     navigation={navigation}
-    navigationHeader={<ProjectSelector projects={PROJECTS} value={projectId} onChange={setProjectId} />}
-    navigationFooter={userMenu}
+    navigationHeader={tweaks.navigationHeader ? <ProjectSelector projects={PROJECTS} value={projectId} onChange={setProjectId} /> : 'Settings'}
+    navigationFooter={tweaks.navigationFooter && userMenu}
     navigationLabel="Settings navigation"
     navigationKey={page.id}
-    background={page.background ?? '#fff'}
+    navigationFade={tweaks.navigationFade ? 10 : 0}
+    navigationBounce={tweaks.navigationBounce}
+    statusBar={tweaks.statusBar && <StatusBar label="Staging" color="#ff5f00" />}
+    assistant={tweaks.assistant && <ExampleAssistant pageLabel={page.label} />}
+    background={page.background}
+    overscroll={tweaks.pageBounce ? 'when-scrollable' : 'none'}
     mobileNavigationSide={tweaks.leftHanded ? 'left' : 'right'}
     onMobileNavigationSideChange={side => onTweakChange('leftHanded', side === 'left')}
-    mobileNavigationOffset={84}
+    mobileNavigationOffset={112}
     mobileNavigationArtwork={<img className="sidebar-example__sky" src={clearSky} alt="" draggable={false} />}>
     {/* Not scrollable: the document scrolls, so momentum and overscroll stay native. */}
     <LayoutContent className="sidebar-example__content" isScrollable={false} padding={4}>

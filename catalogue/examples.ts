@@ -1,4 +1,4 @@
-import type {Example} from './types';
+import type {Example, Tweak} from './types';
 import {SidebarExample} from './examples/sidebar/SidebarExample';
 import {LoginSplitExample} from './examples/login-split/LoginSplitExample';
 import {ProjectSelectorExample} from './examples/project-selector/ProjectSelectorExample';
@@ -13,8 +13,17 @@ export const examples: Example[] = [
     description: 'Settings app with grouped navigation, an account menu and long scrolling pages.',
     source: {label: 'Meta Astryx · Settings Dialog', url: 'https://astryx.atmeta.com/templates?preview=settings-dialog'},
     tweaks: [
-      {id: 'leftHanded', label: 'Left-handed navigation'},
-      {id: 'extraNavigation', label: '100 extra navigation items'},
+      {id: 'statusBar', label: 'Status bar', group: 'Layout'},
+      {id: 'header', label: 'Page header', group: 'Layout', default: true},
+      {id: 'footer', label: 'Page footer', group: 'Layout'},
+      {id: 'navigationHeader', label: 'Sidebar header', group: 'Layout', default: true},
+      {id: 'navigationFooter', label: 'Sidebar footer', group: 'Layout', default: true},
+      {id: 'assistant', label: 'AI chat', group: 'Layout'},
+      {id: 'pageBounce', label: 'Page bounce', group: 'Scrolling', default: true},
+      {id: 'navigationBounce', label: 'Sidebar bounce', group: 'Scrolling', default: true},
+      {id: 'navigationFade', label: 'Sidebar edge fade', group: 'Scrolling', default: true},
+      {id: 'extraNavigation', label: '100 extra navigation items', group: 'Scrolling'},
+      {id: 'leftHanded', label: 'Left-handed navigation', group: 'Phone'},
     ],
     Component: SidebarExample,
   },
@@ -38,6 +47,10 @@ export const examples: Example[] = [
     name: 'Scroll area',
     kind: 'Component',
     description: 'Scroll box with native bounce while it overflows and fades under its edges.',
+    tweaks: [
+      {id: 'fade', label: 'Edge fade', group: 'Scrolling', default: true},
+      {id: 'bounce', label: 'Bounce', group: 'Scrolling', default: true},
+    ],
     Component: ScrollAreaExample,
   },
   {
@@ -47,6 +60,11 @@ export const examples: Example[] = [
     description: 'Account avatar and name with a menu of account actions.',
     Component: UserMenuExample,
   },
+];
+
+/** Tweaks every example has. */
+export const globalTweaks: Tweak[] = [
+  {id: 'darkMode', label: 'Dark mode', group: 'Appearance'},
 ];
 
 export function findExample(id: string) {

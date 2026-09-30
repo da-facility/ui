@@ -1,0 +1,240 @@
+/* A bar pinned to the bottom of the screen that opens into a chat. Inside
+   SidebarLayout, the layout sets the height so the page contracts around it. */
+.assistant {
+  --assistant-bar-height: 44px;
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: calc(var(--assistant-bar-height) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  overflow: hidden;
+  overscroll-behavior: none;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  background: var(--color-background-body);
+  font-family: var(--font-family-code, ui-monospace, monospace);
+  font-size: 13px;
+}
+
+.assistant[data-open] {
+  height: min(420px, 50dvh);
+}
+
+.assistant *,
+.assistant__sheet * {
+  box-sizing: border-box;
+}
+
+/* Open panel: messages above the message box, fading in as the panel grows. */
+.assistant__panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 200ms ease, visibility 0s linear 200ms;
+}
+
+.assistant[data-open] .assistant__panel {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 200ms ease 120ms, visibility 0s;
+}
+
+.assistant__messages {
+  flex: 1;
+  min-height: 0;
+  padding: 16px 24px;
+}
+
+.assistant__suggestions {
+  display: grid;
+  align-content: end;
+  min-height: 100%;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.assistant__suggestions button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 40px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: var(--radius-element);
+  color: var(--color-text-primary);
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  text-align: start;
+  cursor: pointer;
+}
+
+.assistant__suggestions button:hover,
+.assistant__suggestions button:focus-visible {
+  background: var(--color-overlay-hover);
+}
+
+.assistant__index {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-inner);
+  color: var(--color-text-secondary);
+  background: var(--color-background-surface);
+  font-size: 11px;
+}
+
+.assistant__composer {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  margin: 0 16px;
+  padding: 0 8px;
+  border-block: 1px solid var(--color-border);
+}
+
+.assistant__prompt {
+  color: var(--color-text-secondary);
+  font-size: 16px;
+}
+
+.assistant__composer input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  color: var(--color-text-primary);
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+}
+
+.assistant__composer input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.assistant__context {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-element);
+  color: var(--color-text-secondary);
+  background: var(--color-overlay-hover);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Bar */
+
+.assistant__bar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: var(--assistant-bar-height);
+  padding: 0 12px 0 16px;
+}
+
+.assistant__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 12px 0 8px;
+  border: 0;
+  border-radius: var(--radius-element);
+  color: var(--color-text-secondary);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.assistant__toggle:hover,
+.assistant[data-open] .assistant__toggle {
+  color: var(--color-text-primary);
+  background: var(--color-overlay-hover);
+}
+
+.assistant__toggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.assistant__plus {
+  width: 14px;
+  height: 14px;
+}
+
+.assistant__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Phones: the chat opens as a bottom sheet instead. */
+
+.assistant__sheet {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 60dvh;
+  color: var(--color-text-primary);
+  font-family: var(--font-family-code, ui-monospace, monospace);
+  font-size: 13px;
+}
+
+.assistant__sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Clears the sheet's drag handle. */
+  padding: 24px 8px 4px 24px;
+  color: var(--color-text-secondary);
+}
+
+.assistant__sheet .assistant__messages {
+  padding-inline: 16px;
+}
+
+.assistant__sheet .assistant__composer {
+  margin-bottom: 16px;
+}
+
+/* 16px text so iOS does not zoom when the message box takes focus. */
+@media (pointer: coarse) {
+  .assistant__composer input {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px), (max-height: 600px) {
+  .assistant[data-open] {
+    height: calc(var(--assistant-bar-height) + env(safe-area-inset-bottom));
+  }
+
+  .assistant__panel {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .assistant__panel {
+    transition: none;
+  }
+}

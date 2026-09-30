@@ -33,7 +33,7 @@
 }
 
 .user-menu__identity small {
-  color: var(--color-text-secondary, #666);
+  color: var(--color-text-secondary);
   font-size: 12px;
   font-weight: 400;
 }

@@ -57,7 +57,7 @@ export const PAGE_GROUPS: {label: string; pages: Page[]}[] = [
       {id: 'privacy', label: 'Privacy', description: 'What you share, and what we keep.', icon: ShieldCheckIcon, Component: PrivacyPage},
       {id: 'integrations', label: 'Connected apps', description: 'Services with access to this workspace.', icon: PuzzlePieceIcon, Component: IntegrationsPage},
       {id: 'long-table', label: 'Long table', description: '500 sample records. Scroll the content while navigation stays in place.', icon: TableCellsIcon, Component: LongTable},
-      {id: 'long-paragraphs', label: 'Long paragraphs', description: 'A railway notebook with twelve chapters.', icon: DocumentTextIcon, Component: LongParagraphs, hasOwnHeading: true, background: '#faf8f2'},
+      {id: 'long-paragraphs', label: 'Long paragraphs', description: 'A railway notebook with twelve chapters.', icon: DocumentTextIcon, Component: LongParagraphs, hasOwnHeading: true, background: 'light-dark(#faf8f2, #1f1d19)'},
       {id: 'developer', label: 'Developer', description: 'API access and pre-release features.', icon: CodeBracketIcon, Component: DeveloperPage},
     ],
   },

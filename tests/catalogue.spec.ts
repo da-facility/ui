@@ -1,5 +1,5 @@
 import {expect, test} from '@playwright/test';
-import {collectErrors, isMobile} from './helpers';
+import {collectErrors, isMobile, setTweak} from './helpers';
 
 const menu = (page: import('@playwright/test').Page) => page.locator('.catalogue-menu');
 
@@ -32,13 +32,36 @@ test('the menu switches examples and keeps the URL and history in sync', async (
   expect(errors).toEqual([]);
 });
 
-test('tweaks are listed only for the example that declares them', async ({page}) => {
+test('tweaks stay in view, and list only the current example’s plus global ones', async ({page}, testInfo) => {
   await page.goto('/user-menu');
+  const tweaks = page.getByRole('region', {name: 'Tweaks'});
+  if (isMobile(testInfo)) await tweaks.getByRole('button', {name: /Tweaks/}).click();
+  await expect(tweaks.getByRole('switch')).toHaveCount(1);
+  await expect(tweaks.getByRole('switch', {name: 'Dark mode'})).toBeVisible();
   await page.getByRole('button', {name: 'Open catalogue', exact: true}).click();
-  await expect(page.getByRole('region', {name: 'Tweaks'})).toHaveCount(0);
   await page.getByRole('link', {name: /^Sidebar/}).click();
-  await expect(page.getByRole('switch', {name: 'Left-handed navigation'})).toBeVisible();
-  await expect(page.getByRole('switch', {name: '100 extra navigation items'})).toBeVisible();
+  await expect(tweaks.getByRole('switch', {name: 'Left-handed navigation'})).toBeVisible();
+  await expect(tweaks.getByRole('group', {name: 'Layout'}).getByRole('switch')).toHaveCount(6);
+  if (isMobile(testInfo)) {
+    await tweaks.getByRole('button', {name: /Tweaks/}).click();
+    await page.evaluate(() => localStorage.removeItem('da-ui-catalogue:menu-tweaks'));
+  }
+
+  // The list collapses (and starts collapsed on phones), and remembers the choice.
+  const toggle = tweaks.getByRole('button', {name: /Tweaks/});
+  await expect(toggle).toHaveAttribute('aria-expanded', isMobile(testInfo) ? 'false' : 'true');
+  await toggle.click();
+  await page.reload();
+  await expect(toggle).toHaveAttribute('aria-expanded', isMobile(testInfo) ? 'true' : 'false');
+});
+
+test('dark mode applies to the page and remembers the choice', async ({page}) => {
+  await page.goto('/sidebar/profile');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await setTweak(page, 'Dark mode', true);
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.goto('/login-split');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 });
 
 test('the menu can be moved, docked, and remembers its place', async ({page, context}, testInfo) => {

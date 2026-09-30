@@ -49,7 +49,7 @@ for (const path of ['long-paragraphs', 'long-table']) {
       await showCanvas(page);
 
       const viewport = page.viewportSize()!;
-      const headerHeight = isMobile(testInfo) ? Math.ceil((await page.locator('.mobile-sidebar__header').boundingBox())!.height) : 64;
+      const headerHeight = isMobile(testInfo) ? Math.ceil((await page.locator('.sidebar-layout__header').boundingBox())!.height) : 64;
       const x = isMobile(testInfo) ? 12 : 280;
       const y = edge === 'bottom' ? viewport.height - 4 : headerHeight + 4;
 
@@ -105,7 +105,7 @@ for (const extraItems of [true, false]) {
       await page.getByRole('button', {name: 'Open settings navigation'}).click();
       await page.waitForTimeout(600);
     }
-    const list = page.locator(isMobile(testInfo) ? '.mobile-sidebar__sections' : '.sidebar-layout__navigation > div:last-child');
+    const list = page.locator(isMobile(testInfo) ? '.mobile-navigation__sections' : '.sidebar-layout__navigation > div:last-child');
     const overflows = await list.evaluate(element => element.scrollHeight > element.clientHeight);
     if (extraItems) expect(overflows).toBe(true);
     const {moved, settled} = await listBouncesAtTop(page, list);

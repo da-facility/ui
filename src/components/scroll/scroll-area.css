@@ -52,8 +52,9 @@
   }
 }
 
+/* --scroll-area-bounce: none turns the bounce off for an area and everything in it. */
 @keyframes scroll-area-overflowing {
-  from, to { --scroll-area-overscroll: contain; }
+  from, to { --scroll-area-overscroll: var(--scroll-area-bounce, contain); }
 }
 
 @keyframes scroll-area-start {

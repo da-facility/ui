@@ -20,20 +20,35 @@ function isAnchor(value: unknown): value is Anchor {
     && Number.isFinite(anchor.dx) && Number.isFinite(anchor.dy);
 }
 
-/** Anchors a box at the given viewport position to its nearest edges. */
-function anchorAt(left: number, top: number, width: number, height: number): Anchor {
+type Box = {left: number; top: number; width: number; height: number};
+
+/**
+ * Anchors the element to its nearer side, and to the top or bottom depending on
+ * which half of the screen its bar is in. The element grows away from that edge,
+ * so the bar stays under the pointer. Both boxes are where they would be after
+ * moving by (dx, dy), kept on screen.
+ */
+function anchorAt(element: Box, bar: Box, dx: number, dy: number): Anchor {
   const viewportWidth = document.documentElement.clientWidth;
   const viewportHeight = document.documentElement.clientHeight;
-  left = Math.max(MARGIN, Math.min(left, viewportWidth - width - MARGIN));
-  top = Math.max(MARGIN, Math.min(top, viewportHeight - height - MARGIN));
-  const right = viewportWidth - left - width;
-  const bottom = viewportHeight - top - height;
+  const barLeft = Math.max(MARGIN, Math.min(bar.left + dx, viewportWidth - bar.width - MARGIN));
+  const barTop = Math.max(MARGIN, Math.min(bar.top + dy, viewportHeight - bar.height - MARGIN));
+  const left = element.left + barLeft - bar.left;
+  const top = element.top + barTop - bar.top;
+  const right = viewportWidth - left - element.width;
+  const bottom = viewportHeight - top - element.height;
+  const isTop = barTop + bar.height / 2 < viewportHeight / 2;
   return {
     x: left <= right ? 'left' : 'right',
-    dx: Math.round(Math.min(left, right)),
-    y: top <= bottom ? 'top' : 'bottom',
-    dy: Math.round(Math.min(top, bottom)),
+    dx: Math.max(MARGIN, Math.round(Math.min(left, right))),
+    y: isTop ? 'top' : 'bottom',
+    dy: Math.max(MARGIN, Math.round(isTop ? top : bottom)),
   };
+}
+
+/** Where the element and its bar (the part the handle sits in) are now. */
+function measure(handle: HTMLElement, element: HTMLElement) {
+  return {element: element.getBoundingClientRect(), bar: handle.parentElement!.getBoundingClientRect()};
 }
 
 /** A fixed-position element the user can drag, nudge with arrow keys, or dock to a corner. */
@@ -42,7 +57,7 @@ export function useFloatingPosition(storageKey: string, size: {width: number; he
   const anchor = isAnchor(stored) ? stored : DEFAULT;
   const elementRef = useRef<HTMLDivElement>(null);
 
-  const drag = useRef<{pointerId: number; startX: number; startY: number; left: number; top: number} | null>(null);
+  const drag = useRef<{pointerId: number; startX: number; startY: number; element: Box; bar: Box} | null>(null);
   const [isDragging, setDragging] = useState(false);
   const endDrag = () => {
     drag.current = null;
@@ -53,14 +68,13 @@ export function useFloatingPosition(storageKey: string, size: {width: number; he
     onPointerDown(event: PointerEvent<HTMLElement>) {
       if (event.button !== 0 || !elementRef.current) return;
       event.currentTarget.setPointerCapture(event.pointerId);
-      const box = elementRef.current.getBoundingClientRect();
-      drag.current = {pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, left: box.left, top: box.top};
+      drag.current = {pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, ...measure(event.currentTarget, elementRef.current)};
       setDragging(true);
     },
     onPointerMove(event: PointerEvent<HTMLElement>) {
       const current = drag.current;
       if (current?.pointerId !== event.pointerId) return;
-      setAnchor(anchorAt(current.left + event.clientX - current.startX, current.top + event.clientY - current.startY, size.width, size.height));
+      setAnchor(anchorAt(current.element, current.bar, event.clientX - current.startX, event.clientY - current.startY));
     },
     onPointerUp: endDrag,
     onPointerCancel: endDrag,
@@ -70,8 +84,8 @@ export function useFloatingPosition(storageKey: string, size: {width: number; he
       const delta = {ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step]}[event.key];
       if (!delta || !elementRef.current) return;
       event.preventDefault();
-      const box = elementRef.current.getBoundingClientRect();
-      setAnchor(anchorAt(box.left + delta[0], box.top + delta[1], size.width, size.height));
+      const {element, bar} = measure(event.currentTarget, elementRef.current);
+      setAnchor(anchorAt(element, bar, delta[0], delta[1]));
     },
   };
 

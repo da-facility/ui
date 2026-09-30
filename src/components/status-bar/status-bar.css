@@ -1,0 +1,81 @@
+/* Adapted from the accreditation apps' environment banner. */
+.status-bar {
+  --status-bar-height: 32px;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: calc(var(--status-bar-height) + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
+  overflow: hidden;
+  background: var(--status-bar-color);
+  /* White on dark colours, near-black on light ones. */
+  color: #fff;
+  color: var(--status-bar-foreground, oklch(from var(--status-bar-color) clamp(0.2, (0.62 - l) * 1000, 1) 0 0));
+  font-family: var(--font-family-code, ui-monospace, monospace);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.status-bar::after {
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.3;
+  content: "";
+}
+
+.status-bar__track {
+  display: flex;
+  width: max-content;
+  animation: status-bar-scroll 48s linear infinite;
+  will-change: transform;
+}
+
+.status-bar__group {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 40px;
+  padding-right: 40px;
+}
+
+.status-bar__notice {
+  position: absolute;
+  inset: env(safe-area-inset-top) 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: max-content;
+  min-width: 144px;
+  margin-inline: auto;
+  padding-inline: 56px;
+  background: linear-gradient(90deg, transparent, var(--status-bar-color) 24%, var(--status-bar-color) 76%, transparent);
+  letter-spacing: 0.32em;
+  animation: status-bar-notice 240ms ease-out;
+}
+
+@keyframes status-bar-scroll {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes status-bar-notice {
+  from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-bar__track {
+    animation: none;
+    transform: translateX(-25%);
+  }
+}

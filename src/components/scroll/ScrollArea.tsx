@@ -1,13 +1,25 @@
-import type {CSSProperties, HTMLAttributes} from 'react';
+import type {ComponentPropsWithRef, CSSProperties} from 'react';
 import './scroll-area.css';
 
 /** Add to a scroll box you render yourself, or style one you cannot wrap, to make it a scroll area. */
 export const scrollAreaClassName = 'scroll-area';
 
-export type ScrollAreaProps = HTMLAttributes<HTMLDivElement> & {
-  /** How far, in pixels, content fades out where it passes under an edge. Defaults to 10. */
+export type ScrollAreaOptions = {
+  /** How far, in pixels, content fades out where it passes under an edge. 0 turns fading off. Defaults to 10. */
   fade?: number;
+  /** Whether the area bounces natively while it overflows. Defaults to true. */
+  bounce?: boolean;
 };
+
+export type ScrollAreaProps = ComponentPropsWithRef<'div'> & ScrollAreaOptions;
+
+/** CSS variables that configure scroll areas; they apply to the element and everything inside it. */
+export function scrollAreaStyle({fade, bounce}: ScrollAreaOptions): CSSProperties {
+  const style: Record<string, string> = {};
+  if (fade !== undefined) style['--scroll-area-fade'] = `${fade}px`;
+  if (bounce !== undefined) style['--scroll-area-bounce'] = bounce ? 'contain' : 'none';
+  return style;
+}
 
 /**
  * A scroll box inside fixed chrome, such as a list between a header and a footer.
@@ -15,10 +27,10 @@ export type ScrollAreaProps = HTMLAttributes<HTMLDivElement> & {
  * and content fades out under the edges that have more behind them. A box that
  * fits neither fades nor bounces. Give it a height (or a flex parent) to scroll.
  */
-export function ScrollArea({fade, className, style, ...props}: ScrollAreaProps) {
+export function ScrollArea({fade, bounce, className, style, ...props}: ScrollAreaProps) {
   return <div
     {...props}
     className={className ? `${scrollAreaClassName} ${className}` : scrollAreaClassName}
-    style={fade === undefined ? style : {...style, '--scroll-area-fade': `${fade}px`} as CSSProperties}
+    style={{...scrollAreaStyle({fade, bounce}), ...style}}
   />;
 }

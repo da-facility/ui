@@ -10,6 +10,16 @@ export type ExampleProps = {
   onTweakChange: (id: string, value: boolean) => void;
 };
 
+/** A switch in the catalogue menu. */
+export type Tweak = {
+  id: string;
+  label: string;
+  /** Heading the switch is listed under. */
+  group?: string;
+  /** Value until the switch is first changed. Defaults to off. */
+  default?: boolean;
+};
+
 export type Example = {
   id: string;
   name: string;
@@ -19,6 +29,6 @@ export type Example = {
   /** Upstream design the example is adapted from. */
   source?: {label: string; url: string};
   /** Switches shown in the catalogue menu while this example is open. */
-  tweaks?: {id: string; label: string}[];
+  tweaks?: Tweak[];
   Component: ComponentType<ExampleProps>;
 };

@@ -1,0 +1,117 @@
+/* Floating menu button in the thumb zone, above any footer or chat bar. */
+
+.mobile-navigation__trigger.mobile-navigation__trigger {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(var(--mobile-navigation-offset, 20px) + max(env(safe-area-inset-bottom), var(--sidebar-layout-chrome-bottom, 0px)));
+  z-index: 100;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  box-shadow: 0 4px 18px rgb(0 0 0 / 20%);
+}
+
+.sidebar-layout[data-side="left"] .mobile-navigation__trigger {
+  right: auto;
+  left: max(16px, env(safe-area-inset-left));
+}
+
+.mobile-navigation__trigger svg {
+  width: 24px;
+  height: 24px;
+}
+
+@media (min-width: 769px) and (min-height: 601px) {
+  .mobile-navigation__trigger.mobile-navigation__trigger {
+    display: none;
+  }
+}
+
+/* Drawer. Astryx owns the modal, focus trap, backdrop and transitions. Only the
+   navigation list scrolls, so the handedness and close controls stay reachable. */
+
+.mobile-navigation__drawer > div {
+  max-width: min(344px, calc(100vw - 48px));
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.mobile-navigation__drawer > div > div:last-child {
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.mobile-navigation__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.mobile-navigation__sections {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 8px;
+  scroll-padding-block: 8px;
+}
+
+/* Sections sink to the bottom of the drawer, closest to the thumb. */
+.mobile-navigation__sections > .astryx-side-nav-section {
+  flex-shrink: 0;
+  margin-top: 8px;
+  padding-block: 0;
+}
+
+.mobile-navigation__sections > .astryx-side-nav-section:first-child {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.mobile-navigation__sections .astryx-side-nav-item {
+  min-height: 44px;
+  font-size: 15px;
+}
+
+/* Artwork takes spare space only; destinations keep their full touch targets. */
+.mobile-navigation__artwork {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  container-type: size;
+}
+
+.mobile-navigation__artwork + .astryx-side-nav-section {
+  margin-top: 0;
+  padding-top: 8px;
+}
+
+.mobile-navigation__footer {
+  flex-shrink: 0;
+  display: grid;
+  gap: 12px;
+  padding: 12px 8px 8px;
+  border-top: 1px solid var(--color-border);
+}
+
+.mobile-navigation__footer label {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.mobile-navigation__close.mobile-navigation__close {
+  width: 100%;
+  min-height: 48px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-navigation__drawer > div {
+    transition-duration: 0s;
+    animation: none;
+  }
+}

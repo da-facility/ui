@@ -137,8 +137,8 @@ for (const [name, viewport] of Object.entries({desktop: {width: 1920, height: 10
 
     if (name === 'mobile') await page.getByRole('button', {name: 'Open navigation', exact: true}).click();
     await page.getByRole('button', {name: 'Account menu for Taylor'}).click();
-    await expect(page.getByRole('menuitem', {name: 'Profile'})).toBeVisible();
-    await page.keyboard.press('Escape');
+    await page.getByRole('menuitem', {name: 'Profile'}).click();
+    await expect(page.getByRole('menuitem', {name: 'Profile'})).toBeHidden();
     await page.getByRole('button', {name: 'Projects: Project A'}).click();
     await expect(page.getByRole('combobox', {name: 'Search projects'})).toBeFocused();
     await page.keyboard.type('b');

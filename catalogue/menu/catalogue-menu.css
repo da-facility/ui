@@ -2,6 +2,11 @@
    reads as part of the UI under review. */
 .catalogue-menu {
   --menu-ink: #edeee9;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* Grows away from the edge it is docked to, and always fits on screen. */
+  max-height: calc(100dvh - var(--floating-offset, 12px) - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   --menu-muted: #a4ab9b;
   --menu-surface: #20231f;
   --menu-raised: #30352b;
@@ -30,7 +35,12 @@
   user-select: none;
 }
 
-.catalogue-menu__bar,
+.catalogue-menu:not([data-opens-up]),
+.catalogue-menu:not([data-opens-up]) .catalogue-menu__dock {
+  flex-direction: column-reverse;
+}
+
+.catalogue-menu__dock,
 .catalogue-menu__panel {
   border: 1px solid #42473d;
   border-radius: 12px;
@@ -38,11 +48,20 @@
   box-shadow: 0 8px 28px #0003, 0 2px 6px #0002;
 }
 
+.catalogue-menu__dock {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  min-height: 48px;
+  overflow: hidden;
+}
+
 /* Bar */
 
 .catalogue-menu__bar {
   display: flex;
-  height: 48px;
+  flex-shrink: 0;
+  height: 46px;
   padding: 4px;
 }
 
@@ -107,10 +126,8 @@
 /* Panel */
 
 .catalogue-menu__panel {
-  position: absolute;
-  width: 100%;
-  /* Whatever the screen has left between the bar and the far edge. */
-  max-height: calc(100dvh - var(--floating-offset) - 80px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  flex: 0 1 auto;
+  min-height: 0;
   padding: 16px 10px 8px;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -252,19 +269,60 @@
   overflow-wrap: anywhere;
 }
 
+/* Tweaks stay in view beside the bar. */
 .catalogue-menu__tweaks {
-  display: grid;
-  gap: 10px;
-  margin-top: 12px;
-  padding: 12px 4px 0;
-  border-top: 1px solid var(--menu-line);
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  border-bottom: 1px solid var(--menu-line);
 }
 
-.catalogue-menu__tweaks h3 {
-  margin: 0 0 2px;
+.catalogue-menu:not([data-opens-up]) .catalogue-menu__tweaks {
+  border-top: 1px solid var(--menu-line);
+  border-bottom: 0;
+}
+
+.catalogue-menu__tweaks-toggle {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 8px;
+  border: 0;
   color: #c6cdbd;
+  background: transparent;
+  font: inherit;
   font-size: 12px;
   font-weight: 600;
+  cursor: pointer;
+}
+
+.catalogue-menu__tweaks-toggle span {
+  color: var(--menu-muted);
+  font-size: 16px;
+}
+
+.catalogue-menu__tweak-list {
+  min-height: 0;
+  padding: 0 14px 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.catalogue-menu__tweak-group {
+  display: grid;
+  gap: 8px;
+  padding-block: 4px 8px;
+}
+
+.catalogue-menu__tweak-group h3 {
+  margin: 4px 0 0;
+  color: var(--menu-muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .catalogue-menu__footer {

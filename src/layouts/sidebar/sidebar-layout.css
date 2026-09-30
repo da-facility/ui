@@ -1,14 +1,69 @@
+/* Page scrolling comes from PageScroll (page-scroll.css). The rail, header,
+   footer and bars are fixed, so they paint above the scrolling, bouncing
+   document. Everything is placed from a few variables:
+
+   --sidebar-layout-top     status bar height
+   --sidebar-layout-header  page header height
+   --sidebar-layout-bottom  assistant bar (or open chat) height
+   --sidebar-layout-inset   gap around the page while the chat is open
+
+   The last two are registered so opening the chat animates smoothly. */
+
+@property --sidebar-layout-bottom {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --sidebar-layout-inset {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
 .sidebar-layout,
 .sidebar-layout * {
   box-sizing: border-box;
 }
 
-/* Page scrolling comes from PageScroll (page-scroll.css). The rail and header are
-   fixed, so they paint above the scrolling, bouncing document. */
 .sidebar-layout {
   --sidebar-width: 260px;
+  --sidebar-layout-top: 0px;
+  --sidebar-layout-header: 0px;
+  --sidebar-layout-radius: calc(var(--sidebar-layout-inset) * 0.75);
+  /* Everything pinned below the content: the chat bar and the page footer. */
+  --sidebar-layout-chrome-bottom: calc(var(--sidebar-layout-bottom) + var(--sidebar-layout-footer-height, 0px));
   min-height: 100dvh;
   color: var(--color-text-primary);
+  transition:
+    --sidebar-layout-bottom 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    --sidebar-layout-inset 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sidebar-layout[data-status-bar] {
+  --sidebar-layout-top: calc(32px + env(safe-area-inset-top));
+}
+
+.sidebar-layout[data-header] {
+  --sidebar-layout-header: calc(64px + env(safe-area-inset-top));
+}
+
+.sidebar-layout[data-header][data-status-bar] {
+  --sidebar-layout-header: 64px;
+}
+
+.sidebar-layout[data-assistant] {
+  --sidebar-layout-bottom: calc(44px + env(safe-area-inset-bottom));
+}
+
+.sidebar-layout__status-bar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 30;
+}
+
+.sidebar-layout__status-bar > .status-bar {
+  position: static;
 }
 
 .sidebar-layout__title {
@@ -17,22 +72,66 @@
   letter-spacing: -0.3px;
 }
 
-.sidebar-layout__surface {
-  min-height: calc(100dvh - 64px);
+.sidebar-layout__header {
+  position: fixed;
+  top: calc(var(--sidebar-layout-top) + var(--sidebar-layout-inset));
+  right: var(--sidebar-layout-inset);
+  left: calc(var(--sidebar-width) + var(--sidebar-layout-inset));
+  z-index: 10;
+  height: var(--sidebar-layout-header);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--color-border);
+  border-top-right-radius: var(--sidebar-layout-radius);
   background: var(--page-background);
 }
 
-/* Desktop */
+.sidebar-layout__main {
+  min-width: 0;
+  min-height: 100dvh;
+  margin-inline: calc(var(--sidebar-width) + var(--sidebar-layout-inset)) var(--sidebar-layout-inset);
+  padding-top: calc(var(--sidebar-layout-top) + var(--sidebar-layout-inset) + var(--sidebar-layout-header));
+  padding-bottom: calc(var(--sidebar-layout-chrome-bottom) + var(--sidebar-layout-inset));
+}
+
+.sidebar-layout__surface {
+  min-height: calc(100dvh - var(--sidebar-layout-top) - var(--sidebar-layout-header) - var(--sidebar-layout-chrome-bottom) - 2 * var(--sidebar-layout-inset));
+  background: var(--page-background);
+}
+
+.sidebar-layout__footer {
+  position: fixed;
+  right: var(--sidebar-layout-inset);
+  bottom: calc(var(--sidebar-layout-bottom) + var(--sidebar-layout-inset));
+  left: calc(var(--sidebar-width) + var(--sidebar-layout-inset));
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 10px 24px;
+  border-top: 1px solid var(--color-border);
+  border-bottom-right-radius: var(--sidebar-layout-radius);
+  background: var(--page-background);
+}
+
+/* Desktop rail */
 
 .sidebar-layout__rail {
   position: fixed;
-  inset: 0 auto 0 0;
+  top: calc(var(--sidebar-layout-top) + var(--sidebar-layout-inset));
+  bottom: calc(var(--sidebar-layout-bottom) + var(--sidebar-layout-inset));
+  left: var(--sidebar-layout-inset);
   z-index: 10;
   display: flex;
   flex-direction: column;
   width: var(--sidebar-width);
   overflow: hidden;
   border-right: 1px solid var(--color-border);
+  border-radius: var(--sidebar-layout-radius) 0 0 var(--sidebar-layout-radius);
   background: var(--color-background-surface);
 }
 
@@ -52,7 +151,7 @@
   overscroll-behavior: none;
 }
 
-.sidebar-layout__footer {
+.sidebar-layout__rail-footer {
   flex-shrink: 0;
   padding: 4px 8px 8px;
 }
@@ -65,30 +164,92 @@
   font-weight: 600;
 }
 
-.sidebar-layout__header {
+/* Assistant: while its chat is open the page contracts into a card, and the
+   frame paints the backdrop around it. The frame's inside stays transparent,
+   so the document keeps scrolling natively underneath. */
+
+.sidebar-layout__assistant .assistant {
+  height: var(--sidebar-layout-bottom);
+}
+
+.sidebar-layout__assistant .assistant[data-open] {
+  border-top-color: transparent;
+}
+
+.sidebar-layout__frame {
   position: fixed;
-  inset: 0 0 auto var(--sidebar-width);
-  z-index: 10;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 0 24px;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--page-background);
+  inset:
+    calc(var(--sidebar-layout-top) + var(--sidebar-layout-inset))
+    var(--sidebar-layout-inset)
+    calc(var(--sidebar-layout-bottom) + var(--sidebar-layout-inset));
+  z-index: 9;
+  border-radius: var(--sidebar-layout-radius);
+  box-shadow:
+    0 12px 32px var(--color-shadow, rgb(0 0 0 / 10%)),
+    0 0 0 100vmax var(--color-background-body);
+  pointer-events: none;
 }
 
-.sidebar-layout__main {
-  min-width: 0;
-  min-height: 100dvh;
-  margin-inline-start: var(--sidebar-width);
-  padding-top: 64px;
+@media (min-width: 769px) and (min-height: 601px) {
+  .sidebar-layout:has(.sidebar-layout__assistant .assistant[data-open]) {
+    --sidebar-layout-bottom: min(420px, 50dvh);
+    --sidebar-layout-inset: 16px;
+  }
 }
 
-/* Mobile: leave room below content for the floating menu button. */
+/* Phones: a full-width header, the floating menu button and drawer instead of the rail. */
 
-.mobile-sidebar__content .sidebar-layout__surface {
-  min-height: calc(100dvh - var(--mobile-sidebar-header-height, 64px));
-  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+@media (max-width: 768px), (max-height: 600px) {
+  .sidebar-layout__rail,
+  .sidebar-layout__frame {
+    display: none;
+  }
+
+  .sidebar-layout__header {
+    top: var(--sidebar-layout-top);
+    right: 0;
+    left: 0;
+    padding: env(safe-area-inset-top) max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
+  }
+
+  .sidebar-layout[data-status-bar] .sidebar-layout__header {
+    padding-top: 0;
+  }
+
+  .sidebar-layout[data-side="left"] .sidebar-layout__header {
+    flex-direction: row-reverse;
+  }
+
+  .sidebar-layout__main {
+    margin: 0;
+    padding-top: max(env(safe-area-inset-top), calc(var(--sidebar-layout-top) + var(--sidebar-layout-header)));
+  }
+
+  /* Leave room below content for the floating menu button. */
+  .sidebar-layout__surface {
+    padding-bottom: calc(100px + env(safe-area-inset-bottom));
+  }
+
+  .sidebar-layout__footer {
+    right: 0;
+    left: 0;
+    padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right));
+  }
+
+  .sidebar-layout:not([data-assistant]) .sidebar-layout__footer {
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  /* Touch-friendly form sizing, and 16px text so iOS does not zoom on focus. */
+  .sidebar-layout__main input,
+  .sidebar-layout__main select,
+  .sidebar-layout__main textarea {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-layout {
+    transition: none;
+  }
 }

@@ -24,3 +24,9 @@
     visibility: hidden;
   }
 }
+
+.sidebar-example__footer-actions {
+  display: flex;
+  gap: 8px;
+  margin-inline-start: auto;
+}

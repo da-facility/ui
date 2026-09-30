@@ -17,7 +17,7 @@ test.describe('document scrolling', () => {
       await expect(page.locator('.sidebar-example__content')).toHaveCSS('overflow-y', 'visible');
       await expect(root(page)).toHaveCSS('overscroll-behavior-y', 'contain');
 
-      const fixed = page.locator(isMobile(testInfo) ? '.mobile-sidebar__header' : '.sidebar-layout__rail');
+      const fixed = page.locator(isMobile(testInfo) ? '.sidebar-layout__header' : '.sidebar-layout__rail');
       await expect(fixed).toHaveCSS('position', 'fixed');
       const notCancelled = await page.locator('main').evaluate(main => main.dispatchEvent(new WheelEvent('wheel', {deltaY: 100, bubbles: true, cancelable: true})));
       expect(notCancelled, 'wheel input must stay native').toBe(true);
@@ -142,7 +142,7 @@ test.describe('desktop navigation rail', () => {
   test('the footer stays pinned while the list scrolls underneath it', async ({page}) => {
     await page.goto('/sidebar/profile');
     await setTweak(page, '100 extra navigation items', true);
-    const footer = page.locator('.sidebar-layout__footer');
+    const footer = page.locator('.sidebar-layout__rail-footer');
     await expect(footer.getByRole('button', {name: 'Account menu for Alex Johnson'})).toBeVisible();
     const rail = (await page.locator('.sidebar-layout__rail').boundingBox())!;
     const before = (await footer.boundingBox())!;
@@ -233,7 +233,7 @@ test.describe('mobile navigation drawer', () => {
     await setTweak(page, '100 extra navigation items', true);
     await drawerTrigger(page).tap();
     await waitForDrawerEdge(page, 'right');
-    const list = page.locator('.mobile-sidebar__sections');
+    const list = page.locator('.mobile-navigation__sections');
     await expect(list.getByTestId(/^extra-nav-/)).toHaveCount(100);
     expect(await list.evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true);
 
@@ -258,7 +258,7 @@ test.describe('mobile navigation drawer', () => {
     await waitForDrawerEdge(page, 'right');
     await expect(drawer(page).getByRole('button', {name: /^Projects:/})).toBeVisible();
     await expect(drawer(page).getByRole('button', {name: 'Account menu for Alex Johnson'})).toBeVisible();
-    const list = page.locator('.mobile-sidebar__sections');
+    const list = page.locator('.mobile-navigation__sections');
     await list.evaluate(element => { element.scrollTop = element.scrollHeight / 2; });
     await expect.poll(() => list.evaluate(element => getComputedStyle(element).getPropertyValue('--scroll-area-start'))).toBe('10px');
     expect(await list.evaluate(element => getComputedStyle(element).overscrollBehaviorY)).toBe('contain');
