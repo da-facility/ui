@@ -1,5 +1,6 @@
-/* Root scrolling is required for native macOS rubber-banding. Fixed navigation
-   paints above that motion. These document rules only apply while mounted. */
+/* The document is the only content scroller: root scrolling is what gives
+   native momentum and macOS rubber-banding. Fixed navigation paints above that
+   motion. These document rules apply only while a layout is mounted. */
 html:has(.sidebar-layout) {
   --app-background: #fff;
   --sidebar-width: 260px;
@@ -7,15 +8,102 @@ html:has(.sidebar-layout) {
   overscroll-behavior: none var(--app-overscroll-y, contain);
   background: var(--app-overscroll-background, var(--app-background));
 }
-body:has(.sidebar-layout) { margin: 0; overflow: visible; overscroll-behavior: none var(--app-overscroll-y, contain); background: transparent; }
-.sidebar-layout, .sidebar-layout * { box-sizing: border-box; }
-.sidebar-layout { min-height: 100dvh; color: var(--color-text-primary); }
-.sidebar-layout__rail { position: fixed; inset: 0 auto 0 0; width: var(--sidebar-width); z-index: 10; overflow: hidden; border-right: 1px solid var(--color-border); background: var(--color-background-surface); }
-.sidebar-layout__navigation { width: 100%; height: 100%; }
-.sidebar-layout__rail, .sidebar-layout__navigation, .sidebar-layout__navigation > div { overscroll-behavior: none; }
-.sidebar-layout__navigation-title { display: flex; align-items: center; min-height: 48px; padding-inline: 8px; font-weight: 600; }
-.sidebar-layout__main { margin-inline-start: var(--sidebar-width); min-width: 0; min-height: 100dvh; padding-top: 64px; }
-.sidebar-layout__surface { min-height: calc(100dvh - 64px); background: var(--app-background); }
-.sidebar-layout__header { position: fixed; inset: 0 0 auto var(--sidebar-width); height: 64px; z-index: 10; background: var(--app-background); display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 24px; border-bottom: 1px solid var(--color-border); }
-.sidebar-layout__title { font-size: 15px; font-weight: 600; letter-spacing: -.3px; }
-.mobile-sidebar__content .sidebar-layout__surface { min-height: calc(100dvh - var(--mobile-sidebar-header-height, 64px)); padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
+
+body:has(.sidebar-layout) {
+  margin: 0;
+  overflow: visible;
+  overscroll-behavior: none var(--app-overscroll-y, contain);
+  background: transparent;
+}
+
+.sidebar-layout,
+.sidebar-layout * {
+  box-sizing: border-box;
+}
+
+.sidebar-layout {
+  min-height: 100dvh;
+  color: var(--color-text-primary);
+}
+
+.sidebar-layout__title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+.sidebar-layout__surface {
+  min-height: calc(100dvh - 64px);
+  background: var(--app-background);
+}
+
+/* Desktop */
+
+.sidebar-layout__rail {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  width: var(--sidebar-width);
+  overflow: hidden;
+  border-right: 1px solid var(--color-border);
+  background: var(--color-background-surface);
+}
+
+/* The navigation list scrolls between the pinned header and footer. See
+   scroll-edges.css for its bounce and edge fades. */
+.sidebar-layout__rail > .sidebar-layout__navigation {
+  flex: 1;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+}
+
+/* Input over the rail never scrolls the page, even when the list fits. */
+.sidebar-layout__rail,
+.sidebar-layout__navigation,
+.sidebar-layout__navigation > div:first-child {
+  overscroll-behavior: none;
+}
+
+.sidebar-layout__footer {
+  flex-shrink: 0;
+  padding: 4px 8px 8px;
+}
+
+.sidebar-layout__navigation-title {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding-inline: 8px;
+  font-weight: 600;
+}
+
+.sidebar-layout__header {
+  position: fixed;
+  inset: 0 0 auto var(--sidebar-width);
+  z-index: 10;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--app-background);
+}
+
+.sidebar-layout__main {
+  min-width: 0;
+  min-height: 100dvh;
+  margin-inline-start: var(--sidebar-width);
+  padding-top: 64px;
+}
+
+/* Mobile: leave room below content for the floating menu button. */
+
+.mobile-sidebar__content .sidebar-layout__surface {
+  min-height: calc(100dvh - var(--mobile-sidebar-header-height, 64px));
+  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+}

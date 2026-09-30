@@ -1,0 +1,6 @@
+.login-split-example__status {
+  position: fixed;
+  inset: auto 24px 72px;
+  margin: 0;
+  text-align: center;
+}

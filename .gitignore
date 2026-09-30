@@ -1,7 +1,10 @@
 node_modules/
 dist/
 dist-catalogue/
-*.tgz
 artifacts/
-.DS_Store
+test-results/
+playwright-report/
+*.tgz
 *.log
+.env.local
+.DS_Store

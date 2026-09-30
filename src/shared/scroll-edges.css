@@ -1,0 +1,61 @@
+/* Scroll areas framed by fixed chrome, such as a navigation list between its
+   header and footer.
+
+   - Content fades out over 10px where it passes under an edge, only on edges
+     that have more content behind them.
+   - Native momentum and bounce stay on, without chaining into the page, but
+     only while the area overflows, so a list that fits stays still.
+
+   Both follow the area's own scroll timeline, which is inactive while nothing
+   overflows. No script listens to scrolling. */
+
+@property --scroll-edges-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --scroll-edges-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* The second selector is Astryx's SideNav list, which takes no class. */
+.scroll-edges,
+.sidebar-layout__navigation > div:last-child {
+  overscroll-behavior: none;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 var(--scroll-edges-start),
+    #000 calc(100% - var(--scroll-edges-end)),
+    transparent
+  );
+  /* The `animation` shorthand resets the timeline and range, so they follow it. */
+  animation: scroll-edges-overflowing linear both, scroll-edges-start linear both, scroll-edges-end linear both;
+  animation-timeline: scroll(self), scroll(self), scroll(self);
+  animation-range: normal, 0px 10px, calc(100% - 10px) 100%;
+}
+
+@keyframes scroll-edges-overflowing {
+  from, to { overscroll-behavior: contain; }
+}
+
+@keyframes scroll-edges-start {
+  from { --scroll-edges-start: 0px; }
+  to { --scroll-edges-start: 10px; }
+}
+
+@keyframes scroll-edges-end {
+  from { --scroll-edges-end: 10px; }
+  to { --scroll-edges-end: 0px; }
+}
+
+/* Chromium rubber-bands a nested scroll area only while the document itself
+   may overscroll vertically, and a page that fits turns that off (see
+   useDocumentScroll). Lift it while the pointer is over a scroll area: the
+   areas above never pass gestures on, so the document still stays still. */
+html:has(.scroll-edges:hover, .sidebar-layout__navigation > div:last-child:hover) {
+  overscroll-behavior-y: contain;
+}

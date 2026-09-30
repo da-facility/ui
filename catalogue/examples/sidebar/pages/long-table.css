@@ -1,0 +1,12 @@
+/* Wide enough to overflow horizontally on phones; the table scrolls itself. */
+.long-table {
+  min-width: 0;
+}
+
+.long-table table {
+  min-width: 900px;
+}
+
+.long-table td:first-child {
+  font-variant-numeric: tabular-nums;
+}

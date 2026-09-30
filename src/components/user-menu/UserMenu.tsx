@@ -1,31 +1,44 @@
-import type {ReactElement} from 'react';
 import {Avatar} from '@astryxdesign/core/Avatar';
 import {DropdownMenu, type DropdownMenuOption, type DropdownMenuProps} from '@astryxdesign/core/DropdownMenu';
 import './user-menu.css';
 
+/** An action, divider or section in the menu. Same shape as Astryx `DropdownMenu` items. */
+export type UserMenuItem = DropdownMenuOption;
+
 export type UserMenuProps = {
+  /** Shown in the trigger and as the menu heading. Without `imageUrl`, the avatar shows initials. */
   user: {name: string; description?: string; imageUrl?: string};
-  items: DropdownMenuOption[];
+  /** Account actions. The app owns navigation and authentication. */
+  items: UserMenuItem[];
+  /** Show only the avatar, for narrow headers. */
   compact?: boolean;
+  /** Fill the container's width, for example in a sidebar footer. */
+  isFullWidth?: boolean;
   placement?: DropdownMenuProps['placement'];
   alignment?: DropdownMenuProps['alignment'];
+  /** Controlled open state. */
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
 };
 
-/** Account identity and actions. The caller supplies navigation and authentication. */
-export function UserMenu({user, items, compact = false, placement = 'below', alignment = 'end', isOpen, onOpenChange}: UserMenuProps): ReactElement {
+/** Account avatar and name that opens a menu of account actions. */
+export function UserMenu({user, items, compact = false, isFullWidth = false, placement = 'below', alignment = 'end', isOpen, onOpenChange}: UserMenuProps) {
+  const label = `Account menu for ${user.name}`;
+  const heading = user.description ? `${user.name} · ${user.description}` : user.name;
   return (
     <DropdownMenu
-      className="user-menu"
       button={{
-        className: `user-menu__trigger${compact ? ' user-menu__trigger--compact' : ''}`,
+        className: ['user-menu__trigger', compact && 'user-menu__trigger--compact', isFullWidth && 'user-menu__trigger--full-width'].filter(Boolean).join(' '),
+        width: isFullWidth ? '100%' : undefined,
         variant: 'ghost',
-        'aria-label': `Account menu for ${user.name}`,
-        label: `Account menu for ${user.name}`,
+        label,
+        'aria-label': label,
         children: <span className="user-menu__content">
           <Avatar name={user.name} src={user.imageUrl} size={32} tooltip={false} />
-          {!compact && <span className="user-menu__identity"><span>{user.name}</span>{user.description && <small>{user.description}</small>}</span>}
+          {!compact && <span className="user-menu__identity">
+            <span>{user.name}</span>
+            {user.description && <small>{user.description}</small>}
+          </span>}
         </span>,
       }}
       hasChevron={!compact}
@@ -34,7 +47,7 @@ export function UserMenu({user, items, compact = false, placement = 'below', ali
       menuWidth={260}
       isMenuOpen={isOpen}
       onOpenChange={onOpenChange}
-      items={[{type: 'section', title: user.description ? `${user.name} · ${user.description}` : user.name, items: []}, ...items]}
+      items={[{type: 'section', title: heading, items: []}, ...items]}
     />
   );
 }

@@ -1,21 +1,20 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "allowJs": false,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "types": ["bun", "vite/client"],
-    "resolveJsonModule": true,
-    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "strict": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["bun", "vite/client"],
+    "paths": {
+      "@da-facility/ui": ["./src/index.ts"]
+    }
   },
-  "include": ["src", "catalogue", "examples", "scripts", "vite.config.ts", "vite.library.config.ts"]
+  "include": ["src", "catalogue", "tests", "*.config.ts"]
 }

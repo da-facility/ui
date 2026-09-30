@@ -2,53 +2,108 @@ import {useEffect, useId, useState, type ReactNode} from 'react';
 import {useMediaQuery} from '@astryxdesign/core/hooks';
 import {SideNav} from '@astryxdesign/core/SideNav';
 import {MobileSidebar, type MobileNavigationSide} from './MobileSidebar';
-import {useDocumentAppearance, type DocumentAppearance} from './useDocumentAppearance';
+import {useDocumentScroll, type DocumentScrollOptions} from './useDocumentScroll';
+import '../../shared/scroll-edges.css';
 import './sidebar-layout.css';
 
-export type SidebarLayoutProps = DocumentAppearance & {
+export type SidebarLayoutProps = DocumentScrollOptions & {
+  /** App or page title shown in the header. */
   title: string;
+  /** Navigation content, typically Astryx `SideNavSection` and `SideNavItem` elements. */
   navigation: ReactNode;
+  /** Page content. */
   children: ReactNode;
+  /** Content at the end of the header, such as a `UserMenu`. */
   headerActions?: ReactNode;
-  navigationTitle?: string;
+  /**
+   * Pinned above the navigation, such as a title or a `ProjectSelector`. Text is
+   * styled as a title; elements render as they are. Defaults to `navigationLabel`.
+   */
+  navigationHeader?: ReactNode;
+  /** Pinned below the navigation, such as a `UserMenu`. The navigation scrolls between the two. */
+  navigationFooter?: ReactNode;
+  /** Accessible name for the navigation landmark and the mobile drawer. */
   navigationLabel?: string;
-  sectionsLabel?: string;
-  /** Change when navigating to close the mobile drawer. Routing stays in the app. */
+  /** Change this when the route changes so the mobile drawer closes. Routing stays in the app. */
   navigationKey?: string;
+  /** Screen edge for the mobile menu button and drawer. */
   mobileNavigationSide?: MobileNavigationSide;
+  /** Shows a left-handed toggle in the mobile drawer. The app owns persistence. */
   onMobileNavigationSideChange?: (side: MobileNavigationSide) => void;
+  /** Distance in pixels between the mobile menu button and the bottom of the screen. */
   mobileNavigationOffset?: number;
+  /** Decorative content for the spare space above the mobile navigation. */
   mobileNavigationArtwork?: ReactNode;
 };
 
-/** Full-page layout. Mount one per document so native overscroll has one owner. */
-export function SidebarLayout({title, navigation, children, headerActions,
-  navigationTitle = 'Navigation', navigationLabel = 'Navigation', sectionsLabel = 'Navigation sections', navigationKey,
-  mobileNavigationSide = 'right', onMobileNavigationSideChange, mobileNavigationOffset, mobileNavigationArtwork,
-  background, overscrollBackground, overscroll,
+const NARROW_VIEWPORT = '(max-width: 768px), (max-height: 600px)';
+
+/**
+ * Full-page app shell with a fixed navigation rail on desktop and a thumb-reachable
+ * drawer on mobile. The document owns scrolling so native momentum and overscroll
+ * work everywhere. Mount one per document.
+ */
+export function SidebarLayout({
+  title,
+  navigation,
+  children,
+  headerActions,
+  navigationLabel = 'Navigation',
+  navigationHeader = navigationLabel,
+  navigationFooter,
+  navigationKey,
+  mobileNavigationSide = 'right',
+  onMobileNavigationSideChange,
+  mobileNavigationOffset,
+  mobileNavigationArtwork,
+  background,
+  overscrollBackground,
+  overscroll,
 }: SidebarLayoutProps) {
-  useDocumentAppearance({background, overscrollBackground, overscroll});
+  useDocumentScroll({background, overscrollBackground, overscroll});
   const titleId = useId();
-  const narrow = useMediaQuery('(max-width: 768px), (max-height: 600px)');
-  const [open, setOpen] = useState(false);
-  useEffect(() => setOpen(false), [navigationKey, narrow]);
-  const header = <><span id={titleId} className="sidebar-layout__title">{title}</span>{headerActions}</>;
+  const isNarrow = useMediaQuery(NARROW_VIEWPORT);
+  const [isDrawerOpen, setDrawerOpen] = useState(false);
+  useEffect(() => setDrawerOpen(false), [navigationKey, isNarrow]);
+
+  const header = <>
+    <span id={titleId} className="sidebar-layout__title">{title}</span>
+    {headerActions}
+  </>;
   const content = <div className="sidebar-layout__surface">{children}</div>;
+  // The mobile drawer styles text headers itself; the rail needs a wrapper.
+  const navigationTop = typeof navigationHeader === 'string'
+    ? <div className="sidebar-layout__navigation-title">{navigationHeader}</div>
+    : navigationHeader;
+
+  if (isNarrow) {
+    return <div className="sidebar-layout">
+      <MobileSidebar
+        titleId={titleId}
+        header={header}
+        navigation={navigation}
+        navigationHeader={navigationHeader}
+        navigationFooter={navigationFooter}
+        navigationLabel={navigationLabel}
+        navigationArtwork={mobileNavigationArtwork}
+        side={mobileNavigationSide}
+        onSideChange={onMobileNavigationSideChange}
+        triggerOffset={mobileNavigationOffset}
+        isOpen={isDrawerOpen}
+        onOpenChange={setDrawerOpen}>
+        {content}
+      </MobileSidebar>
+    </div>;
+  }
 
   return <div className="sidebar-layout">
-    {narrow ? <MobileSidebar titleId={titleId} header={header} navigation={navigation}
-      background="var(--app-background)" isOpen={open} onOpenChange={setOpen}
-      side={mobileNavigationSide} onSideChange={onMobileNavigationSideChange} triggerOffset={mobileNavigationOffset}
-      navigationArtwork={mobileNavigationArtwork} navigationTitle={navigationTitle}
-      navigationLabel={navigationLabel} sectionsLabel={sectionsLabel}>
-      {content}
-    </MobileSidebar> : <>
-      <aside className="sidebar-layout__rail">
-        <SideNav className="sidebar-layout__navigation" aria-label={sectionsLabel}
-          header={<div className="sidebar-layout__navigation-title">{navigationTitle}</div>}>{navigation}</SideNav>
-      </aside>
-      <header className="sidebar-layout__header">{header}</header>
-      <main className="sidebar-layout__main" aria-labelledby={titleId}>{content}</main>
-    </>}
+    <aside className="sidebar-layout__rail">
+      <SideNav className="sidebar-layout__navigation" aria-label={navigationLabel} header={navigationTop}>
+        {navigation}
+      </SideNav>
+      {navigationFooter && <div className="sidebar-layout__footer">{navigationFooter}</div>}
+    </aside>
+    <header className="sidebar-layout__header">{header}</header>
+    <main className="sidebar-layout__main" aria-labelledby={titleId}>{content}</main>
   </div>;
 }

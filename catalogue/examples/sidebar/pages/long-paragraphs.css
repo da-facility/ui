@@ -1,0 +1,32 @@
+.long-paragraphs {
+  max-width: 68ch;
+  margin-inline: auto;
+  padding: clamp(16px, 4vw, 64px) clamp(4px, 2vw, 24px);
+  font-size: 17px;
+  line-height: 1.85;
+}
+
+.long-paragraphs > header {
+  margin-bottom: 64px;
+}
+
+.long-paragraphs p {
+  margin: 20px 0;
+  font: inherit;
+}
+
+.long-paragraphs > section {
+  margin-block: 56px;
+}
+
+.long-paragraphs section > footer {
+  margin-top: 28px;
+  padding-top: 12px;
+  border-top: 1px solid #d9d5cb;
+  color: #67645c;
+  font-size: 13px;
+}
+
+.long-paragraphs__end {
+  padding-block: 32px 48px;
+}

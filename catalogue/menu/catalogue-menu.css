@@ -1,0 +1,297 @@
+/* The catalogue menu is dev tooling, styled apart from the examples so it never
+   reads as part of the UI under review. */
+.catalogue-menu {
+  --menu-ink: #edeee9;
+  --menu-muted: #a4ab9b;
+  --menu-surface: #20231f;
+  --menu-raised: #30352b;
+  --menu-line: #3b4135;
+  --menu-accent: #d8ff5a;
+  position: fixed;
+  z-index: 2147483647;
+  color: var(--menu-ink);
+  font: 13px/1.4 "Helvetica Neue", Helvetica, sans-serif;
+  color-scheme: dark;
+}
+
+.catalogue-menu * {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.catalogue-menu :focus-visible {
+  outline: 2px solid var(--menu-accent);
+  outline-offset: 3px;
+}
+
+.catalogue-menu[data-dragging],
+.catalogue-menu[data-dragging] button {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.catalogue-menu__bar,
+.catalogue-menu__panel {
+  border: 1px solid #42473d;
+  border-radius: 12px;
+  background: var(--menu-surface);
+  box-shadow: 0 8px 28px #0003, 0 2px 6px #0002;
+}
+
+/* Bar */
+
+.catalogue-menu__bar {
+  display: flex;
+  height: 48px;
+  padding: 4px;
+}
+
+.catalogue-menu__handle,
+.catalogue-menu__toggle {
+  border: 0;
+  color: inherit;
+  background: transparent;
+}
+
+.catalogue-menu__handle:hover,
+.catalogue-menu__toggle:hover {
+  background: var(--menu-raised);
+}
+
+.catalogue-menu__handle {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 32px;
+  border-radius: 6px;
+  color: #8c9386;
+  cursor: grab;
+  touch-action: none;
+}
+
+.catalogue-menu__handle svg {
+  width: 12px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.catalogue-menu__toggle {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 0 10px 0 4px;
+  border-radius: 7px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.catalogue-menu__mark {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 6px;
+  color: var(--menu-surface);
+  background: var(--menu-accent);
+  font: bold 16px Georgia, serif;
+}
+
+.catalogue-menu__chevron {
+  margin-left: auto;
+  color: var(--menu-muted);
+  font-size: 20px;
+}
+
+/* Panel */
+
+.catalogue-menu__panel {
+  position: absolute;
+  width: 100%;
+  padding: 16px 10px 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.catalogue-menu__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 6px 14px;
+}
+
+.catalogue-menu__header h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.catalogue-menu__header span {
+  color: var(--menu-muted);
+  font-size: 11px;
+}
+
+.catalogue-menu__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  margin-bottom: 6px;
+  padding: 0 10px;
+  border: 1px solid #41483b;
+  border-radius: 7px;
+  color: #9da593;
+  background: #171a15;
+}
+
+.catalogue-menu__search:focus-within {
+  border-color: var(--menu-accent);
+}
+
+.catalogue-menu__search > span {
+  font-size: 22px;
+}
+
+.catalogue-menu__search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  color: #fff;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+}
+
+/* The field's container shows focus instead. */
+.catalogue-menu__search input:focus-visible {
+  outline: none;
+}
+
+.catalogue-menu__search input::placeholder {
+  color: #9da593;
+}
+
+.catalogue-menu__search kbd {
+  font-size: 10px;
+}
+
+.catalogue-menu nav {
+  display: grid;
+  gap: 4px;
+}
+
+.catalogue-menu__kind {
+  margin: 12px 8px 6px;
+  color: var(--menu-muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.catalogue-menu nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 57px;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: #d1d6cb;
+  text-decoration: none;
+}
+
+.catalogue-menu nav a:hover {
+  background: #2b3026;
+}
+
+.catalogue-menu nav a[aria-current] {
+  border-color: #49543a;
+  color: #f4f6ef;
+  background: #30372a;
+}
+
+.catalogue-menu nav small {
+  display: block;
+  margin-top: 2px;
+  color: var(--menu-muted);
+  font-size: 10px;
+}
+
+.catalogue-menu__icon {
+  display: flex;
+  flex-shrink: 0;
+  gap: 3px;
+  width: 30px;
+  height: 25px;
+  padding: 3px;
+  border: 1px solid #78846a;
+  border-radius: 4px;
+}
+
+.catalogue-menu__icon i {
+  flex: 1;
+  border-radius: 1px;
+  background: #8b98794d;
+}
+
+.catalogue-menu__icon[data-kind="Layout"] i:first-child {
+  flex: 0 0 5px;
+  background: #a9b995;
+}
+
+.catalogue-menu__icon[data-kind="Component"] i:last-child {
+  display: none;
+}
+
+.catalogue-menu__empty {
+  padding: 8px;
+  color: #b8c0af;
+  overflow-wrap: anywhere;
+}
+
+.catalogue-menu__tweaks {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px 4px 0;
+  border-top: 1px solid var(--menu-line);
+}
+
+.catalogue-menu__tweaks h3 {
+  margin: 0 0 2px;
+  color: #c6cdbd;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.catalogue-menu__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 4px 2px;
+  border-top: 1px solid var(--menu-line);
+}
+
+.catalogue-menu__footer a {
+  color: #c6cdbd;
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.catalogue-menu__footer a:hover {
+  color: var(--menu-accent);
+}
+
+.catalogue-menu__footer select {
+  max-width: 102px;
+  min-height: 30px;
+  padding: 4px;
+  border: 1px solid #49503f;
+  border-radius: 5px;
+  color: #d1d6cb;
+  background: #282d23;
+  font-size: 11px;
+}

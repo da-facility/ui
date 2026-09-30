@@ -1,0 +1,26 @@
+/* Content flows in the document instead of an Astryx scroll container. */
+.sidebar-example__content {
+  height: auto;
+  min-width: 0;
+  overflow: visible;
+  background: var(--app-background);
+}
+
+.sidebar-example__sky {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-height: 240px;
+  margin: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Hide the artwork when the drawer has too little spare space for it. */
+@container (max-height: 64px) {
+  .sidebar-example__sky {
+    visibility: hidden;
+  }
+}
