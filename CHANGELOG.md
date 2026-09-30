@@ -12,9 +12,11 @@ Breaking changes:
 
 New:
 
+- `PageScroll`: makes the document the page's scroller, with native bounce only while the page overflows. Pure CSS; it replaces the layout's scroll-measuring effect.
+- `ScrollArea` and `scrollAreaClassName`: scroll boxes inside fixed chrome with native bounce while they overflow and a `fade` under their edges.
 - `ProjectSelector`: the current project, with a searchable menu. The search starts compact and widens once there is a query.
 - `SidebarLayout` takes a `navigationFooter` that stays at the bottom of the sidebar and the mobile drawer while the navigation scrolls between the header and footer.
-- The sidebar's navigation list keeps native momentum and bounce while it overflows, and fades items out under its header and footer.
+- The sidebar's navigation list is a `ScrollArea`: native momentum and bounce while it overflows, and items fading under its header and footer, in Safari as well as Chromium.
 - `UserMenu` takes `isFullWidth`, for sidebar footers.
 
 Other changes:

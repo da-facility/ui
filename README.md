@@ -4,10 +4,12 @@ Layouts, templates and components for Da Facility apps, built on [Meta Astryx](h
 
 | Export | Kind | What it is |
 | --- | --- | --- |
-| `SidebarLayout` | Layout | App shell with a fixed navigation rail on desktop and a thumb-reachable drawer on mobile. The document owns scrolling, so momentum and overscroll stay native. |
+| `SidebarLayout` | Layout | App shell with a fixed navigation rail on desktop and a thumb-reachable drawer on mobile. Built on `PageScroll` and `ScrollArea`. |
 | `LoginSplit` | Template | Sign-in page with an email and password form beside a cover image. |
 | `ProjectSelector` | Component | The current project, with a searchable menu for switching projects. |
 | `UserMenu` | Component | Account avatar and name that opens a menu of account actions. |
+| `PageScroll` | Component | Makes the document the page's scroller, with native bounce only while the page overflows. |
+| `ScrollArea` | Component | Scroll box inside fixed chrome, with native bounce while it overflows and content fading under its edges. |
 
 ## Install
 
@@ -69,9 +71,9 @@ import {ProjectSelector, SidebarLayout, UserMenu} from '@da-facility/ui';
 </SidebarLayout>
 ```
 
-- **Mount one per document.** While it is mounted, the layout owns the document's scroll styles and restores them on unmount.
+- **Mount one per document.** It scrolls the page with `PageScroll`, whose document styles apply only while it is mounted.
 - **Pinned header and footer.** `navigationHeader` and `navigationFooter` stay put at the top and bottom of the sidebar (and of the mobile drawer), and the navigation scrolls between them. Plain text in `navigationHeader` is styled as a title.
-- **The navigation list scrolls like the page.** While it overflows, it keeps native momentum and bounce without moving the page, and items fade out over 10px where they pass under the header or footer. A list that fits neither fades nor bounces. This is all CSS, driven by the list's own scroll timeline.
+- **The navigation list is a `ScrollArea`.** While it overflows, it keeps native momentum and bounce without moving the page, and items fade out where they pass under the header or footer.
 - **Routing stays in the app.** Pass the current route as `navigationKey` so the mobile drawer closes after navigation.
 - **Page background.** `background` sets it. The same color fills the overscroll area unless `overscrollBackground` is set. Use `overscroll="none"` to turn off native bounce.
 - **Mobile navigation.** The menu button and drawer default to the right. `mobileNavigationSide` moves them, and passing `onMobileNavigationSideChange` adds a left-handed switch to the drawer. Persisting the choice is up to the app.
@@ -107,6 +109,31 @@ import {ProjectSelector, SidebarLayout, UserMenu} from '@da-facility/ui';
 ```
 
 The menu opens with its search focused, so typing filters straight away. The search starts as a compact pill beside the heading and widens to the full row once it has a query. Arrow keys move through the matches and Enter selects one. The first Escape clears the search, and the second closes the menu. The trigger fills its container's width, which suits a sidebar header.
+
+### PageScroll and ScrollArea
+
+Scrolling stays native: the browser does the momentum and rubber-banding, and no script listens to scroll events. These two components only decide which element scrolls and when it may bounce, in CSS.
+
+```tsx
+import {PageScroll, ScrollArea} from '@da-facility/ui';
+
+// The page: the document scrolls. Keep headers and sidebars `position: fixed` inside it.
+<PageScroll background="#fff" overscroll="when-scrollable">
+  <header className="my-fixed-header">…</header>
+  <main>…</main>
+</PageScroll>
+
+// A list between a pinned header and footer. Give it a height, or a flex parent.
+<ScrollArea fade={10} style={{flex: 1, minHeight: 0}}>
+  <ul>…</ul>
+</ScrollArea>
+```
+
+- **`PageScroll`** bounces only while the page overflows, so a page that fits stays still. `background` is the page colour and also fills the bounce, unless `overscrollBackground` is set. `overscroll="none"` turns the bounce off. Mount one per document.
+- **`ScrollArea`** bounces only while it overflows, never moves the page, and fades content over `fade` pixels (10 by default) under the edges that have more behind them.
+- **Scroll boxes you can't wrap.** For a scroll box you render yourself or can't wrap, add `scrollAreaClassName` to it instead.
+
+How the "only while it overflows" part works: an element's CSS scroll timeline is active only while it has something to scroll. An animation on that timeline switches a registered custom property to `contain`, and `overscroll-behavior` reads the property. The indirection is needed because Safari does not animate `overscroll-behavior` itself. Browsers without scroll timelines, such as Safari before 26, always allow the bounce and skip the fades.
 
 ### UserMenu
 
@@ -158,7 +185,7 @@ To open the catalogue on another device, list the extra host names in `.env.loca
 CATALOGUE_ALLOWED_HOSTS=my-machine.tailnet.ts.net
 ```
 
-The native-overscroll tests run only on macOS, in a visible Chromium window, because rubber-banding exists only there. Chromium is still no substitute for testing on a real iPhone in Safari.
+The native-overscroll tests run only on macOS, in visible Chromium windows, after the rest of the suite, because rubber-banding exists only there and measuring it is timing-sensitive. WebKit tests check the CSS bounce switches resolve the same way in Safari's engine. Neither replaces trying it on a real iPhone. Without a running `bun run dev`, the tests build the catalogue and serve that.
 
 ## Release
 

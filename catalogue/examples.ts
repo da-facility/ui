@@ -2,6 +2,7 @@ import type {Example} from './types';
 import {SidebarExample} from './examples/sidebar/SidebarExample';
 import {LoginSplitExample} from './examples/login-split/LoginSplitExample';
 import {ProjectSelectorExample} from './examples/project-selector/ProjectSelectorExample';
+import {ScrollAreaExample} from './examples/scroll-area/ScrollAreaExample';
 import {UserMenuExample} from './examples/user-menu/UserMenuExample';
 
 export const examples: Example[] = [
@@ -31,6 +32,13 @@ export const examples: Example[] = [
     kind: 'Component',
     description: 'Current project with a searchable menu for switching projects.',
     Component: ProjectSelectorExample,
+  },
+  {
+    id: 'scroll-area',
+    name: 'Scroll area',
+    kind: 'Component',
+    description: 'Scroll box with native bounce while it overflows and fades under its edges.',
+    Component: ScrollAreaExample,
   },
   {
     id: 'user-menu',

@@ -3,7 +3,7 @@
   height: auto;
   min-width: 0;
   overflow: visible;
-  background: var(--app-background);
+  background: var(--page-background);
 }
 
 .sidebar-example__sky {

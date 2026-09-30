@@ -1,0 +1,75 @@
+/* Scroll areas: both effects follow the area's own scroll timeline, which is
+   active only while the area overflows. No script listens to scrolling.
+
+   - Native momentum and bounce, without chaining into the page. The variable
+     is animated rather than overscroll-behavior itself because Safari does not
+     animate that property.
+   - Content fades out over --scroll-area-fade where it passes under an edge,
+     only on edges with more content behind them. */
+
+@property --scroll-area-overscroll {
+  syntax: "none | contain";
+  inherits: false;
+  initial-value: none;
+}
+
+@property --scroll-area-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --scroll-area-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* The second selector is Astryx's SideNav list, which takes no class. Without
+   scroll timelines, areas always contain their bounce and never fade. */
+.scroll-area,
+.sidebar-layout__navigation > div:last-child {
+  overflow-y: auto;
+  overscroll-behavior: var(--scroll-area-overscroll, contain);
+  animation: scroll-area-overflowing linear both;
+  animation-timeline: scroll(self);
+}
+
+@supports (animation-timeline: scroll()) {
+  .scroll-area,
+  .sidebar-layout__navigation > div:last-child {
+    mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      #000 var(--scroll-area-start),
+      #000 calc(100% - var(--scroll-area-end)),
+      transparent
+    );
+    /* The `animation` shorthand resets the timeline and range, so they follow it. */
+    animation: scroll-area-overflowing linear both, scroll-area-start linear both, scroll-area-end linear both;
+    animation-timeline: scroll(self), scroll(self), scroll(self);
+    animation-range: normal, 0px var(--scroll-area-fade, 10px), calc(100% - var(--scroll-area-fade, 10px)) 100%;
+  }
+}
+
+@keyframes scroll-area-overflowing {
+  from, to { --scroll-area-overscroll: contain; }
+}
+
+@keyframes scroll-area-start {
+  from { --scroll-area-start: 0px; }
+  to { --scroll-area-start: var(--scroll-area-fade, 10px); }
+}
+
+@keyframes scroll-area-end {
+  from { --scroll-area-end: var(--scroll-area-fade, 10px); }
+  to { --scroll-area-end: 0px; }
+}
+
+/* Chromium only bounces a nested area while the page itself may bounce
+   vertically, and a page that fits does not (see page-scroll.css). Allow it
+   while the pointer is over an area: areas never pass gestures on to the page,
+   so the page itself still stays still. */
+html:has(.scroll-area:hover, .sidebar-layout__navigation > div:last-child:hover) {
+  overscroll-behavior-y: contain;
+}

@@ -33,7 +33,7 @@
     "build": "rm -rf dist && vite build --config vite.lib.config.ts && tsc --project tsconfig.lib.json",
     "build:catalogue": "vite build",
     "typecheck": "tsc --noEmit",
-    "test": "playwright test --project=desktop --project=mobile",
+    "test": "playwright test --project=desktop --project=mobile --project=webkit --project=native-desktop --project=native-mobile",
     "test:package": "playwright test --project=package",
     "screenshots": "playwright test --project=screenshots",
     "prepublishOnly": "bun run build"

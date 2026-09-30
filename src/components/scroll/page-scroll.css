@@ -1,0 +1,43 @@
+/* The document is the page's only scroller: root scrolling is what gets native
+   momentum and rubber-banding everywhere. These rules apply only while a
+   PageScroll is mounted. */
+html:has(.page-scroll) {
+  overflow: visible;
+  background: var(--page-overscroll-background, var(--page-background));
+}
+
+body:has(.page-scroll) {
+  margin: 0;
+  overflow: visible;
+  background: transparent;
+}
+
+/* Never bounce sideways; bounce vertically only while the page overflows.
+
+   The page's scroll timeline is active exactly while it overflows, and the
+   animation then switches the variable to `contain`. The variable is animated
+   rather than overscroll-behavior itself because Safari does not animate that
+   property. Browsers without scroll timelines run the animation as a plain
+   one that ends on `contain`, so their pages always bounce. */
+@property --page-scroll-overscroll {
+  syntax: "none | contain";
+  inherits: false;
+  initial-value: none;
+}
+
+html:has(.page-scroll),
+body:has(.page-scroll) {
+  overscroll-behavior: none var(--page-scroll-overscroll, contain);
+  animation: page-scroll-overflowing linear both;
+  animation-timeline: scroll(root);
+}
+
+@keyframes page-scroll-overflowing {
+  from, to { --page-scroll-overscroll: contain; }
+}
+
+html:has(.page-scroll[data-overscroll="none"]),
+body:has(.page-scroll[data-overscroll="none"]) {
+  overscroll-behavior: none;
+  animation: none;
+}

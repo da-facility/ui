@@ -50,7 +50,7 @@ test.describe('document scrolling', () => {
     await page.goto('/render/sidebar/long-paragraphs');
     await expect(page.locator('.sidebar-example__content')).toHaveCSS('background-color', 'rgb(250, 248, 242)');
     await expect(root(page)).toHaveCSS('background-color', 'rgb(250, 248, 242)');
-    await root(page).evaluate(html => html.style.setProperty('--app-overscroll-background', 'rgb(220, 230, 240)'));
+    await root(page).evaluate(html => html.style.setProperty('--page-overscroll-background', 'rgb(220, 230, 240)'));
     await expect(root(page)).toHaveCSS('background-color', 'rgb(220, 230, 240)');
   });
 
@@ -61,7 +61,8 @@ test.describe('document scrolling', () => {
     await page.getByRole('link', {name: /^Login split/}).click();
     await expect(page.getByRole('heading', {name: 'Welcome back'})).toBeVisible();
     await expect(root(page)).toHaveCSS('overscroll-behavior-y', 'auto');
-    expect(await root(page).evaluate(html => html.style.getPropertyValue('--app-background'))).toBe('');
+    await expect(root(page)).not.toHaveCSS('animation-name', 'page-scroll-overflowing');
+    expect(await root(page).evaluate(html => getComputedStyle(html).getPropertyValue('--page-background'))).toBe('');
   });
 
   test('every row of the long table renders and the last one is reachable', async ({page}) => {
@@ -155,7 +156,7 @@ test.describe('desktop navigation rail', () => {
   test('the list fades under its edges and bounces only while it overflows', async ({page}) => {
     const edges = () => railList(page).evaluate(list => {
       const style = getComputedStyle(list);
-      return [style.getPropertyValue('--scroll-edges-start'), style.getPropertyValue('--scroll-edges-end'), style.overscrollBehaviorY];
+      return [style.getPropertyValue('--scroll-area-start'), style.getPropertyValue('--scroll-area-end'), style.overscrollBehaviorY];
     });
     await page.goto('/sidebar/profile');
     expect(await edges(), 'a list that fits neither fades nor bounces').toEqual(['0px', '0px', 'none']);
@@ -259,7 +260,7 @@ test.describe('mobile navigation drawer', () => {
     await expect(drawer(page).getByRole('button', {name: 'Account menu for Alex Johnson'})).toBeVisible();
     const list = page.locator('.mobile-sidebar__sections');
     await list.evaluate(element => { element.scrollTop = element.scrollHeight / 2; });
-    await expect.poll(() => list.evaluate(element => getComputedStyle(element).getPropertyValue('--scroll-edges-start'))).toBe('10px');
+    await expect.poll(() => list.evaluate(element => getComputedStyle(element).getPropertyValue('--scroll-area-start'))).toBe('10px');
     expect(await list.evaluate(element => getComputedStyle(element).overscrollBehaviorY)).toBe('contain');
   });
 

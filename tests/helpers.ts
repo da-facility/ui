@@ -1,6 +1,6 @@
 import {expect, type Page, type TestInfo} from '@playwright/test';
 
-export const isMobile = (testInfo: TestInfo) => testInfo.project.name === 'mobile';
+export const isMobile = (testInfo: TestInfo) => testInfo.project.name.endsWith('mobile');
 
 /** Astryx's drawer panel inside the mobile navigation dialog. */
 export const drawerPanel = (page: Page) => page.locator('.mobile-sidebar__drawer > div');

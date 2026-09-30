@@ -7,6 +7,8 @@ import {isMobile, scrollY} from './helpers';
 // only headed Chromium provides.
 test.skip(process.platform !== 'darwin', 'Native rubber-banding needs macOS');
 test.use({headless: false});
+// One window per viewport at a time keeps the mid-gesture captures reliable.
+test.describe.configure({mode: 'serial'});
 
 const MAGENTA = '255,0,255';
 
@@ -35,7 +37,7 @@ async function screenshotDuringGesture(page: Page, yDistance: number) {
   return screenshot;
 }
 
-const showCanvas = (page: Page) => page.locator('html').evaluate(html => html.style.setProperty('--app-overscroll-background', 'rgb(255, 0, 255)'));
+const showCanvas = (page: Page) => page.locator('html').evaluate(html => html.style.setProperty('--page-overscroll-background', 'rgb(255, 0, 255)'));
 
 for (const path of ['long-paragraphs', 'long-table']) {
   for (const edge of ['top', 'bottom'] as const) {

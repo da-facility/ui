@@ -1,27 +1,12 @@
-/* The document is the only content scroller: root scrolling is what gives
-   native momentum and macOS rubber-banding. Fixed navigation paints above that
-   motion. These document rules apply only while a layout is mounted. */
-html:has(.sidebar-layout) {
-  --app-background: #fff;
-  --sidebar-width: 260px;
-  overflow: visible;
-  overscroll-behavior: none var(--app-overscroll-y, contain);
-  background: var(--app-overscroll-background, var(--app-background));
-}
-
-body:has(.sidebar-layout) {
-  margin: 0;
-  overflow: visible;
-  overscroll-behavior: none var(--app-overscroll-y, contain);
-  background: transparent;
-}
-
 .sidebar-layout,
 .sidebar-layout * {
   box-sizing: border-box;
 }
 
+/* Page scrolling comes from PageScroll (page-scroll.css). The rail and header are
+   fixed, so they paint above the scrolling, bouncing document. */
 .sidebar-layout {
+  --sidebar-width: 260px;
   min-height: 100dvh;
   color: var(--color-text-primary);
 }
@@ -34,7 +19,7 @@ body:has(.sidebar-layout) {
 
 .sidebar-layout__surface {
   min-height: calc(100dvh - 64px);
-  background: var(--app-background);
+  background: var(--page-background);
 }
 
 /* Desktop */
@@ -52,7 +37,7 @@ body:has(.sidebar-layout) {
 }
 
 /* The navigation list scrolls between the pinned header and footer. See
-   scroll-edges.css for its bounce and edge fades. */
+   scroll-area.css for its bounce and edge fades. */
 .sidebar-layout__rail > .sidebar-layout__navigation {
   flex: 1;
   width: 100%;
@@ -91,7 +76,7 @@ body:has(.sidebar-layout) {
   gap: 16px;
   padding: 0 24px;
   border-bottom: 1px solid var(--color-border);
-  background: var(--app-background);
+  background: var(--page-background);
 }
 
 .sidebar-layout__main {

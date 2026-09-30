@@ -2,11 +2,11 @@ import {useEffect, useId, useState, type ReactNode} from 'react';
 import {useMediaQuery} from '@astryxdesign/core/hooks';
 import {SideNav} from '@astryxdesign/core/SideNav';
 import {MobileSidebar, type MobileNavigationSide} from './MobileSidebar';
-import {useDocumentScroll, type DocumentScrollOptions} from './useDocumentScroll';
-import '../../shared/scroll-edges.css';
+import {PageScroll, type PageScrollProps} from '../../components/scroll/PageScroll';
+import '../../components/scroll/scroll-area.css';
 import './sidebar-layout.css';
 
-export type SidebarLayoutProps = DocumentScrollOptions & {
+export type SidebarLayoutProps = Pick<PageScrollProps, 'background' | 'overscrollBackground' | 'overscroll'> & {
   /** App or page title shown in the header. */
   title: string;
   /** Navigation content, typically Astryx `SideNavSection` and `SideNavItem` elements. */
@@ -40,8 +40,8 @@ const NARROW_VIEWPORT = '(max-width: 768px), (max-height: 600px)';
 
 /**
  * Full-page app shell with a fixed navigation rail on desktop and a thumb-reachable
- * drawer on mobile. The document owns scrolling so native momentum and overscroll
- * work everywhere. Mount one per document.
+ * drawer on mobile. Built on `PageScroll`: the document scrolls, so momentum and
+ * overscroll are native. Mount one per document.
  */
 export function SidebarLayout({
   title,
@@ -60,7 +60,6 @@ export function SidebarLayout({
   overscrollBackground,
   overscroll,
 }: SidebarLayoutProps) {
-  useDocumentScroll({background, overscrollBackground, overscroll});
   const titleId = useId();
   const isNarrow = useMediaQuery(NARROW_VIEWPORT);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
@@ -76,8 +75,10 @@ export function SidebarLayout({
     ? <div className="sidebar-layout__navigation-title">{navigationHeader}</div>
     : navigationHeader;
 
+  const page = {className: 'sidebar-layout', background, overscrollBackground, overscroll};
+
   if (isNarrow) {
-    return <div className="sidebar-layout">
+    return <PageScroll {...page}>
       <MobileSidebar
         titleId={titleId}
         header={header}
@@ -93,10 +94,10 @@ export function SidebarLayout({
         onOpenChange={setDrawerOpen}>
         {content}
       </MobileSidebar>
-    </div>;
+    </PageScroll>;
   }
 
-  return <div className="sidebar-layout">
+  return <PageScroll {...page}>
     <aside className="sidebar-layout__rail">
       <SideNav className="sidebar-layout__navigation" aria-label={navigationLabel} header={navigationTop}>
         {navigation}
@@ -105,5 +106,5 @@ export function SidebarLayout({
     </aside>
     <header className="sidebar-layout__header">{header}</header>
     <main className="sidebar-layout__main" aria-labelledby={titleId}>{content}</main>
-  </div>;
+  </PageScroll>;
 }

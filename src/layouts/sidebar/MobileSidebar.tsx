@@ -4,6 +4,7 @@ import {Icon} from '@astryxdesign/core/Icon';
 import {MobileNav} from '@astryxdesign/core/MobileNav';
 import {Switch} from '@astryxdesign/core/Switch';
 import {useDirection} from '@astryxdesign/core/i18n';
+import {scrollAreaClassName} from '../../components/scroll/ScrollArea';
 import './mobile-sidebar.css';
 
 /** Physical screen edge, so right-to-left text never flips a hand preference. */
@@ -98,7 +99,7 @@ export function MobileSidebar({
         label={navigationLabel}
         header={navigationHeader}>
         <div className="mobile-sidebar__drawer-body">
-          <nav className="mobile-sidebar__sections scroll-edges" aria-label={navigationLabel}>
+          <nav className={`mobile-sidebar__sections ${scrollAreaClassName}`} aria-label={navigationLabel}>
             {navigationArtwork && <div className="mobile-sidebar__artwork" aria-hidden="true">{navigationArtwork}</div>}
             {navigation}
           </nav>

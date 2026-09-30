@@ -2,7 +2,7 @@ import {useEffect, useId, useMemo, useRef, useState, type KeyboardEvent} from 'r
 import {Avatar} from '@astryxdesign/core/Avatar';
 import {Icon} from '@astryxdesign/core/Icon';
 import {Popover} from '@astryxdesign/core/Popover';
-import '../../shared/scroll-edges.css';
+import {scrollAreaClassName} from '../scroll/ScrollArea';
 import './project-selector.css';
 
 export type Project = {
@@ -123,7 +123,7 @@ export function ProjectSelector({projects, value, onChange, label = 'Projects', 
         </button>
       </label>
     </div>
-    <ul ref={listRef} id={`${id}-list`} className="project-selector__list scroll-edges" role="listbox" aria-label={label}>
+    <ul ref={listRef} id={`${id}-list`} className={`project-selector__list ${scrollAreaClassName}`} role="listbox" aria-label={label}>
       {matches.map((project, index) => <li
         key={project.id}
         id={optionId(index)}

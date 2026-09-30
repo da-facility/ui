@@ -9,14 +9,14 @@
 
 - `src/` is the published package. Everything public is exported from `src/index.ts`, with JSDoc on every prop.
 - `catalogue/` is the local preview app. Each example in `catalogue/examples/` is registered in `catalogue/examples.ts` and imports `@da-facility/ui` like a consuming app would. Examples receive their sub-page and tweaks as props and never import catalogue internals.
-- `tests/` holds the Playwright tests. `bun run test` covers desktop and mobile; `bun run test:package` packs the package and tests it in a fresh app.
+- `tests/` holds the Playwright tests. `bun run test` covers desktop, mobile, WebKit and native macOS bounce; `bun run test:package` packs the package and tests it in a fresh app.
 
 ## Rules
 
 - Astryx and React are peer dependencies. The library build must never bundle them; `tests/package.spec.ts` checks this.
 - Package styles are plain, unlayered CSS with BEM class names, kept next to their component and themed through Astryx tokens (`var(--color-…)`, `var(--radius-…)`).
 - `SidebarLayout` scrolling is deliberate: the document is the only content scroller, fixed navigation sits outside it, and wheel input is never intercepted. This is what gives native momentum and rubber-banding. Do not add nested scroll containers or scroll handlers, and keep `tests/sidebar-layout.spec.ts` and `tests/native-overscroll.spec.ts` passing.
-- Scroll areas inside fixed chrome (the sidebar list, menu lists) use `src/shared/scroll-edges.css`: edge fades plus native bounce only while they overflow, all driven by CSS scroll timelines. Use the `scroll-edges` class rather than new scroll logic.
+- Scrolling goes through `PageScroll` (the document) and `ScrollArea` / `scrollAreaClassName` (boxes inside fixed chrome) in `src/components/scroll/`. Their bounce and fades are CSS scroll timelines driving registered custom properties; do not add scroll listeners, and do not animate `overscroll-behavior` directly, because Safari ignores that. `tests/overscroll-switch.spec.ts` checks them in WebKit.
 - Run `bun run typecheck` and `bun run test` before handing off work that touches `src/` or `catalogue/`.
 
 ## Screenshot Coverage
