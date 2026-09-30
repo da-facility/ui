@@ -90,7 +90,7 @@ export function SidebarExample({page: pageId, onPageChange, tweaks, onTweakChang
       </span>
     </>}
     navigation={navigation}
-    navigationHeader={tweaks.navigationHeader ? <ProjectSelector projects={PROJECTS} value={projectId} onChange={setProjectId} /> : 'Settings'}
+    navigationHeader={tweaks.navigationHeader ? <ProjectSelector projects={PROJECTS} value={projectId} onChange={setProjectId} /> : null}
     navigationFooter={tweaks.navigationFooter && userMenu}
     navigationLabel="Settings navigation"
     navigationKey={page.id}

@@ -17,7 +17,8 @@ export type ScrollAreaProps = ComponentPropsWithRef<'div'> & ScrollAreaOptions;
 export function scrollAreaStyle({fade, bounce}: ScrollAreaOptions): CSSProperties {
   const style: Record<string, string> = {};
   if (fade !== undefined) style['--scroll-area-fade'] = `${fade}px`;
-  if (bounce !== undefined) style['--scroll-area-bounce'] = bounce ? 'contain' : 'none';
+  // `initial` clears a `none` inherited from an outer area, so bouncing follows overflow again.
+  if (bounce !== undefined) style['--scroll-area-bounce'] = bounce ? 'initial' : 'none';
   return style;
 }
 

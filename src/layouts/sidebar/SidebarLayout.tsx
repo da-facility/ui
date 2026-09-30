@@ -20,7 +20,8 @@ export type SidebarLayoutProps = Pick<PageScrollProps, 'background' | 'overscrol
   footer?: ReactNode;
   /**
    * Pinned above the navigation, such as a title or a `ProjectSelector`. Text is
-   * styled as a title; elements render as they are. Defaults to `navigationLabel`.
+   * styled as a title; elements render as they are. Defaults to `navigationLabel`;
+   * pass `null` for no header.
    */
   navigationHeader?: ReactNode;
   /** Pinned below the navigation, such as a `UserMenu`. The navigation scrolls between the two. */
