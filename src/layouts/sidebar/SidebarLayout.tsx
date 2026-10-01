@@ -2,6 +2,7 @@ import {useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode, typ
 import {useMediaQuery} from '@astryxdesign/core/hooks';
 import {SideNav} from '@astryxdesign/core/SideNav';
 import {PageScroll, type PageScrollProps} from '../../components/scroll/PageScroll';
+import {useMessages} from '../../i18n';
 import {scrollAreaStyle} from '../../components/scroll/ScrollArea';
 import '../../components/scroll/scroll-area.css';
 import {MobileNavigation, type MobileNavigationSide} from './MobileNavigation';
@@ -62,8 +63,8 @@ export function SidebarLayout({
   title,
   headerActions,
   footer,
-  navigationLabel = 'Navigation',
-  navigationHeader = navigationLabel,
+  navigationLabel: navigationLabelProp,
+  navigationHeader: navigationHeaderProp,
   navigationFooter,
   navigationFade,
   navigationBounce,
@@ -78,6 +79,9 @@ export function SidebarLayout({
   overscrollBackground,
   overscroll,
 }: SidebarLayoutProps) {
+  const t = useMessages();
+  const navigationLabel = navigationLabelProp ?? t('@da-facility.sidebarLayout.navigation');
+  const navigationHeader = navigationHeaderProp === undefined ? navigationLabel : navigationHeaderProp;
   const titleId = useId();
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   // Only closes the drawer when the screen widens; the layout itself is CSS.

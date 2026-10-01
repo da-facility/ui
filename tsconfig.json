@@ -13,7 +13,8 @@
     "forceConsistentCasingInFileNames": true,
     "types": ["bun", "vite/client"],
     "paths": {
-      "@da-facility/ui": ["./src/index.ts"]
+      "@da-facility/ui": ["./src/index.ts"],
+      "@da-facility/ui/locales/*": ["./src/locales/*"]
     }
   },
   "include": ["src", "catalogue", "tests", "*.config.ts"]

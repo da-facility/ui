@@ -1,0 +1,114 @@
+{
+  "@da-facility.sidebarLayout.navigation": {
+    "defaultMessage": "Navigation",
+    "description": "Default accessible name for the navigation, and its title in the sidebar."
+  },
+  "@da-facility.mobileNavigation.open": {
+    "defaultMessage": "Open {label}",
+    "description": "Floating menu button on phones. {label} is the navigation name in lowercase."
+  },
+  "@da-facility.mobileNavigation.close": {
+    "defaultMessage": "Close menu",
+    "description": "Button that closes the navigation drawer on phones."
+  },
+  "@da-facility.mobileNavigation.leftHanded": {
+    "defaultMessage": "Left-handed navigation",
+    "description": "Switch that moves the menu button and drawer to the left edge."
+  },
+  "@da-facility.userMenu.label": {
+    "defaultMessage": "Account menu for {name}",
+    "description": "Accessible name of the account button. {name} is the person’s name."
+  },
+  "@da-facility.projectSelector.label": {
+    "defaultMessage": "Projects",
+    "description": "Default heading of the project menu and its accessible name."
+  },
+  "@da-facility.projectSelector.trigger": {
+    "defaultMessage": "{label}: {project}",
+    "description": "Accessible name of the project button, such as “Projects: Web app”."
+  },
+  "@da-facility.projectSelector.noneSelected": {
+    "defaultMessage": "Select a project",
+    "description": "Shown on the project button when no project is selected."
+  },
+  "@da-facility.projectSelector.searchLabel": {
+    "defaultMessage": "Search {label}",
+    "description": "Accessible name of the search field. {label} is the menu heading in lowercase."
+  },
+  "@da-facility.projectSelector.searchPlaceholder": {
+    "defaultMessage": "Search",
+    "description": "Placeholder of the compact search field."
+  },
+  "@da-facility.projectSelector.clearSearch": {
+    "defaultMessage": "Clear search",
+    "description": "Button that empties the search field."
+  },
+  "@da-facility.projectSelector.noMatches": {
+    "defaultMessage": "No projects match “{query}”.",
+    "description": "Shown when the search finds nothing."
+  },
+  "@da-facility.projectSelector.create": {
+    "defaultMessage": "New project",
+    "description": "Action at the end of the project menu."
+  },
+  "@da-facility.loginSplit.title": {
+    "defaultMessage": "Welcome back",
+    "description": "Default heading of the sign-in form."
+  },
+  "@da-facility.loginSplit.email": {
+    "defaultMessage": "Email",
+    "description": "Label of the email field."
+  },
+  "@da-facility.loginSplit.emailPlaceholder": {
+    "defaultMessage": "name@company.com",
+    "description": "Placeholder of the email field."
+  },
+  "@da-facility.loginSplit.password": {
+    "defaultMessage": "Password",
+    "description": "Label of the password field."
+  },
+  "@da-facility.loginSplit.passwordPlaceholder": {
+    "defaultMessage": "Enter your password",
+    "description": "Placeholder of the password field."
+  },
+  "@da-facility.loginSplit.forgotPassword": {
+    "defaultMessage": "Forgot your password?",
+    "description": "Link to password recovery."
+  },
+  "@da-facility.loginSplit.submit": {
+    "defaultMessage": "Login",
+    "description": "Sign-in button."
+  },
+  "@da-facility.loginSplit.alternatives": {
+    "defaultMessage": "Or continue with",
+    "description": "Divider above alternative sign-in buttons."
+  },
+  "@da-facility.loginSplit.error": {
+    "defaultMessage": "Unable to sign in. Please try again.",
+    "description": "Shown when sign-in fails without a message of its own."
+  },
+  "@da-facility.assistant.label": {
+    "defaultMessage": "Ask anything",
+    "description": "Label of the chat bar and title of the open chat."
+  },
+  "@da-facility.assistant.placeholder": {
+    "defaultMessage": "What can I do for you today?",
+    "description": "Placeholder of the message box."
+  },
+  "@da-facility.assistant.send": {
+    "defaultMessage": "Send",
+    "description": "Button that sends the message."
+  },
+  "@da-facility.assistant.close": {
+    "defaultMessage": "Close chat",
+    "description": "Button that closes the chat."
+  },
+  "@da-facility.assistant.suggestions": {
+    "defaultMessage": "Suggestions",
+    "description": "Accessible name of the list of starter prompts."
+  },
+  "@da-facility.assistant.context": {
+    "defaultMessage": "Context",
+    "description": "Accessible name of the tag showing what the assistant can see."
+  }
+}

@@ -1,22 +1,23 @@
-import {useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode} from 'react';
+import {useEffect, useRef, useState, type KeyboardEvent, type ReactNode} from 'react';
 import {BottomSheet} from '@astryxdesign/core/BottomSheet';
 import {Icon} from '@astryxdesign/core/Icon';
 import {IconButton} from '@astryxdesign/core/IconButton';
 import {useMediaQuery} from '@astryxdesign/core/hooks';
+import {useMessages} from '../../i18n';
 import {ScrollArea} from '../scroll/ScrollArea';
 import './assistant.css';
 
 export type AssistantProps = {
   /** Called with each message the person sends, including a chosen suggestion. */
   onSubmit: (message: string) => void;
-  /** The conversation, rendered by the app. Until there is one, `suggestions` show instead. */
+  /** The conversation, rendered by the app. */
   children?: ReactNode;
-  /** Starter prompts shown while there is no conversation. */
+  /** Starter prompts, shown above the message box until there is a conversation. */
   suggestions?: string[];
   /** Label of the collapsed bar and title of the open chat. */
   label?: string;
   placeholder?: string;
-  /** Small chip in the message box, such as the page the assistant can see. */
+  /** What the assistant can see, such as the current page. Shown as a tag in the message box. */
   context?: ReactNode;
   /** Extra buttons at the end of the bar, such as a history button. */
   actions?: ReactNode;
@@ -29,20 +30,23 @@ const NARROW_VIEWPORT = '(max-width: 768px), (max-height: 600px)';
 
 /**
  * A chat bar that stays out of the way at the bottom of the screen. Opening it
- * reveals the chat below the page on desktop (inside `SidebarLayout`, the whole
- * layout contracts to make room) and a bottom sheet on phones.
+ * reveals the chat below the page on desktop (inside `SidebarLayout`, the page
+ * card's bottom edge rises to make room) and a bottom sheet on phones.
  */
 export function Assistant({
   onSubmit,
   children,
   suggestions = [],
-  label = 'Ask anything',
-  placeholder = 'What can I do for you today?',
+  label: labelProp,
+  placeholder: placeholderProp,
   context,
   actions,
   isOpen: controlledOpen,
   onOpenChange,
 }: AssistantProps) {
+  const t = useMessages();
+  const label = labelProp ?? t('@da-facility.assistant.label');
+  const placeholder = placeholderProp ?? t('@da-facility.assistant.placeholder');
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const isOpen = controlledOpen ?? uncontrolledOpen;
   const setOpen = (open: boolean) => {
@@ -51,26 +55,26 @@ export function Assistant({
   };
   const isNarrow = useMediaQuery(NARROW_VIEWPORT);
   const toggleRef = useRef<HTMLButtonElement>(null);
-
   // `false` or `null` from a conditional counts as no conversation yet.
-  const conversation = children || (suggestions.length > 0 && <ol className="assistant__suggestions">
-    {suggestions.map((suggestion, index) => <li key={suggestion}>
-      <button type="button" onClick={() => onSubmit(suggestion)}>
-        <span className="assistant__index" aria-hidden="true">{index + 1}</span>
-        {suggestion}
-      </button>
-    </li>)}
-  </ol>);
+  const hasConversation = Boolean(children);
 
   const chat = <>
-    <Messages>{conversation}</Messages>
-    <Composer label={label} placeholder={placeholder} context={context} onSubmit={onSubmit} autoFocus={isOpen} />
+    <Messages>{hasConversation && <div className="assistant__column">{children}</div>}</Messages>
+    <div className="assistant__column assistant__compose">
+      {!hasConversation && suggestions.length > 0 && <div className="assistant__suggestions" role="group" aria-label={t('@da-facility.assistant.suggestions')}>
+        {suggestions.map(suggestion => <button key={suggestion} type="button" onClick={() => onSubmit(suggestion)}>{suggestion}</button>)}
+      </div>}
+      <Composer label={label} placeholder={placeholder} context={context} onSubmit={onSubmit} autoFocus={isOpen} />
+    </div>
   </>;
 
   function close() {
     setOpen(false);
     toggleRef.current?.focus({preventScroll: true});
   }
+
+  const closeButton = (onClick: () => void) =>
+    <IconButton label={t('@da-facility.assistant.close')} icon={<Icon icon="close" />} variant="ghost" size="sm" onClick={onClick} />;
 
   return <section
     className="assistant"
@@ -82,19 +86,19 @@ export function Assistant({
     <div className="assistant__panel" inert={!isOpen || isNarrow}>{!isNarrow && chat}</div>
     <div className="assistant__bar">
       <button ref={toggleRef} className="assistant__toggle" type="button" aria-expanded={isOpen} onClick={() => setOpen(true)}>
-        <PlusIcon />
+        <SparkleIcon />
         {label}
       </button>
       <div className="assistant__actions">
         {actions}
-        {isOpen && !isNarrow && <IconButton label="Close chat" icon={<Icon icon="close" />} variant="ghost" size="sm" onClick={close} />}
+        {isOpen && !isNarrow && closeButton(close)}
       </div>
     </div>
     {isNarrow && <BottomSheet label={label} isOpen={isOpen} onOpenChange={setOpen} height="tall">
       <div className="assistant__sheet">
         <header className="assistant__sheet-header">
-          <span>{label}</span>
-          <IconButton label="Close chat" icon={<Icon icon="close" />} variant="ghost" size="sm" onClick={() => setOpen(false)} />
+          <span><SparkleIcon />{label}</span>
+          {closeButton(() => setOpen(false))}
         </header>
         {chat}
       </div>
@@ -119,37 +123,64 @@ function Composer({label, placeholder, context, onSubmit, autoFocus}: {
   onSubmit: (message: string) => void;
   autoFocus: boolean;
 }) {
+  const t = useMessages();
   const [message, setMessage] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     if (autoFocus) inputRef.current?.focus({preventScroll: true});
   }, [autoFocus]);
 
-  function submit(event: FormEvent) {
-    event.preventDefault();
+  // Grows with its text, up to the height the CSS allows.
+  useEffect(() => {
+    const input = inputRef.current;
+    // A hidden box (the sheet before it opens) measures 0; CSS keeps it one line tall.
+    if (!input || input.scrollHeight === 0) return;
+    input.style.height = 'auto';
+    input.style.height = `${input.scrollHeight}px`;
+  }, [message]);
+
+  function send(event?: {preventDefault: () => void}) {
+    event?.preventDefault();
     const text = message.trim();
     if (!text) return;
     onSubmit(text);
     setMessage('');
   }
 
-  return <form className="assistant__composer" onSubmit={submit}>
-    <span className="assistant__prompt" aria-hidden="true">›</span>
-    <input
+  return <form className="assistant__composer" onSubmit={send}>
+    <textarea
       ref={inputRef}
+      rows={1}
       aria-label={label}
       placeholder={placeholder}
-      autoComplete="off"
       value={message}
       onChange={event => setMessage(event.target.value)}
+      onKeyDown={event => {
+        // Enter sends; Shift+Enter starts a new line; composing input methods keep Enter.
+        if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) send(event);
+      }}
     />
-    {context && <span className="assistant__context">{context}</span>}
-    <IconButton type="submit" label="Send" icon={<Icon icon="arrowUp" />} variant="ghost" size="sm" isDisabled={!message.trim()} />
+    <div className="assistant__composer-row">
+      {context && <span className="assistant__context">
+        <span className="assistant__visually-hidden">{t('@da-facility.assistant.context')}: </span>
+        <PageIcon />
+        {context}
+      </span>}
+      <button className="assistant__send" type="submit" aria-label={t('@da-facility.assistant.send')} disabled={!message.trim()}>
+        <Icon icon="arrowUp" size="sm" color="inherit" />
+      </button>
+    </div>
   </form>;
 }
 
-function PlusIcon() {
-  return <svg className="assistant__plus" viewBox="0 0 16 16" aria-hidden="true">
-    <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+function SparkleIcon() {
+  return <svg className="assistant__icon" viewBox="0 0 16 16" aria-hidden="true">
+    <path d="M8 1.5c.4 2.9 1.6 4.1 4.5 4.5-2.9.4-4.1 1.6-4.5 4.5C7.6 7.6 6.4 6.4 3.5 6c2.9-.4 4.1-1.6 4.5-4.5ZM12.5 10c.2 1.4.8 2 2.2 2.2-1.4.2-2 .8-2.2 2.3-.2-1.5-.8-2.1-2.2-2.3 1.4-.2 2-.8 2.2-2.2Z" fill="currentColor" />
+  </svg>;
+}
+
+function PageIcon() {
+  return <svg className="assistant__icon" viewBox="0 0 16 16" aria-hidden="true">
+    <path d="M4.5 1.75h4.75L12.5 5v8.25a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-10.5a1 1 0 0 1 1-1Z M9 1.75V5.25h3.5" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
   </svg>;
 }

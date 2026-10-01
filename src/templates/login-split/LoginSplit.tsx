@@ -1,6 +1,7 @@
 // Adapted from the Meta Astryx Login Split template. See LICENSE.third-party.
 import {useId, useRef, useState, type FormEvent, type ReactNode} from 'react';
 import {Button} from '@astryxdesign/core/Button';
+import {useMessages} from '../../i18n';
 import './login-split.css';
 
 export type LoginCredentials = {email: string; password: string};
@@ -31,13 +32,14 @@ export function LoginSplit({
   brand,
   artwork,
   onSubmit,
-  title = 'Welcome back',
+  title,
   description,
   forgotPasswordHref,
   providers,
   signup,
   legal,
 }: LoginSplitProps) {
+  const t = useMessages();
   const id = useId();
   const isSubmitting = useRef(false);
   const [isPending, setPending] = useState(false);
@@ -53,7 +55,7 @@ export function LoginSplit({
     try {
       await onSubmit({email: String(form.get('email')).trim(), password: String(form.get('password'))});
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Unable to sign in. Please try again.');
+      setError(cause instanceof Error ? cause.message : t('@da-facility.loginSplit.error'));
     } finally {
       isSubmitting.current = false;
       setPending(false);
@@ -68,38 +70,38 @@ export function LoginSplit({
           <div className="login-split__brand">{brand}</div>
           <form className="login-split__form" onSubmit={submit} aria-busy={isPending}>
             <header className="login-split__heading">
-              <h1 id={`${id}-title`}>{title}</h1>
+              <h1 id={`${id}-title`}>{title ?? t('@da-facility.loginSplit.title')}</h1>
               {description && <p>{description}</p>}
             </header>
             <div className="login-split__fields">
-              <label className="login-split__visually-hidden" htmlFor={`${id}-email`}>Email</label>
+              <label className="login-split__visually-hidden" htmlFor={`${id}-email`}>{t('@da-facility.loginSplit.email')}</label>
               <input
                 id={`${id}-email`}
                 name="email"
                 type="email"
                 autoComplete="email"
-                placeholder="name@company.com"
+                placeholder={t('@da-facility.loginSplit.emailPlaceholder')}
                 required
                 readOnly={isPending}
               />
-              <label className="login-split__visually-hidden" htmlFor={`${id}-password`}>Password</label>
+              <label className="login-split__visually-hidden" htmlFor={`${id}-password`}>{t('@da-facility.loginSplit.password')}</label>
               <input
                 id={`${id}-password`}
                 name="password"
                 type="password"
                 autoComplete="current-password"
-                placeholder="Enter your password"
+                placeholder={t('@da-facility.loginSplit.passwordPlaceholder')}
                 required
                 readOnly={isPending}
                 aria-invalid={error ? true : undefined}
                 aria-describedby={error ? `${id}-error` : undefined}
               />
               {error && <p className="login-split__error" id={`${id}-error`} role="alert">{error}</p>}
-              {forgotPasswordHref && <a className="login-split__forgot" href={forgotPasswordHref}>Forgot your password?</a>}
+              {forgotPasswordHref && <a className="login-split__forgot" href={forgotPasswordHref}>{t('@da-facility.loginSplit.forgotPassword')}</a>}
             </div>
-            <Button className="login-split__submit" type="submit" label="Login" variant="primary" width="100%" isLoading={isPending} />
+            <Button className="login-split__submit" type="submit" label={t('@da-facility.loginSplit.submit')} variant="primary" width="100%" isLoading={isPending} />
             {providers && <>
-              <div className="login-split__divider"><span>Or continue with</span></div>
+              <div className="login-split__divider"><span>{t('@da-facility.loginSplit.alternatives')}</span></div>
               <div className="login-split__providers">{providers}</div>
             </>}
           </form>

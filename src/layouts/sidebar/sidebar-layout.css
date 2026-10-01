@@ -5,9 +5,9 @@
    --sidebar-layout-top     status bar height
    --sidebar-layout-header  page header height
    --sidebar-layout-bottom  assistant bar (or open chat) height
-   --sidebar-layout-inset   gap around the page while the chat is open
+   --sidebar-layout-inset   gap around the page card when there is an assistant
 
-   The last two are registered so opening the chat animates smoothly. */
+   They are registered so the layout can animate between values. */
 
 @property --sidebar-layout-bottom {
   syntax: "<length>";
@@ -30,14 +30,12 @@
   --sidebar-width: 260px;
   --sidebar-layout-top: 0px;
   --sidebar-layout-header: 0px;
-  --sidebar-layout-radius: calc(var(--sidebar-layout-inset) * 0.75);
+  --sidebar-layout-radius: 0px;
   /* Everything pinned below the content: the chat bar and the page footer. */
   --sidebar-layout-chrome-bottom: calc(var(--sidebar-layout-bottom) + var(--sidebar-layout-footer-height, 0px));
   min-height: 100dvh;
   color: var(--color-text-primary);
-  transition:
-    --sidebar-layout-bottom 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    --sidebar-layout-inset 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: --sidebar-layout-bottom 420ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .sidebar-layout[data-status-bar] {
@@ -53,7 +51,7 @@
 }
 
 .sidebar-layout[data-assistant] {
-  --sidebar-layout-bottom: calc(44px + env(safe-area-inset-bottom));
+  --sidebar-layout-bottom: calc(48px + env(safe-area-inset-bottom));
 }
 
 .sidebar-layout__status-bar {
@@ -164,16 +162,14 @@
   font-weight: 600;
 }
 
-/* Assistant: while its chat is open the page contracts into a card, and the
-   frame paints the backdrop around it. The frame's inside stays transparent,
-   so the document keeps scrolling natively underneath. */
+/* Assistant: on desktop the page is a card with the chat bar below it, and
+   the frame paints the backdrop around the card. Opening the chat only moves
+   the card's bottom edge up; its sides and corners stay put. The frame's
+   inside stays transparent, so the document keeps scrolling natively. */
 
 .sidebar-layout__assistant .assistant {
   height: var(--sidebar-layout-bottom);
-}
-
-.sidebar-layout__assistant .assistant[data-open] {
-  border-top-color: transparent;
+  border-top: 0;
 }
 
 .sidebar-layout__frame {
@@ -191,9 +187,13 @@
 }
 
 @media (min-width: 769px) and (min-height: 601px) {
+  .sidebar-layout[data-assistant] {
+    --sidebar-layout-inset: 8px;
+    --sidebar-layout-radius: 12px;
+  }
+
   .sidebar-layout:has(.sidebar-layout__assistant .assistant[data-open]) {
-    --sidebar-layout-bottom: min(420px, 50dvh);
-    --sidebar-layout-inset: 16px;
+    --sidebar-layout-bottom: min(440px, 55dvh);
   }
 }
 

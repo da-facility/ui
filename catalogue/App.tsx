@@ -1,4 +1,6 @@
+import {InternationalizationProvider} from '@astryxdesign/core/i18n';
 import {Theme} from '@astryxdesign/core/theme';
+import hr from '@da-facility/ui/locales/hr.json';
 import {neutralTheme} from '@astryxdesign/theme-neutral/built';
 import {examples, findExample, globalTweaks} from './examples';
 import {CatalogueMenu} from './menu/CatalogueMenu';
@@ -22,23 +24,26 @@ export function App() {
   const exampleTweaks = valuesFor(exampleId, example?.tweaks);
   const global = valuesFor(GLOBAL, globalTweaks);
 
-  return <Theme theme={neutralTheme} mode={global.darkMode ? 'dark' : 'light'}>
-    {example
-      ? <example.Component
-          key={example.id}
-          page={route.page}
-          onPageChange={page => navigate({exampleId, page, isClean: route.isClean})}
-          tweaks={exampleTweaks}
-          onTweakChange={setTweak(exampleId)}
-        />
-      : <main className="catalogue-missing">No example called “{exampleId}”.</main>}
-    {!route.isClean && <CatalogueMenu
-      selectedId={exampleId}
-      page={route.page}
-      tweaks={[
-        ...(example?.tweaks ?? []).map(tweak => ({...tweak, value: exampleTweaks[tweak.id], onChange: (value: boolean) => setTweak(exampleId)(tweak.id, value)})),
-        ...globalTweaks.map(tweak => ({...tweak, value: global[tweak.id], onChange: (value: boolean) => setTweak(GLOBAL)(tweak.id, value)})),
-      ]}
-    />}
-  </Theme>;
+  // Package strings in Croatian, through the same provider that translates Astryx.
+  return <InternationalizationProvider locale={global.croatian ? 'hr' : 'en'} messages={{hr}}>
+    <Theme theme={neutralTheme} mode={global.darkMode ? 'dark' : 'light'}>
+      {example
+        ? <example.Component
+            key={example.id}
+            page={route.page}
+            onPageChange={page => navigate({exampleId, page, isClean: route.isClean})}
+            tweaks={exampleTweaks}
+            onTweakChange={setTweak(exampleId)}
+          />
+        : <main className="catalogue-missing">No example called “{exampleId}”.</main>}
+      {!route.isClean && <CatalogueMenu
+        selectedId={exampleId}
+        page={route.page}
+        tweaks={[
+          ...(example?.tweaks ?? []).map(tweak => ({...tweak, value: exampleTweaks[tweak.id], onChange: (value: boolean) => setTweak(exampleId)(tweak.id, value)})),
+          ...globalTweaks.map(tweak => ({...tweak, value: global[tweak.id], onChange: (value: boolean) => setTweak(GLOBAL)(tweak.id, value)})),
+        ]}
+      />}
+    </Theme>
+  </InternationalizationProvider>;
 }

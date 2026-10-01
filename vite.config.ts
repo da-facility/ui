@@ -12,7 +12,10 @@ export default defineConfig(({mode}) => {
     envDir: '..',
     plugins: [...astryxStylex(), react()],
     resolve: {
-      alias: {'@da-facility/ui': fileURLToPath(new URL('./src/index.ts', import.meta.url))},
+      alias: [
+        {find: /^@da-facility\/ui$/, replacement: fileURLToPath(new URL('./src/index.ts', import.meta.url))},
+        {find: /^@da-facility\/ui\/locales\/(.*)$/, replacement: fileURLToPath(new URL('./src/locales/$1', import.meta.url))},
+      ],
     },
     build: {outDir: '../dist-catalogue', emptyOutDir: true},
     server: {

@@ -1,0 +1,86 @@
+{
+  "@da-facility.sidebarLayout.navigation": {
+    "defaultMessage": "Navigacija"
+  },
+  "@da-facility.mobileNavigation.open": {
+    "defaultMessage": "Otvori izbornik ({label})"
+  },
+  "@da-facility.mobileNavigation.close": {
+    "defaultMessage": "Zatvori izbornik"
+  },
+  "@da-facility.mobileNavigation.leftHanded": {
+    "defaultMessage": "Navigacija za ljevake"
+  },
+  "@da-facility.userMenu.label": {
+    "defaultMessage": "Izbornik računa: {name}"
+  },
+  "@da-facility.projectSelector.label": {
+    "defaultMessage": "Projekti"
+  },
+  "@da-facility.projectSelector.trigger": {
+    "defaultMessage": "{label}: {project}"
+  },
+  "@da-facility.projectSelector.noneSelected": {
+    "defaultMessage": "Odaberite projekt"
+  },
+  "@da-facility.projectSelector.searchLabel": {
+    "defaultMessage": "Pretraživanje: {label}"
+  },
+  "@da-facility.projectSelector.searchPlaceholder": {
+    "defaultMessage": "Pretraži"
+  },
+  "@da-facility.projectSelector.clearSearch": {
+    "defaultMessage": "Očisti pretragu"
+  },
+  "@da-facility.projectSelector.noMatches": {
+    "defaultMessage": "Nema projekata za „{query}“."
+  },
+  "@da-facility.projectSelector.create": {
+    "defaultMessage": "Novi projekt"
+  },
+  "@da-facility.loginSplit.title": {
+    "defaultMessage": "Dobro došli natrag"
+  },
+  "@da-facility.loginSplit.email": {
+    "defaultMessage": "E-pošta"
+  },
+  "@da-facility.loginSplit.emailPlaceholder": {
+    "defaultMessage": "ime@tvrtka.hr"
+  },
+  "@da-facility.loginSplit.password": {
+    "defaultMessage": "Lozinka"
+  },
+  "@da-facility.loginSplit.passwordPlaceholder": {
+    "defaultMessage": "Unesite lozinku"
+  },
+  "@da-facility.loginSplit.forgotPassword": {
+    "defaultMessage": "Zaboravili ste lozinku?"
+  },
+  "@da-facility.loginSplit.submit": {
+    "defaultMessage": "Prijava"
+  },
+  "@da-facility.loginSplit.alternatives": {
+    "defaultMessage": "Ili nastavite putem"
+  },
+  "@da-facility.loginSplit.error": {
+    "defaultMessage": "Prijava nije uspjela. Pokušajte ponovno."
+  },
+  "@da-facility.assistant.label": {
+    "defaultMessage": "Pitajte bilo što"
+  },
+  "@da-facility.assistant.placeholder": {
+    "defaultMessage": "Kako vam mogu pomoći?"
+  },
+  "@da-facility.assistant.send": {
+    "defaultMessage": "Pošalji"
+  },
+  "@da-facility.assistant.close": {
+    "defaultMessage": "Zatvori razgovor"
+  },
+  "@da-facility.assistant.suggestions": {
+    "defaultMessage": "Prijedlozi"
+  },
+  "@da-facility.assistant.context": {
+    "defaultMessage": "Kontekst"
+  }
+}

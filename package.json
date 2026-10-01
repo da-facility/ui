@@ -19,6 +19,7 @@
       "default": "./dist/index.js"
     },
     "./style.css": "./dist/style.css",
+    "./locales/*": "./dist/locales/*",
     "./package.json": "./package.json"
   },
   "files": [
@@ -30,7 +31,7 @@
   ],
   "scripts": {
     "dev": "vite --host",
-    "build": "rm -rf dist && vite build --config vite.lib.config.ts && tsc --project tsconfig.lib.json",
+    "build": "rm -rf dist && vite build --config vite.lib.config.ts && tsc --project tsconfig.lib.json && cp -R src/locales dist/locales",
     "build:catalogue": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "playwright test --project=desktop --project=mobile --project=webkit --project=native-desktop --project=native-mobile",

@@ -1,7 +1,7 @@
 /* A bar pinned to the bottom of the screen that opens into a chat. Inside
-   SidebarLayout, the layout sets the height so the page contracts around it. */
+   SidebarLayout, the layout sets the height so the page card makes room. */
 .assistant {
-  --assistant-bar-height: 44px;
+  --assistant-bar-height: 48px;
   position: fixed;
   inset: auto 0 0;
   z-index: 20;
@@ -15,12 +15,12 @@
   border-top: 1px solid var(--color-border);
   color: var(--color-text-primary);
   background: var(--color-background-body);
-  font-family: var(--font-family-code, ui-monospace, monospace);
-  font-size: 13px;
+  font-family: var(--font-family-body);
+  font-size: 14px;
 }
 
 .assistant[data-open] {
-  height: min(420px, 50dvh);
+  height: min(440px, 55dvh);
 }
 
 .assistant *,
@@ -28,7 +28,23 @@
   box-sizing: border-box;
 }
 
-/* Open panel: messages above the message box, fading in as the panel grows. */
+.assistant__icon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+}
+
+.assistant__visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Open panel: the conversation above, suggestions and the message box below.
+   Content rises into place as the panel opens. */
 .assistant__panel {
   display: flex;
   flex: 1;
@@ -36,107 +52,146 @@
   min-height: 0;
   visibility: hidden;
   opacity: 0;
-  transition: opacity 200ms ease, visibility 0s linear 200ms;
+  translate: 0 12px;
+  transition: opacity 160ms ease, translate 160ms ease, visibility 0s linear 160ms;
 }
 
 .assistant[data-open] .assistant__panel {
   visibility: visible;
   opacity: 1;
-  transition: opacity 200ms ease 120ms, visibility 0s;
+  translate: 0 0;
+  transition: opacity 240ms ease 140ms, translate 360ms cubic-bezier(0.32, 0.72, 0, 1) 100ms, visibility 0s;
+}
+
+.assistant__column {
+  width: 100%;
+  max-width: 760px;
+  margin-inline: auto;
 }
 
 .assistant__messages {
   flex: 1;
   min-height: 0;
-  padding: 16px 24px;
+  padding: 20px 24px 8px;
+}
+
+.assistant__compose {
+  display: grid;
+  flex-shrink: 0;
+  gap: 10px;
+  padding: 4px 24px 8px;
 }
 
 .assistant__suggestions {
-  display: grid;
-  align-content: end;
-  min-height: 100%;
-  gap: 4px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .assistant__suggestions button {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  min-height: 40px;
-  padding: 4px 8px;
-  border: 0;
-  border-radius: var(--radius-element);
-  color: var(--color-text-primary);
-  background: transparent;
+  min-height: 32px;
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  background: var(--color-background-surface);
   font: inherit;
-  font-size: 14px;
+  font-size: 13px;
   text-align: start;
   cursor: pointer;
+  transition: color 120ms ease, border-color 120ms ease;
 }
 
 .assistant__suggestions button:hover,
 .assistant__suggestions button:focus-visible {
-  background: var(--color-overlay-hover);
-}
-
-.assistant__index {
-  display: grid;
-  flex-shrink: 0;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  border-radius: var(--radius-inner);
-  color: var(--color-text-secondary);
-  background: var(--color-background-surface);
-  font-size: 11px;
+  border-color: var(--color-border-emphasized);
+  color: var(--color-text-primary);
 }
 
 .assistant__composer {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 10px;
-  min-height: 52px;
-  margin: 0 16px;
-  padding: 0 8px;
-  border-block: 1px solid var(--color-border);
+  display: grid;
+  gap: 8px;
+  padding: 12px 12px 10px 16px;
+  border: 1px solid var(--color-border-emphasized);
+  border-radius: 16px;
+  background: var(--color-background-surface);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
-.assistant__prompt {
-  color: var(--color-text-secondary);
-  font-size: 16px;
+.assistant__composer:focus-within {
+  border-color: var(--color-text-secondary);
+  box-shadow: 0 0 0 3px var(--color-overlay-hover);
 }
 
-.assistant__composer input {
-  flex: 1;
-  min-width: 0;
+.assistant__composer textarea {
+  width: 100%;
+  min-height: 1lh;
+  max-height: 160px;
   padding: 0;
   border: 0;
   outline: none;
+  resize: none;
   color: var(--color-text-primary);
   background: transparent;
   font: inherit;
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1.45;
 }
 
-.assistant__composer input::placeholder {
+.assistant__composer textarea::placeholder {
   color: var(--color-text-secondary);
 }
 
+.assistant__composer-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* A tag, not a field: what the assistant can see. */
 .assistant__context {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
-  border-radius: var(--radius-element);
+  min-width: 0;
+  height: 26px;
+  padding: 0 10px 0 8px;
+  border-radius: var(--radius-full);
   color: var(--color-text-secondary);
-  background: var(--color-overlay-hover);
+  background: var(--color-background-muted);
   font-size: 12px;
   white-space: nowrap;
+}
+
+.assistant__send {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-inline-start: auto;
+  border: 0;
+  border-radius: 50%;
+  color: var(--color-background-surface);
+  background: var(--color-text-primary);
+  cursor: pointer;
+  transition: background-color 120ms ease, transform 120ms ease;
+}
+
+.assistant__send:hover:not(:disabled) {
+  transform: scale(1.06);
+}
+
+.assistant__send:disabled {
+  color: var(--color-text-disabled);
+  background: var(--color-background-muted);
+  cursor: default;
+}
+
+.assistant__send:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 /* Bar */
@@ -148,21 +203,22 @@
   justify-content: space-between;
   gap: 8px;
   height: var(--assistant-bar-height);
-  padding: 0 12px 0 16px;
+  padding: 0 12px;
 }
 
 .assistant__toggle {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 30px;
-  padding: 0 12px 0 8px;
+  height: 32px;
+  padding: 0 14px 0 12px;
   border: 0;
-  border-radius: var(--radius-element);
+  border-radius: var(--radius-full);
   color: var(--color-text-secondary);
   background: transparent;
   font: inherit;
   cursor: pointer;
+  transition: color 120ms ease, background-color 120ms ease;
 }
 
 .assistant__toggle:hover,
@@ -174,11 +230,6 @@
 .assistant__toggle:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
-}
-
-.assistant__plus {
-  width: 14px;
-  height: 14px;
 }
 
 .assistant__actions {
@@ -195,8 +246,8 @@
   height: 100%;
   min-height: 60dvh;
   color: var(--color-text-primary);
-  font-family: var(--font-family-code, ui-monospace, monospace);
-  font-size: 13px;
+  font-family: var(--font-family-body);
+  font-size: 14px;
 }
 
 .assistant__sheet-header {
@@ -204,21 +255,27 @@
   align-items: center;
   justify-content: space-between;
   /* Clears the sheet's drag handle. */
-  padding: 24px 8px 4px 24px;
-  color: var(--color-text-secondary);
+  padding: 24px 8px 4px 20px;
+  font-weight: 600;
+}
+
+.assistant__sheet-header > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .assistant__sheet .assistant__messages {
   padding-inline: 16px;
 }
 
-.assistant__sheet .assistant__composer {
-  margin-bottom: 16px;
+.assistant__sheet .assistant__compose {
+  padding: 4px 16px max(16px, env(safe-area-inset-bottom));
 }
 
 /* 16px text so iOS does not zoom when the message box takes focus. */
 @media (pointer: coarse) {
-  .assistant__composer input {
+  .assistant__composer textarea {
     font-size: 16px;
   }
 }
@@ -234,7 +291,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .assistant__panel {
+  .assistant__panel,
+  .assistant[data-open] .assistant__panel {
+    translate: none;
     transition: none;
   }
 }

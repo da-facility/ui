@@ -140,17 +140,19 @@ A 32px bar with the label repeated in uppercase monospace, scrolling slowly side
 <Assistant
   suggestions={['Why won’t my emails send?', 'Why am I getting a 429 error?']}
   onSubmit={message => send(message)}
-  context={<>{pageName}</>}>
+  context={pageName}>
   {messages.length > 0 && <Conversation messages={messages} />}
 </Assistant>
 ```
 
 A chat shell: the app owns the conversation and what happens to a message.
-- **Closed:** a quiet "Ask anything" bar at the bottom of the screen.
-- **Open on desktop:** inside `SidebarLayout`, the whole layout contracts into a card and the chat takes the space below it.
+- **Closed:** a quiet "Ask anything" bar at the bottom of the screen. Inside `SidebarLayout` on desktop, the page sits above it as a rounded card.
+- **Open on desktop:** the card's bottom edge rises and the chat takes the space below it; its sides and corners stay put.
 - **Open on phones:** a bottom sheet you can drag.
+- **Message box:** grows as you type. Enter sends and Shift+Enter starts a new line. `context` shows as a tag inside it, for what the assistant can see.
+- **Suggestions:** chips above the message box until there is a conversation; choosing one sends it.
 
-Suggestions show until there is a conversation, and send when chosen. Escape closes the chat on desktop. `label`, `placeholder`, `actions` (extra bar buttons) and controlled `isOpen`/`onOpenChange` are optional.
+Escape closes the chat on desktop. `label`, `placeholder`, `actions` (extra bar buttons) and controlled `isOpen`/`onOpenChange` are optional.
 
 ### PageScroll and ScrollArea
 
@@ -191,6 +193,23 @@ How the "only while it overflows" part works: an element's CSS scroll timeline i
 ```
 
 Items take the same shape as items in Astryx's `DropdownMenu`. Pass `compact` to show only the avatar, for narrow headers, or `isFullWidth` to fill a sidebar footer.
+
+## Translations
+
+Built-in text, such as "Close menu", "Login" or "Ask anything", goes through Astryx's `InternationalizationProvider`, so one provider translates Astryx and this package. Without one, everything is English and nothing needs setting up.
+
+The package ships its catalogues as `@da-facility/ui/locales/en.json` (every key, with a note for translators) and `@da-facility/ui/locales/hr.json` (Croatian):
+
+```tsx
+import {InternationalizationProvider} from '@astryxdesign/core/i18n';
+import hr from '@da-facility/ui/locales/hr.json';
+
+<InternationalizationProvider locale="hr" messages={{hr: {...hr, ...astryxCroatian}}}>
+  <App />
+</InternationalizationProvider>
+```
+
+Keys start with `@da-facility.`. Change single strings with the provider's `overrides`, for example `overrides={{en: {'@da-facility.loginSplit.submit': 'Sign in'}}}`. Anything without a translation falls back to English. Props such as `title`, `label` and `placeholder` still win when they are set.
 
 ## Develop
 

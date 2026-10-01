@@ -32,6 +32,8 @@ import '@astryxdesign/core/reset.css';
 import '@astryxdesign/core/astryx.css';
 import '@astryxdesign/theme-neutral/theme.css';
 import {Button} from '@astryxdesign/core/Button';
+import {InternationalizationProvider} from '@astryxdesign/core/i18n';
+import hr from '@da-facility/ui/locales/hr.json';
 import {Theme} from '@astryxdesign/core/theme';
 import {neutralTheme} from '@astryxdesign/theme-neutral/built';
 import {LoginSplit, ProjectSelector, SidebarLayout, UserMenu, type MobileNavigationSide} from '@da-facility/ui';
@@ -40,6 +42,11 @@ function App() {
   const [side, setSide] = useState<MobileNavigationSide>('right');
   const [project, setProject] = useState('a');
   const [signedIn, setSignedIn] = useState(false);
+  if (location.pathname === '/hr') {
+    return <InternationalizationProvider locale="hr" messages={{hr}}>
+      <LoginSplit brand="Consumer app" artwork={<div>Artwork</div>} onSubmit={() => {}} />
+    </InternationalizationProvider>;
+  }
   if (location.pathname === '/login') {
     return <>
       <LoginSplit
@@ -99,7 +106,7 @@ test.beforeAll(async () => {
     },
   }));
   await writeFile(join(app, 'index.html'), '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root"></div><script type="module" src="/main.tsx"></script></body></html>');
-  await writeFile(join(app, 'tsconfig.json'), JSON.stringify({compilerOptions: {target: 'ES2022', module: 'ESNext', moduleResolution: 'Bundler', jsx: 'react-jsx', strict: true, noEmit: true, lib: ['ES2022', 'DOM']}, include: ['main.tsx']}));
+  await writeFile(join(app, 'tsconfig.json'), JSON.stringify({compilerOptions: {target: 'ES2022', module: 'ESNext', moduleResolution: 'Bundler', jsx: 'react-jsx', strict: true, noEmit: true, resolveJsonModule: true, lib: ['ES2022', 'DOM']}, include: ['main.tsx']}));
   await writeFile(join(app, 'main.tsx'), CONSUMER);
 
   await run(['bun', 'install'], app);
@@ -159,6 +166,11 @@ for (const [name, viewport] of Object.entries({desktop: {width: 1920, height: 10
     await page.getByLabel('Password', {exact: true}).fill('correct');
     await page.getByRole('button', {name: 'Login', exact: true}).click();
     await expect(page.getByRole('status').filter({hasText: 'Authenticated'})).toBeVisible();
+
+    // Translations ship with the package and plug into Astryx's provider.
+    await page.goto(`http://127.0.0.1:${PORT}/hr`);
+    await expect(page.getByRole('heading', {name: 'Dobro došli natrag'})).toBeVisible();
+    await expect(page.getByRole('button', {name: 'Prijava', exact: true})).toBeVisible();
     expect(errors).toEqual([]);
     await page.close();
   });

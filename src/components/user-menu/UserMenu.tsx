@@ -1,5 +1,6 @@
 import {Avatar} from '@astryxdesign/core/Avatar';
 import {DropdownMenu, type DropdownMenuOption, type DropdownMenuProps} from '@astryxdesign/core/DropdownMenu';
+import {useMessages} from '../../i18n';
 import './user-menu.css';
 
 /** An action, divider or section in the menu. Same shape as Astryx `DropdownMenu` items. */
@@ -23,7 +24,8 @@ export type UserMenuProps = {
 
 /** Account avatar and name that opens a menu of account actions. */
 export function UserMenu({user, items, compact = false, isFullWidth = false, placement = 'below', alignment = 'end', isOpen, onOpenChange}: UserMenuProps) {
-  const label = `Account menu for ${user.name}`;
+  const t = useMessages();
+  const label = t('@da-facility.userMenu.label', {name: user.name});
   const heading = user.description ? `${user.name} · ${user.description}` : user.name;
   return (
     <DropdownMenu

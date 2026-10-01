@@ -5,6 +5,7 @@ import {MobileNav} from '@astryxdesign/core/MobileNav';
 import {Switch} from '@astryxdesign/core/Switch';
 import {useDirection} from '@astryxdesign/core/i18n';
 import {scrollAreaClassName} from '../../components/scroll/ScrollArea';
+import {useMessages} from '../../i18n';
 import './mobile-navigation.css';
 
 /** Physical screen edge, so right-to-left text never flips a hand preference. */
@@ -38,6 +39,7 @@ export function MobileNavigation({
   isOpen,
   onOpenChange,
 }: MobileNavigationProps) {
+  const t = useMessages();
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   // Astryx positions the drawer by logical edge; translate the physical side.
@@ -60,7 +62,7 @@ export function MobileNavigation({
       ref={triggerRef}
       className="mobile-navigation__trigger"
       style={{'--mobile-navigation-offset': `${triggerOffset}px`} as CSSProperties}
-      label={`Open ${navigationLabel.toLowerCase()}`}
+      label={t('@da-facility.mobileNavigation.open', {label: navigationLabel.toLowerCase()})}
       isIconOnly
       icon={<Icon icon="menu" />}
       variant="primary"
@@ -84,7 +86,7 @@ export function MobileNavigation({
         <footer className="mobile-navigation__footer">
           {navigationFooter}
           {onSideChange && <Switch
-            label="Left-handed navigation"
+            label={t('@da-facility.mobileNavigation.leftHanded')}
             value={side === 'left'}
             onChange={isLeft => onSideChange(isLeft ? 'left' : 'right')}
             labelPosition={side === 'left' ? 'end' : 'start'}
@@ -92,7 +94,7 @@ export function MobileNavigation({
           />}
           <Button
             className="mobile-navigation__close"
-            label="Close menu"
+            label={t('@da-facility.mobileNavigation.close')}
             icon={<Icon icon="close" />}
             variant="secondary"
             onClick={() => onOpenChange(false)}

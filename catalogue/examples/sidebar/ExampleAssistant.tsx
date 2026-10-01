@@ -27,7 +27,7 @@ export function ExampleAssistant({pageLabel}: {pageLabel: string}) {
   return <Assistant
     suggestions={SUGGESTIONS}
     onSubmit={send}
-    context={<><Icon icon="search" size="sm" />{pageLabel}</>}
+    context={pageLabel}
     actions={messages.length > 0 && <IconButton label="Clear conversation" icon={<Icon icon="clock" />} variant="ghost" size="sm" onClick={() => setMessages([])} />}>
     {messages.length > 0 && <ol className="example-assistant">
       {messages.map((message, index) => <li key={index} data-from={message.from}>{message.text}</li>)}

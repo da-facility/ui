@@ -65,6 +65,7 @@ export const examples: Example[] = [
 /** Tweaks every example has. */
 export const globalTweaks: Tweak[] = [
   {id: 'darkMode', label: 'Dark mode', group: 'Appearance'},
+  {id: 'croatian', label: 'Croatian', group: 'Appearance'},
 ];
 
 export function findExample(id: string) {

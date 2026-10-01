@@ -24,6 +24,23 @@ test('the navigation list bounces only while it overflows', async ({page}) => {
   await expect.poll(() => listOverscroll(page)).toBe('contain');
 });
 
+test('the sidebar list’s bounce and fade switch off and on while the page is open', async ({page}) => {
+  await page.goto('/sidebar/profile');
+  const tweaks = page.getByRole('region', {name: 'Tweaks'});
+  await tweaks.getByRole('switch', {name: '100 extra navigation items'}).click();
+  const state = () => page.locator('.sidebar-layout__navigation > div:last-child').evaluate(list => {
+    const style = getComputedStyle(list);
+    return [style.overscrollBehaviorY, style.getPropertyValue('--scroll-area-end')];
+  });
+  await expect.poll(state).toEqual(['contain', '10px']);
+  await tweaks.getByRole('switch', {name: 'Sidebar bounce'}).click();
+  await tweaks.getByRole('switch', {name: 'Sidebar edge fade'}).click();
+  await expect.poll(state).toEqual(['none', '0px']);
+  await tweaks.getByRole('switch', {name: 'Sidebar bounce'}).click();
+  await tweaks.getByRole('switch', {name: 'Sidebar edge fade'}).click();
+  await expect.poll(state).toEqual(['contain', '10px']);
+});
+
 test('ScrollArea fades by its fade prop and bounces only while it overflows', async ({page}) => {
   await page.goto('/render/scroll-area');
   const area = (name: string) => page.getByTestId(name);

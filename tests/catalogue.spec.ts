@@ -36,8 +36,9 @@ test('tweaks stay in view, and list only the current example’s plus global one
   await page.goto('/user-menu');
   const tweaks = page.getByRole('region', {name: 'Tweaks'});
   if (isMobile(testInfo)) await tweaks.getByRole('button', {name: /Tweaks/}).click();
-  await expect(tweaks.getByRole('switch')).toHaveCount(1);
+  await expect(tweaks.getByRole('switch')).toHaveCount(2);
   await expect(tweaks.getByRole('switch', {name: 'Dark mode'})).toBeVisible();
+  await expect(tweaks.getByRole('switch', {name: 'Croatian'})).toBeVisible();
   await page.getByRole('button', {name: 'Open catalogue', exact: true}).click();
   await page.getByRole('link', {name: /^Sidebar/}).click();
   await expect(tweaks.getByRole('switch', {name: 'Left-handed navigation'})).toBeVisible();

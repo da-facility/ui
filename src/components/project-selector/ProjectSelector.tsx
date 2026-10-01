@@ -2,6 +2,7 @@ import {useEffect, useId, useMemo, useRef, useState, type KeyboardEvent} from 'r
 import {Avatar} from '@astryxdesign/core/Avatar';
 import {Icon} from '@astryxdesign/core/Icon';
 import {Popover} from '@astryxdesign/core/Popover';
+import {useMessages} from '../../i18n';
 import {scrollAreaClassName} from '../scroll/ScrollArea';
 import './project-selector.css';
 
@@ -30,7 +31,9 @@ export type ProjectSelectorProps = {
  * Button showing the current project that opens a searchable list of projects.
  * The search starts compact and widens once there is something typed in it.
  */
-export function ProjectSelector({projects, value, onChange, label = 'Projects', onCreate, createLabel = 'New project'}: ProjectSelectorProps) {
+export function ProjectSelector({projects, value, onChange, label: labelProp, onCreate, createLabel}: ProjectSelectorProps) {
+  const t = useMessages();
+  const label = labelProp ?? t('@da-facility.projectSelector.label');
   const id = useId();
   const [isOpen, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -101,12 +104,12 @@ export function ProjectSelector({projects, value, onChange, label = 'Projects', 
           ref={searchRef}
           type="text"
           role="combobox"
-          aria-label={`Search ${label.toLowerCase()}`}
+          aria-label={t('@da-facility.projectSelector.searchLabel', {label: label.toLowerCase()})}
           aria-expanded
           aria-controls={`${id}-list`}
           aria-autocomplete="list"
           aria-activedescendant={matches[activeIndex] ? optionId(activeIndex) : undefined}
-          placeholder="Search"
+          placeholder={t('@da-facility.projectSelector.searchPlaceholder')}
           autoComplete="off"
           spellCheck={false}
           value={query}
@@ -116,7 +119,7 @@ export function ProjectSelector({projects, value, onChange, label = 'Projects', 
         <button
           className="project-selector__clear"
           type="button"
-          aria-label="Clear search"
+          aria-label={t('@da-facility.projectSelector.clearSearch')}
           tabIndex={-1}
           onClick={() => updateQuery('')}>
           <Icon icon="close" size="sm" color="secondary" />
@@ -137,7 +140,7 @@ export function ProjectSelector({projects, value, onChange, label = 'Projects', 
         {project.id === value && <Icon icon="check" size="sm" />}
       </li>)}
     </ul>
-    {matches.length === 0 && <p className="project-selector__empty">No projects match “{query.trim()}”.</p>}
+    {matches.length === 0 && <p className="project-selector__empty">{t('@da-facility.projectSelector.noMatches', {query: query.trim()})}</p>}
     {onCreate && <button
       className="project-selector__create"
       type="button"
@@ -146,7 +149,7 @@ export function ProjectSelector({projects, value, onChange, label = 'Projects', 
         onCreate();
       }}>
       <span aria-hidden="true">+</span>
-      {createLabel}
+      {createLabel ?? t('@da-facility.projectSelector.create')}
     </button>}
   </div>;
 
@@ -161,8 +164,8 @@ export function ProjectSelector({projects, value, onChange, label = 'Projects', 
       alignment="start"
       width={280}
       hasAutoFocus={false}>
-      {trigger => <button {...trigger} className="project-selector__trigger" type="button" aria-label={`${label}: ${selected?.name ?? 'none selected'}`}>
-        {selected ? <ProjectIdentity project={selected} /> : <span className="project-selector__placeholder">Select a project</span>}
+      {trigger => <button {...trigger} className="project-selector__trigger" type="button" aria-label={t('@da-facility.projectSelector.trigger', {label, project: selected?.name ?? t('@da-facility.projectSelector.noneSelected')})}>
+        {selected ? <ProjectIdentity project={selected} /> : <span className="project-selector__placeholder">{t('@da-facility.projectSelector.noneSelected')}</span>}
         <Icon icon="arrowsUpDown" size="sm" color="secondary" />
       </button>}
     </Popover>

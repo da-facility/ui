@@ -68,15 +68,19 @@ test.describe('assistant', () => {
     await presetTweaks(page, 'sidebar', {assistant: true});
   });
 
-  test('the bar waits unobtrusively at the bottom, below the layout', async ({page}, testInfo) => {
+  test('the bar waits unobtrusively at the bottom, below the page card', async ({page}, testInfo) => {
     await page.goto('/render/sidebar/profile');
     const bar = page.locator('.assistant');
     const viewport = page.viewportSize()!;
     const closed = (await bar.boundingBox())!;
-    expect(closed.height).toBe(44);
+    expect(closed.height).toBe(48);
     expect(closed.y + closed.height).toBe(viewport.height);
-    if (!isMobile(testInfo)) expect((await box(page, rail)).height).toBe(viewport.height - 44);
-    await expect(page.getByRole('combobox', {name: 'Ask anything'}).or(page.getByRole('textbox', {name: 'Ask anything'}))).toBeHidden();
+    if (!isMobile(testInfo)) {
+      // On desktop the page is a rounded card with an 8px margin above the bar.
+      expect(await box(page, rail)).toMatchObject({x: 8, y: 8, height: viewport.height - 48 - 16});
+      await expect(page.locator('.sidebar-layout__frame')).toHaveCSS('border-radius', '12px');
+    }
+    await expect(page.getByRole('textbox', {name: 'Ask anything'})).toBeHidden();
   });
 
   test('on desktop, opening it contracts the page into a card above the chat', async ({page}, testInfo) => {
@@ -88,17 +92,20 @@ test.describe('assistant', () => {
 
     const input = page.getByRole('textbox', {name: 'Ask anything'});
     await expect(input).toBeFocused();
-    await expect.poll(async () => (await box(page, rail)).x).toBe(16);
-    const card = await box(page, rail);
-    expect(card.y).toBe(16);
-    expect(card.y + card.height).toBeLessThan(page.viewportSize()!.height - 400);
+    // Only the card's bottom edge moves: its sides and corners stay put.
+    await expect.poll(async () => (await box(page, rail)).height).toBeLessThan(page.viewportSize()!.height - 440);
+    expect(await box(page, rail)).toMatchObject({x: 8, y: 8});
     await expect(page.locator('.sidebar-layout__frame')).toHaveCSS('border-radius', '12px');
     expect(await scrollY(page), 'opening the chat keeps the page position').toBe(600);
 
     // Suggestions send straight away; the app renders the conversation.
     await page.getByRole('button', {name: /Where can I find old invoices/}).click();
     await expect(page.locator('.example-assistant [data-from="you"]')).toHaveText('Where can I find old invoices?');
+    // Shift+Enter starts a new line; Enter sends.
     await input.fill('Hello');
+    await input.press('Shift+Enter');
+    await input.pressSequentially('there');
+    await expect(input).toHaveValue('Hello\nthere');
     await input.press('Enter');
     await expect(page.locator('.example-assistant [data-from="you"]')).toHaveCount(2);
     await expect(input).toHaveValue('');
@@ -109,7 +116,7 @@ test.describe('assistant', () => {
     await expect.poll(() => scrollY(page)).toBeGreaterThan(600);
 
     await input.press('Escape');
-    await expect.poll(async () => (await box(page, rail)).x).toBe(0);
+    await expect.poll(async () => (await box(page, rail)).height).toBe(page.viewportSize()!.height - 48 - 16);
     await expect(page.getByRole('button', {name: 'Ask anything'})).toBeFocused();
     expect(errors).toEqual([]);
   });
@@ -128,6 +135,21 @@ test.describe('assistant', () => {
     await expect(sheet).toBeHidden();
     await expect(drawer(page)).toBeHidden();
   });
+});
+
+test('the sidebar header can be left out entirely', async ({page}, testInfo) => {
+  await presetTweaks(page, 'sidebar', {navigationHeader: false});
+  await page.goto('/render/sidebar/profile');
+  if (isMobile(testInfo)) {
+    await drawerTrigger(page).click();
+    await expect(drawer(page).getByRole('button', {name: /^Projects:/})).toHaveCount(0);
+    await expect(drawer(page).getByText('Settings navigation', {exact: true})).toHaveCount(0);
+  } else {
+    const firstChild = page.locator('.sidebar-layout__navigation > *').first();
+    // Without a header, SideNav's first child is the navigation list itself.
+    await expect(firstChild.locator('.astryx-side-nav-section').first()).toBeAttached();
+    await expect(page.locator(rail).getByRole('button', {name: /^Projects:/})).toHaveCount(0);
+  }
 });
 
 test('navigation fade and bounce can be switched off', async ({page}, testInfo) => {
