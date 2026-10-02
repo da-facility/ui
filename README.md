@@ -146,8 +146,8 @@ A 32px bar with the label repeated in uppercase monospace, scrolling slowly side
 ```
 
 A chat shell: the app owns the conversation and what happens to a message.
-- **Closed:** a quiet "Ask anything" bar at the bottom of the screen. Inside `SidebarLayout` on desktop, the page sits above it as a rounded card.
-- **Open on desktop:** the card's bottom edge rises and the chat takes the space below it; its sides and corners stay put.
+- **Closed:** a slim "Ask anything" bar below the full-screen page. The button toggles the chat; while it is open, hovering it shows that a click will close it.
+- **Open on desktop:** inside `SidebarLayout`, the page's bottom edge rises and it shrinks into a card with a small margin, with the chat below it.
 - **Open on phones:** a bottom sheet you can drag.
 - **Message box:** grows as you type. Enter sends and Shift+Enter starts a new line. `context` shows as a tag inside it, for what the assistant can see.
 - **Suggestions:** chips above the message box until there is a conversation; choosing one sends it.
@@ -215,7 +215,7 @@ Keys start with `@da-facility.`. Change single strings with the provider's `over
 
 ```sh
 bun install
-bun run dev            # catalogue at http://localhost:5173
+bun run dev            # catalogue at http://localhost:5174
 bun run typecheck
 bun run test           # browser tests, desktop and mobile
 bun run test:package   # pack, install into a fresh app, and test it there

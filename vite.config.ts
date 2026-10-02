@@ -19,6 +19,8 @@ export default defineConfig(({mode}) => {
     },
     build: {outDir: '../dist-catalogue', emptyOutDir: true},
     server: {
+      // Not Vite's default 5173, which other local apps tend to take.
+      port: 5174,
       // Comma-separated hosts for previewing on other devices, set in .env.local.
       allowedHosts: env.CATALOGUE_ALLOWED_HOSTS?.split(',').map(host => host.trim()),
     },

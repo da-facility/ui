@@ -68,17 +68,17 @@ test.describe('assistant', () => {
     await presetTweaks(page, 'sidebar', {assistant: true});
   });
 
-  test('the bar waits unobtrusively at the bottom, below the page card', async ({page}, testInfo) => {
+  test('the bar waits unobtrusively at the bottom, below a full-screen page', async ({page}, testInfo) => {
     await page.goto('/render/sidebar/profile');
     const bar = page.locator('.assistant');
     const viewport = page.viewportSize()!;
     const closed = (await bar.boundingBox())!;
-    expect(closed.height).toBe(48);
+    expect(closed.height).toBe(40);
     expect(closed.y + closed.height).toBe(viewport.height);
     if (!isMobile(testInfo)) {
-      // On desktop the page is a rounded card with an 8px margin above the bar.
-      expect(await box(page, rail)).toMatchObject({x: 8, y: 8, height: viewport.height - 48 - 16});
-      await expect(page.locator('.sidebar-layout__frame')).toHaveCSS('border-radius', '12px');
+      expect(await box(page, rail)).toMatchObject({x: 0, y: 0, height: viewport.height - 40});
+      // Full screen, with the bottom corners already round above the bar.
+      await expect(page.locator('.sidebar-layout__frame')).toHaveCSS('border-radius', '0px 0px 12px 12px');
     }
     await expect(page.getByRole('textbox', {name: 'Ask anything'})).toBeHidden();
   });
@@ -92,10 +92,14 @@ test.describe('assistant', () => {
 
     const input = page.getByRole('textbox', {name: 'Ask anything'});
     await expect(input).toBeFocused();
-    // Only the card's bottom edge moves: its sides and corners stay put.
-    await expect.poll(async () => (await box(page, rail)).height).toBeLessThan(page.viewportSize()!.height - 440);
-    expect(await box(page, rail)).toMatchObject({x: 8, y: 8});
+    // The page rises and shrinks into a card with a small margin and rounded corners.
+    await expect.poll(async () => (await box(page, rail)).x).toBe(8);
+    const card = await box(page, rail);
+    expect(card.y).toBe(8);
+    expect(card.y + card.height).toBeLessThan(page.viewportSize()!.height - 440);
     await expect(page.locator('.sidebar-layout__frame')).toHaveCSS('border-radius', '12px');
+    // The chat sits right below the card throughout, never ahead of it.
+    expect((await box(page, '.assistant')).y).toBe(card.y + card.height + 8);
     expect(await scrollY(page), 'opening the chat keeps the page position').toBe(600);
 
     // Suggestions send straight away; the app renders the conversation.
@@ -116,8 +120,18 @@ test.describe('assistant', () => {
     await expect.poll(() => scrollY(page)).toBeGreaterThan(600);
 
     await input.press('Escape');
-    await expect.poll(async () => (await box(page, rail)).height).toBe(page.viewportSize()!.height - 48 - 16);
-    await expect(page.getByRole('button', {name: 'Ask anything'})).toBeFocused();
+    await expect.poll(async () => (await box(page, rail)).height).toBe(page.viewportSize()!.height - 40);
+    const toggle = page.getByRole('button', {name: 'Ask anything'});
+    await expect(toggle).toBeFocused();
+
+    // The bar button toggles; while open, hovering it says it will close the chat.
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    await toggle.hover();
+    await expect(toggle.getByText('Close chat')).toHaveCSS('opacity', '1');
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await expect.poll(async () => (await box(page, rail)).x).toBe(0);
     expect(errors).toEqual([]);
   });
 

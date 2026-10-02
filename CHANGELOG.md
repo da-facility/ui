@@ -13,7 +13,7 @@ Breaking changes:
 New:
 
 - `StatusBar`: the accreditation apps' environment banner as a component, with automatic text contrast.
-- `Assistant`: a chat bar at the bottom of the screen. In `SidebarLayout` on desktop the page is a rounded card whose bottom edge rises when the chat opens; phones get a bottom sheet. The message box grows as you type, with the context as a tag and a solid send button.
+- `Assistant`: a chat bar at the bottom of the screen. In `SidebarLayout` on desktop the full-screen page rises and shrinks into a card when the chat opens; phones get a bottom sheet. The bar's button toggles the chat. The message box grows as you type, with the context as a tag and a solid send button.
 - `SidebarLayout`: `statusBar`, `assistant` and page `footer` slots; `title` is optional and the header goes away without it; `navigationHeader={null}` leaves the sidebar header out; `navigationFade` and `navigationBounce`.
 - `ScrollArea` takes `bounce`, and `fade={0}` turns fading off.
 - Translations: built-in strings go through Astryx's `InternationalizationProvider`, with `@da-facility/ui/locales/en.json` and `hr.json` shipped.

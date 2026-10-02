@@ -1,6 +1,6 @@
 {
   "version": "0.0.1",
   "configurations": [
-    {"name": "catalogue", "runtimeExecutable": "bun", "runtimeArgs": ["run", "dev", "--port", "5173", "--strictPort"], "port": 5173}
+    {"name": "catalogue", "runtimeExecutable": "bun", "runtimeArgs": ["run", "dev", "--strictPort"], "port": 5174, "autoPort": false}
   ]
 }

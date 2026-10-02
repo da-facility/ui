@@ -4,7 +4,7 @@ import {defineConfig} from '@playwright/test';
 const desktop = {viewport: {width: 1920, height: 1080}, deviceScaleFactor: 1};
 const mobile = {viewport: {width: 390, height: 844}, deviceScaleFactor: 1, hasTouch: true};
 const separate = ['package.spec.ts', 'screenshots.spec.ts'];
-const port = Number(process.env.CATALOGUE_PORT ?? 5173);
+const port = Number(process.env.CATALOGUE_PORT ?? 5174);
 
 export default defineConfig({
   testDir: 'tests',

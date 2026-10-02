@@ -5,7 +5,7 @@
    --sidebar-layout-top     status bar height
    --sidebar-layout-header  page header height
    --sidebar-layout-bottom  assistant bar (or open chat) height
-   --sidebar-layout-inset   gap around the page card when there is an assistant
+   --sidebar-layout-inset   gap around the page while the assistant's chat is open
 
    They are registered so the layout can animate between values. */
 
@@ -30,12 +30,16 @@
   --sidebar-width: 260px;
   --sidebar-layout-top: 0px;
   --sidebar-layout-header: 0px;
-  --sidebar-layout-radius: 0px;
+  /* Top corners round as the margin appears; bottom corners stay round above an assistant bar. */
+  --sidebar-layout-radius-top: calc(var(--sidebar-layout-inset) * 1.5);
+  --sidebar-layout-radius-bottom: 0px;
   /* Everything pinned below the content: the chat bar and the page footer. */
   --sidebar-layout-chrome-bottom: calc(var(--sidebar-layout-bottom) + var(--sidebar-layout-footer-height, 0px));
   min-height: 100dvh;
   color: var(--color-text-primary);
-  transition: --sidebar-layout-bottom 420ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition:
+    --sidebar-layout-bottom 420ms cubic-bezier(0.32, 0.72, 0, 1),
+    --sidebar-layout-inset 420ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .sidebar-layout[data-status-bar] {
@@ -51,7 +55,7 @@
 }
 
 .sidebar-layout[data-assistant] {
-  --sidebar-layout-bottom: calc(48px + env(safe-area-inset-bottom));
+  --sidebar-layout-bottom: calc(40px + env(safe-area-inset-bottom));
 }
 
 .sidebar-layout__status-bar {
@@ -83,7 +87,7 @@
   gap: 16px;
   padding: 0 24px;
   border-bottom: 1px solid var(--color-border);
-  border-top-right-radius: var(--sidebar-layout-radius);
+  border-top-right-radius: var(--sidebar-layout-radius-top);
   background: var(--page-background);
 }
 
@@ -112,7 +116,7 @@
   min-height: 56px;
   padding: 10px 24px;
   border-top: 1px solid var(--color-border);
-  border-bottom-right-radius: var(--sidebar-layout-radius);
+  border-bottom-right-radius: var(--sidebar-layout-radius-bottom);
   background: var(--page-background);
 }
 
@@ -129,7 +133,7 @@
   width: var(--sidebar-width);
   overflow: hidden;
   border-right: 1px solid var(--color-border);
-  border-radius: var(--sidebar-layout-radius) 0 0 var(--sidebar-layout-radius);
+  border-radius: var(--sidebar-layout-radius-top) 0 0 var(--sidebar-layout-radius-bottom);
   background: var(--color-background-surface);
 }
 
@@ -162,12 +166,16 @@
   font-weight: 600;
 }
 
-/* Assistant: on desktop the page is a card with the chat bar below it, and
-   the frame paints the backdrop around the card. Opening the chat only moves
-   the card's bottom edge up; its sides and corners stay put. The frame's
-   inside stays transparent, so the document keeps scrolling natively. */
+/* Assistant: the page fills the screen above a slim chat bar. Opening the
+   chat raises the page's bottom edge and shrinks it into a card with a small
+   margin, while the frame paints the backdrop around it. The frame's inside
+   stays transparent, so the document keeps scrolling natively.
 
-.sidebar-layout__assistant .assistant {
+   The chat's height always follows the layout's, open or closed, so the two
+   move together. */
+
+.sidebar-layout__assistant .assistant,
+.sidebar-layout__assistant .assistant[data-open] {
   height: var(--sidebar-layout-bottom);
   border-top: 0;
 }
@@ -179,7 +187,7 @@
     var(--sidebar-layout-inset)
     calc(var(--sidebar-layout-bottom) + var(--sidebar-layout-inset));
   z-index: 9;
-  border-radius: var(--sidebar-layout-radius);
+  border-radius: var(--sidebar-layout-radius-top) var(--sidebar-layout-radius-top) var(--sidebar-layout-radius-bottom) var(--sidebar-layout-radius-bottom);
   box-shadow:
     0 12px 32px var(--color-shadow, rgb(0 0 0 / 10%)),
     0 0 0 100vmax var(--color-background-body);
@@ -187,13 +195,19 @@
 }
 
 @media (min-width: 769px) and (min-height: 601px) {
+  /* The frame paints the backdrop behind the bar, so the page's shadow and
+     the backdrop run on underneath it without a seam. */
+  .sidebar-layout__assistant .assistant {
+    background: transparent;
+  }
+
   .sidebar-layout[data-assistant] {
-    --sidebar-layout-inset: 8px;
-    --sidebar-layout-radius: 12px;
+    --sidebar-layout-radius-bottom: 12px;
   }
 
   .sidebar-layout:has(.sidebar-layout__assistant .assistant[data-open]) {
     --sidebar-layout-bottom: min(440px, 55dvh);
+    --sidebar-layout-inset: 8px;
   }
 }
 

@@ -85,14 +85,20 @@ export function Assistant({
     }}>
     <div className="assistant__panel" inert={!isOpen || isNarrow}>{!isNarrow && chat}</div>
     <div className="assistant__bar">
-      <button ref={toggleRef} className="assistant__toggle" type="button" aria-expanded={isOpen} onClick={() => setOpen(true)}>
-        <SparkleIcon />
-        {label}
+      {/* Opens and closes the chat. While open, hovering shows that a click will close it. */}
+      <button
+        ref={toggleRef}
+        className="assistant__toggle"
+        type="button"
+        aria-expanded={isOpen}
+        onClick={() => isOpen ? close() : setOpen(true)}>
+        <span className="assistant__toggle-icon"><SparkleIcon /><ChevronDownIcon /></span>
+        <span className="assistant__toggle-label">
+          <span>{label}</span>
+          <span aria-hidden="true">{t('@da-facility.assistant.close')}</span>
+        </span>
       </button>
-      <div className="assistant__actions">
-        {actions}
-        {isOpen && !isNarrow && closeButton(close)}
-      </div>
+      {actions && <div className="assistant__actions">{actions}</div>}
     </div>
     {isNarrow && <BottomSheet label={label} isOpen={isOpen} onOpenChange={setOpen} height="tall">
       <div className="assistant__sheet">
@@ -176,6 +182,12 @@ function Composer({label, placeholder, context, onSubmit, autoFocus}: {
 function SparkleIcon() {
   return <svg className="assistant__icon" viewBox="0 0 16 16" aria-hidden="true">
     <path d="M8 1.5c.4 2.9 1.6 4.1 4.5 4.5-2.9.4-4.1 1.6-4.5 4.5C7.6 7.6 6.4 6.4 3.5 6c2.9-.4 4.1-1.6 4.5-4.5ZM12.5 10c.2 1.4.8 2 2.2 2.2-1.4.2-2 .8-2.2 2.3-.2-1.5-.8-2.1-2.2-2.3 1.4-.2 2-.8 2.2-2.2Z" fill="currentColor" />
+  </svg>;
+}
+
+function ChevronDownIcon() {
+  return <svg className="assistant__icon" viewBox="0 0 16 16" aria-hidden="true">
+    <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>;
 }
 
