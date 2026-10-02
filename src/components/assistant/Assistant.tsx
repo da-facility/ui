@@ -1,4 +1,5 @@
 import {useEffect, useRef, useState, type KeyboardEvent, type ReactNode} from 'react';
+import {createPortal} from 'react-dom';
 import {BottomSheet} from '@astryxdesign/core/BottomSheet';
 import {Icon} from '@astryxdesign/core/Icon';
 import {IconButton} from '@astryxdesign/core/IconButton';
@@ -100,7 +101,9 @@ export function Assistant({
       </button>
       {actions && <div className="assistant__actions">{actions}</div>}
     </div>
-    {isNarrow && <BottomSheet label={label} isOpen={isOpen} onOpenChange={setOpen} height="tall">
+    {/* Rendered into <body>: the sheet only reaches the top layer after its first
+        frame, and inside the bar it would briefly be placed and clipped by it. */}
+    {isNarrow && createPortal(<BottomSheet label={label} isOpen={isOpen} onOpenChange={setOpen} height="tall">
       <div className="assistant__sheet">
         <header className="assistant__sheet-header">
           <span><SparkleIcon />{label}</span>
@@ -108,7 +111,7 @@ export function Assistant({
         </header>
         {chat}
       </div>
-    </BottomSheet>}
+    </BottomSheet>, document.body)}
   </section>;
 }
 
