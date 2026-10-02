@@ -75,11 +75,9 @@ test.describe('assistant', () => {
     const closed = (await bar.boundingBox())!;
     expect(closed.height).toBe(40);
     expect(closed.y + closed.height).toBe(viewport.height);
-    if (!isMobile(testInfo)) {
-      expect(await box(page, rail)).toMatchObject({x: 0, y: 0, height: viewport.height - 40});
-      // Full screen, with the bottom corners already round above the bar.
-      await expect(page.locator('.sidebar-layout__frame')).toHaveCSS('border-radius', '0px 0px 12px 12px');
-    }
+    if (!isMobile(testInfo)) expect(await box(page, rail)).toMatchObject({x: 0, y: 0, height: viewport.height - 40});
+    // Full screen, with the bottom corners already round above the bar, on desktop and phones.
+    await expect(page.locator('.sidebar-layout__frame')).toHaveCSS('border-radius', '0px 0px 12px 12px');
     await expect(page.getByRole('textbox', {name: 'Ask anything'})).toBeHidden();
   });
 

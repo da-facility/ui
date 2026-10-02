@@ -194,17 +194,17 @@
   pointer-events: none;
 }
 
+/* The frame paints the backdrop behind the bar, so the page's shadow and the
+   backdrop run on underneath it without a seam, on desktop and phones. */
+.sidebar-layout__assistant .assistant {
+  background: transparent;
+}
+
+.sidebar-layout[data-assistant] {
+  --sidebar-layout-radius-bottom: 12px;
+}
+
 @media (min-width: 769px) and (min-height: 601px) {
-  /* The frame paints the backdrop behind the bar, so the page's shadow and
-     the backdrop run on underneath it without a seam. */
-  .sidebar-layout__assistant .assistant {
-    background: transparent;
-  }
-
-  .sidebar-layout[data-assistant] {
-    --sidebar-layout-radius-bottom: 12px;
-  }
-
   .sidebar-layout:has(.sidebar-layout__assistant .assistant[data-open]) {
     --sidebar-layout-bottom: min(440px, 55dvh);
     --sidebar-layout-inset: 8px;
@@ -214,8 +214,7 @@
 /* Phones: a full-width header, the floating menu button and drawer instead of the rail. */
 
 @media (max-width: 768px), (max-height: 600px) {
-  .sidebar-layout__rail,
-  .sidebar-layout__frame {
+  .sidebar-layout__rail {
     display: none;
   }
 
@@ -247,6 +246,7 @@
   .sidebar-layout__footer {
     right: 0;
     left: 0;
+    border-bottom-left-radius: var(--sidebar-layout-radius-bottom);
     padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right));
   }
 
