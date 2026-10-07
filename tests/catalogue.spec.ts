@@ -32,28 +32,42 @@ test('the menu switches examples and keeps the URL and history in sync', async (
   expect(errors).toEqual([]);
 });
 
-test('tweaks stay in view, and list only the current example’s plus global ones', async ({page}, testInfo) => {
+test('examples and tweaks share one card, and at most one is open', async ({page}, testInfo) => {
   await page.goto('/user-menu');
   const tweaks = page.getByRole('region', {name: 'Tweaks'});
-  if (isMobile(testInfo)) await tweaks.getByRole('button', {name: /Tweaks/}).click();
+  const tweaksToggle = tweaks.getByRole('button', {name: /Tweaks/});
+  const catalogue = page.getByRole('region', {name: 'Catalogue'});
+  await expect(menu(page).locator('.catalogue-menu__dock')).toHaveCount(1);
+
+  // Tweaks start open, except on phones where they would cover the page.
+  await expect(tweaksToggle).toHaveAttribute('aria-expanded', isMobile(testInfo) ? 'false' : 'true');
+  if (isMobile(testInfo)) await tweaksToggle.click();
   await expect(tweaks.getByRole('switch')).toHaveCount(2);
   await expect(tweaks.getByRole('switch', {name: 'Dark mode'})).toBeVisible();
   await expect(tweaks.getByRole('switch', {name: 'Croatian'})).toBeVisible();
+
+  // Opening the examples collapses the tweaks, and the other way round.
   await page.getByRole('button', {name: 'Open catalogue', exact: true}).click();
+  await expect(catalogue).toBeVisible();
+  await expect(tweaksToggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(tweaks.getByRole('switch')).toHaveCount(0);
   await page.getByRole('link', {name: /^Sidebar/}).click();
+  await tweaksToggle.click();
+  await expect(catalogue).toHaveCount(0);
+  await expect(page.getByRole('button', {name: 'Open catalogue', exact: true})).toHaveAttribute('aria-expanded', 'false');
   await expect(tweaks.getByRole('switch', {name: 'Left-handed navigation'})).toBeVisible();
   await expect(tweaks.getByRole('group', {name: 'Layout'}).getByRole('switch')).toHaveCount(6);
-  if (isMobile(testInfo)) {
-    await tweaks.getByRole('button', {name: /Tweaks/}).click();
-    await page.evaluate(() => localStorage.removeItem('da-ui-catalogue:menu-tweaks'));
-  }
+  await page.keyboard.press('Control+k');
+  await expect(catalogue).toBeVisible();
+  await expect(tweaks.getByRole('switch')).toHaveCount(0);
 
-  // The list collapses (and starts collapsed on phones), and remembers the choice.
-  const toggle = tweaks.getByRole('button', {name: /Tweaks/});
-  await expect(toggle).toHaveAttribute('aria-expanded', isMobile(testInfo) ? 'false' : 'true');
-  await toggle.click();
+  // Both can be closed, and the choice is remembered.
+  await page.getByRole('button', {name: 'Close catalogue', exact: true}).click();
+  await expect(catalogue).toHaveCount(0);
+  await expect(tweaksToggle).toHaveAttribute('aria-expanded', 'false');
   await page.reload();
-  await expect(toggle).toHaveAttribute('aria-expanded', isMobile(testInfo) ? 'true' : 'false');
+  await expect(catalogue).toHaveCount(0);
+  await expect(tweaksToggle).toHaveAttribute('aria-expanded', 'false');
 });
 
 test('dark mode applies to the page and remembers the choice', async ({page}) => {

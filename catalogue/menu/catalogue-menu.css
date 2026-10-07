@@ -4,7 +4,6 @@
   --menu-ink: #edeee9;
   display: flex;
   flex-direction: column;
-  gap: 8px;
   /* Grows away from the edge it is docked to, and always fits on screen. */
   max-height: calc(100dvh - var(--floating-offset, 12px) - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   --menu-muted: #a4ab9b;
@@ -35,25 +34,46 @@
   user-select: none;
 }
 
-.catalogue-menu:not([data-opens-up]),
-.catalogue-menu:not([data-opens-up]) .catalogue-menu__dock {
-  flex-direction: column-reverse;
-}
-
-.catalogue-menu__dock,
-.catalogue-menu__panel {
-  border: 1px solid #42473d;
-  border-radius: 12px;
-  background: var(--menu-surface);
-  box-shadow: 0 8px 28px #0003, 0 2px 6px #0002;
-}
-
+/* One card: the bar sits at the edge the menu is docked to and the sections
+   grow away from it. */
 .catalogue-menu__dock {
   display: flex;
   flex: 0 1 auto;
   flex-direction: column;
   min-height: 48px;
   overflow: hidden;
+  border: 1px solid #42473d;
+  border-radius: 12px;
+  background: var(--menu-surface);
+  box-shadow: 0 8px 28px #0003, 0 2px 6px #0002;
+}
+
+.catalogue-menu:not([data-opens-up]) .catalogue-menu__dock {
+  flex-direction: column-reverse;
+}
+
+/* Sections fade in as they open. */
+.catalogue-menu__panel,
+.catalogue-menu__tweak-list {
+  transition: opacity 160ms ease, translate 200ms ease;
+
+  @starting-style {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+.catalogue-menu:not([data-opens-up]) :is(.catalogue-menu__panel, .catalogue-menu__tweak-list) {
+  @starting-style {
+    translate: 0 -6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalogue-menu__panel,
+  .catalogue-menu__tweak-list {
+    transition: none;
+  }
 }
 
 /* Bar */
@@ -131,6 +151,12 @@
   padding: 16px 10px 8px;
   overflow-y: auto;
   overscroll-behavior: contain;
+  border-bottom: 1px solid var(--menu-line);
+}
+
+.catalogue-menu:not([data-opens-up]) .catalogue-menu__panel {
+  border-top: 1px solid var(--menu-line);
+  border-bottom: 0;
 }
 
 .catalogue-menu__header {

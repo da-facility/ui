@@ -12,6 +12,8 @@ import './catalogue-menu.css';
 const BAR = {width: 280, height: 48};
 const KINDS: Example['kind'][] = ['Layout', 'Template', 'Component'];
 
+type Section = 'examples' | 'tweaks';
+
 export type MenuTweak = Tweak & {value: boolean; onChange: (value: boolean) => void};
 
 type CatalogueMenuProps = {
@@ -21,14 +23,18 @@ type CatalogueMenuProps = {
 };
 
 /**
- * Floating dev menu: the current example's tweaks stay in view beside a
- * draggable bar, and the list of examples opens from the bar (⌘K / Ctrl+K).
+ * Floating dev menu: one card with a draggable bar, the list of examples
+ * (opened from the bar or with ⌘K / Ctrl+K) and the current example's tweaks.
+ * At most one of the two sections is open; opening one collapses the other.
  */
 export function CatalogueMenu({selectedId, page, tweaks}: CatalogueMenuProps) {
   const {elementRef, style, opensUp, isDragging, handleProps, dock} = useFloatingPosition('menu-anchor', BAR);
-  const [isOpen, setOpen] = useStoredState('menu-open', false);
-  // Collapsed by default on phones, where the list would cover the page.
-  const [showTweaks, setShowTweaks] = useStoredState('menu-tweaks', typeof window === 'undefined' || window.innerWidth > 768);
+  // One section open at a time, like an accordion. Tweaks start open except on
+  // phones, where the list would cover the page.
+  const [openSection, setOpenSection] = useStoredState<Section | null>('menu-section', typeof window === 'undefined' || window.innerWidth > 768 ? 'tweaks' : null);
+  const isOpen = openSection === 'examples';
+  const showTweaks = openSection === 'tweaks';
+  const toggleSection = (section: Section) => setOpenSection(open => open === section ? null : section);
   const [query, setQuery] = useState('');
   const toggleRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -41,15 +47,15 @@ export function CatalogueMenu({selectedId, page, tweaks}: CatalogueMenuProps) {
     function onKeyDown(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
-        setOpen(open => !open);
+        toggleSection('examples');
       } else if (event.key === 'Escape' && isOpen) {
-        setOpen(false);
+        setOpenSection(null);
         if (elementRef.current?.contains(document.activeElement)) toggleRef.current?.focus();
       }
     }
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isOpen, setOpen, elementRef]);
+  }, [isOpen, setOpenSection, elementRef]);
 
   const selected = examples.find(example => example.id === selectedId);
   const matches = examples.filter(example => `${example.name} ${example.kind}`.toLowerCase().includes(query.trim().toLowerCase()));
@@ -62,64 +68,64 @@ export function CatalogueMenu({selectedId, page, tweaks}: CatalogueMenuProps) {
       data-opens-up={opensUp || undefined}
       data-dragging={isDragging || undefined}
       style={{...style, width: BAR.width}}>
-      {isOpen && <section id="catalogue-panel" className="catalogue-menu__panel" aria-label="Catalogue">
-        <header className="catalogue-menu__header">
-          <h2>Da Facility UI</h2>
-          <span>{examples.length} examples</span>
-        </header>
-        <label className="catalogue-menu__search">
-          <span aria-hidden="true">⌕</span>
-          <input
-            ref={searchRef}
-            type="search"
-            aria-label="Find an example"
-            placeholder="Find an example…"
-            value={query}
-            onChange={event => setQuery(event.target.value)}
-          />
-          <kbd>esc</kbd>
-        </label>
-        <nav aria-label="Examples">
-          {KINDS.map(kind => {
-            const items = matches.filter(example => example.kind === kind);
-            if (items.length === 0) return null;
-            return <section key={kind} aria-label={`${kind}s`}>
-              <h3 className="catalogue-menu__kind">{kind}s</h3>
-              {items.map(example => <a
-                key={example.id}
-                href={routePath({exampleId: example.id, isClean: false})}
-                aria-current={example.id === selectedId ? 'page' : undefined}
-                onClick={event => {
-                  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
-                  event.preventDefault();
-                  navigate({exampleId: example.id, isClean: false});
-                }}>
-                <span className="catalogue-menu__icon" data-kind={example.kind} aria-hidden="true"><i /><i /></span>
-                <span>{example.name}<small>{example.description}</small></span>
-              </a>)}
-            </section>;
-          })}
-          {matches.length === 0 && <p className="catalogue-menu__empty">No examples match “{query}”.</p>}
-        </nav>
-        <footer className="catalogue-menu__footer">
-          <a href={routePath({exampleId: selectedId, page, isClean: true})} target="_blank" rel="noreferrer">
-            Open clean view <span aria-hidden="true">↗</span>
-          </a>
-          <select aria-label="Move menu to corner" value="" onChange={event => dock(event.target.value as Corner)}>
-            <option value="" disabled>Position</option>
-            <option value="top-left">Top left</option>
-            <option value="top-right">Top right</option>
-            <option value="bottom-left">Bottom left</option>
-            <option value="bottom-right">Bottom right</option>
-          </select>
-        </footer>
-      </section>}
       <div className="catalogue-menu__dock">
+        {isOpen && <section id="catalogue-panel" className="catalogue-menu__panel" aria-label="Catalogue">
+          <header className="catalogue-menu__header">
+            <h2>Da Facility UI</h2>
+            <span>{examples.length} examples</span>
+          </header>
+          <label className="catalogue-menu__search">
+            <span aria-hidden="true">⌕</span>
+            <input
+              ref={searchRef}
+              type="search"
+              aria-label="Find an example"
+              placeholder="Find an example…"
+              value={query}
+              onChange={event => setQuery(event.target.value)}
+            />
+            <kbd>esc</kbd>
+          </label>
+          <nav aria-label="Examples">
+            {KINDS.map(kind => {
+              const items = matches.filter(example => example.kind === kind);
+              if (items.length === 0) return null;
+              return <section key={kind} aria-label={`${kind}s`}>
+                <h3 className="catalogue-menu__kind">{kind}s</h3>
+                {items.map(example => <a
+                  key={example.id}
+                  href={routePath({exampleId: example.id, isClean: false})}
+                  aria-current={example.id === selectedId ? 'page' : undefined}
+                  onClick={event => {
+                    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+                    event.preventDefault();
+                    navigate({exampleId: example.id, isClean: false});
+                  }}>
+                  <span className="catalogue-menu__icon" data-kind={example.kind} aria-hidden="true"><i /><i /></span>
+                  <span>{example.name}<small>{example.description}</small></span>
+                </a>)}
+              </section>;
+            })}
+            {matches.length === 0 && <p className="catalogue-menu__empty">No examples match “{query}”.</p>}
+          </nav>
+          <footer className="catalogue-menu__footer">
+            <a href={routePath({exampleId: selectedId, page, isClean: true})} target="_blank" rel="noreferrer">
+              Open clean view <span aria-hidden="true">↗</span>
+            </a>
+            <select aria-label="Move menu to corner" value="" onChange={event => dock(event.target.value as Corner)}>
+              <option value="" disabled>Position</option>
+              <option value="top-left">Top left</option>
+              <option value="top-right">Top right</option>
+              <option value="bottom-left">Bottom left</option>
+              <option value="bottom-right">Bottom right</option>
+            </select>
+          </footer>
+        </section>}
         {tweaks.length > 0 && <section className="catalogue-menu__tweaks" aria-label="Tweaks">
-          <button className="catalogue-menu__tweaks-toggle" type="button" aria-expanded={showTweaks} onClick={() => setShowTweaks(!showTweaks)}>
+          <button className="catalogue-menu__tweaks-toggle" type="button" aria-expanded={showTweaks} aria-controls="catalogue-tweaks" onClick={() => toggleSection('tweaks')}>
             Tweaks <span aria-hidden="true">{showTweaks ? '−' : '+'}</span>
           </button>
-          {showTweaks && <div className="catalogue-menu__tweak-list">
+          {showTweaks && <div id="catalogue-tweaks" className="catalogue-menu__tweak-list">
             <Theme theme={neutralTheme} mode="dark">
               {groups.map(group => <div key={group} className="catalogue-menu__tweak-group" role="group" aria-label={group}>
                 <h3>{group}</h3>
@@ -156,7 +162,7 @@ export function CatalogueMenu({selectedId, page, tweaks}: CatalogueMenuProps) {
             aria-expanded={isOpen}
             aria-controls="catalogue-panel"
             aria-keyshortcuts="Control+K Meta+K"
-            onClick={() => setOpen(!isOpen)}>
+            onClick={() => toggleSection('examples')}>
             <span className="catalogue-menu__mark">ui</span>
             <span>{selected?.name ?? 'Catalogue'}</span>
             <span className="catalogue-menu__chevron" aria-hidden="true">{isOpen ? '−' : '+'}</span>
