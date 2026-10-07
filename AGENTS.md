@@ -9,7 +9,7 @@
 
 - `src/` is the published package. Everything public is exported from `src/index.ts`, with JSDoc on every prop.
 - `catalogue/` is the local preview app. Each example in `catalogue/examples/` is registered in `catalogue/examples.ts` and imports `@da-facility/ui` like a consuming app would. Examples receive their sub-page and tweaks as props and never import catalogue internals.
-- `tests/` holds the Playwright tests. `bun run test` covers desktop, mobile, WebKit and native macOS bounce; `bun run test:package` packs the package and tests it in a fresh app.
+- `tests/` holds the Playwright tests. `bun run test` covers desktop, mobile, WebKit and native macOS bounce; `bun run test:headless` is the same without native bounce; `bun run test:package` packs the package and tests it in a fresh app.
 
 ## Rules
 
@@ -20,7 +20,8 @@
 - Choose between desktop and phone layouts with CSS media queries, not by branching on `useMediaQuery` in render, so server-rendered pages start right.
 - Built-in text goes through `useMessages()` (`src/i18n.ts`) with a key in `src/locales/en.json` and `hr.json`, never as a literal in a component.
 - Colours come from Astryx tokens so dark mode works; check new work with the catalogue's Dark mode tweak.
-- Run `bun run typecheck` and `bun run test` before handing off work that touches `src/` or `catalogue/`.
+- Run `bun run typecheck` and `bun run test:headless` before handing off work that touches `src/` or `catalogue/`.
+- On the local machine, run the full `bun run test` only when the change touches scrolling: `PageScroll`, `ScrollArea`, `SidebarLayout`'s scroll structure, overscroll or bounce CSS. Its native-overscroll tests open visible Chromium windows and drive real input, which makes the computer hard to use while they run. CI runs the full suite either way.
 
 ## Screenshot Coverage
 

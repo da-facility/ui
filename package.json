@@ -35,6 +35,7 @@
     "build:catalogue": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "playwright test --project=desktop --project=mobile --project=webkit --project=native-desktop --project=native-mobile",
+    "test:headless": "playwright test --project=desktop --project=mobile --project=webkit",
     "test:package": "playwright test --project=package",
     "screenshots": "playwright test --project=screenshots",
     "prepublishOnly": "bun run build"
