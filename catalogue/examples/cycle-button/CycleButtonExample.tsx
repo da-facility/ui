@@ -37,6 +37,10 @@ export function CycleButtonExample({tweaks}: ExampleProps) {
           <CycleButton label="Sort" states={sortStates} value={sort} onChange={setSort} {...shared} />
           <CycleButton label="Sort" states={sortStates} value={sort} onChange={setSort} isIconOnly {...shared} />
         </div>
+        <div className="cycle-button-example__buttons">
+          <CycleButton appearance="group" label="Sort" states={sortStates} value={sort} onChange={setSort} {...shared} />
+          <CycleButton appearance="group" label="Sort" states={sortStates} value={sort} onChange={setSort} isIconOnly {...shared} />
+        </div>
       </section>
       <section>
         <h2>Three states</h2>
@@ -44,12 +48,21 @@ export function CycleButtonExample({tweaks}: ExampleProps) {
           <CycleButton label="Theme" states={themeStates} value={theme} onChange={setTheme} {...shared} />
           <CycleButton label="Theme" states={themeStates} value={theme} onChange={setTheme} isIconOnly {...shared} />
         </div>
+        <div className="cycle-button-example__buttons">
+          <CycleButton appearance="group" label="Theme" states={themeStates} value={theme} onChange={setTheme} {...shared} />
+          <CycleButton appearance="group" label="Theme" states={themeStates} value={theme} onChange={setTheme} isIconOnly {...shared} />
+        </div>
       </section>
       <section>
         <h2>Four states</h2>
         <div className="cycle-button-example__buttons">
           <CycleButton label="View" states={viewStates} value={view} onChange={setView} {...shared} />
           <CycleButton label="View" states={viewStates} value={view} onChange={setView} isIconOnly {...shared} />
+        </div>
+        <div className="cycle-button-example__buttons">
+          {/* Four labelled segments are 341px wide at the medium size, wider than a phone card. */}
+          <CycleButton appearance="group" label="View" states={viewStates} value={view} onChange={setView} {...shared} size="sm" />
+          <CycleButton appearance="group" label="View" states={viewStates} value={view} onChange={setView} isIconOnly {...shared} />
         </div>
       </section>
     </div>

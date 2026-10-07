@@ -212,7 +212,9 @@ Items take the same shape as items in Astryx's `DropdownMenu`. Pass `compact` to
 
 An Astryx `Button` that moves to the next of its two to four states on each click, wrapping from the last back to the first. The type only accepts two, three or four `states`. The icon turns over and the label slides between states, and dots after the label show where in the cycle the button is. The button keeps the width of its longest label, so it never jumps. Its accessible name is the `label` and the current state, such as "Theme: Dark".
 
-`isIconOnly` shows only the current icon, with the name as a tooltip. `variant`, `size` and `isDisabled` pass through to Astryx's `Button`. Leave out `value` to let the button keep its own state, starting at `defaultValue` or the first state. When people should see every option at once, use Astryx's `SegmentedControl` instead.
+`isIconOnly` shows only the current icon, with the name as a tooltip. `variant`, `size` and `isDisabled` pass through to Astryx's `Button`. Leave out `value` to let the button keep its own state, starting at `defaultValue` or the first state.
+
+`appearance="group"` shows every state side by side in a shared track, with only the current one raised, using Astryx's `SegmentedControl`. A click, the arrow keys, or dragging across the track with a mouse or finger choose a state directly, while vertical swipes still scroll the page. `isIconOnly` hides every segment's label. `size` and `isDisabled` still apply; `variant` does not. Four labelled segments are about 340px wide at the medium size, so use `size="sm"` or `isIconOnly` where that is too wide, such as in a phone card.
 
 ## Translations
 
@@ -238,6 +240,7 @@ bun install
 bun run dev            # catalogue at http://localhost:5174
 bun run typecheck
 bun run test           # browser tests, desktop and mobile
+bun run test:headless  # the same without native bounce, which opens visible windows
 bun run test:package   # pack, install into a fresh app, and test it there
 bun run screenshots    # desktop and mobile captures in artifacts/screenshots
 bun run build          # the package, into dist/
