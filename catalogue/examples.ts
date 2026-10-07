@@ -3,6 +3,7 @@ import {SidebarExample} from './examples/sidebar/SidebarExample';
 import {LoginSplitExample} from './examples/login-split/LoginSplitExample';
 import {ProjectSelectorExample} from './examples/project-selector/ProjectSelectorExample';
 import {ScrollAreaExample} from './examples/scroll-area/ScrollAreaExample';
+import {CycleButtonExample} from './examples/cycle-button/CycleButtonExample';
 import {UserMenuExample} from './examples/user-menu/UserMenuExample';
 
 export const examples: Example[] = [
@@ -34,6 +35,18 @@ export const examples: Example[] = [
     description: 'Sign-in form beside a cover image, with alternative providers.',
     source: {label: 'Meta Astryx · Login Split', url: 'https://facebook.github.io/astryx/sandbox/templates/login-split/'},
     Component: LoginSplitExample,
+  },
+  {
+    id: 'cycle-button',
+    name: 'Cycle button',
+    kind: 'Component',
+    description: 'Button that steps through two to four states, such as light, dark and system theme.',
+    tweaks: [
+      {id: 'ghost', label: 'Ghost variant', group: 'Appearance'},
+      {id: 'large', label: 'Large', group: 'Appearance'},
+      {id: 'disabled', label: 'Disabled', group: 'State'},
+    ],
+    Component: CycleButtonExample,
   },
   {
     id: 'project-selector',

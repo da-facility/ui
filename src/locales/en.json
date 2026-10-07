@@ -110,5 +110,9 @@
   "@da-facility.assistant.context": {
     "defaultMessage": "Context",
     "description": "Accessible name of the tag showing what the assistant can see."
+  },
+  "@da-facility.cycleButton.label": {
+    "defaultMessage": "{label}: {state}",
+    "description": "Accessible name of a button that steps through states, such as “Theme: Dark”."
   }
 }

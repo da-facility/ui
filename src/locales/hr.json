@@ -82,5 +82,8 @@
   },
   "@da-facility.assistant.context": {
     "defaultMessage": "Kontekst"
+  },
+  "@da-facility.cycleButton.label": {
+    "defaultMessage": "{label}: {state}"
   }
 }

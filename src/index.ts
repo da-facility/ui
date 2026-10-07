@@ -6,4 +6,5 @@ export {PageScroll, type PageScrollProps} from './components/scroll/PageScroll';
 export {ScrollArea, scrollAreaClassName, type ScrollAreaOptions, type ScrollAreaProps} from './components/scroll/ScrollArea';
 export {ProjectSelector, type Project, type ProjectSelectorProps} from './components/project-selector/ProjectSelector';
 export {StatusBar, type StatusBarProps} from './components/status-bar/StatusBar';
+export {CycleButton, type CycleButtonProps, type CycleButtonState, type CycleButtonStates} from './components/cycle-button/CycleButton';
 export {UserMenu, type UserMenuItem, type UserMenuProps} from './components/user-menu/UserMenu';

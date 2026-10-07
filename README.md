@@ -10,6 +10,7 @@ Layouts, templates and components for Da Facility apps, built on [Meta Astryx](h
 | `Assistant` | Component | Chat bar at the bottom of the screen that opens into a chat; the layout contracts around it. |
 | `ProjectSelector` | Component | The current project, with a searchable menu for switching projects. |
 | `UserMenu` | Component | Account avatar and name that opens a menu of account actions. |
+| `CycleButton` | Component | Button that steps through two to four states, such as light, dark and system theme. |
 | `PageScroll` | Component | Makes the document the page's scroller, with native bounce only while the page overflows. |
 | `ScrollArea` | Component | Scroll box inside fixed chrome, with native bounce while it overflows and content fading under its edges. |
 
@@ -193,6 +194,25 @@ How the "only while it overflows" part works: an element's CSS scroll timeline i
 ```
 
 Items take the same shape as items in Astryx's `DropdownMenu`. Pass `compact` to show only the avatar, for narrow headers, or `isFullWidth` to fill a sidebar footer.
+
+### CycleButton
+
+```tsx
+<CycleButton
+  label="Theme"
+  states={[
+    {value: 'light', label: 'Light', icon: <SunIcon />},
+    {value: 'dark', label: 'Dark', icon: <MoonIcon />},
+    {value: 'system', label: 'System', icon: <ComputerDesktopIcon />},
+  ]}
+  value={theme}
+  onChange={setTheme}
+/>
+```
+
+An Astryx `Button` that moves to the next of its two to four states on each click, wrapping from the last back to the first. The type only accepts two, three or four `states`. The icon turns over and the label slides between states, and dots after the label show where in the cycle the button is. The button keeps the width of its longest label, so it never jumps. Its accessible name is the `label` and the current state, such as "Theme: Dark".
+
+`isIconOnly` shows only the current icon, with the name as a tooltip. `variant`, `size` and `isDisabled` pass through to Astryx's `Button`. Leave out `value` to let the button keep its own state, starting at `defaultValue` or the first state. When people should see every option at once, use Astryx's `SegmentedControl` instead.
 
 ## Translations
 
