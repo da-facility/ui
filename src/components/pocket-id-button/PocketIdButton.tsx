@@ -14,6 +14,12 @@ export type PocketIdButtonProps = {
   label?: string;
   /** Stretches the button to its container instead of its usual 280px. */
   isFullWidth?: boolean;
+  /**
+   * Focuses the button when the page loads, as Pocket ID does on its own
+   * sign-in page, so Enter signs in and the focus ring shows from the start.
+   * Use it only where the button is the page's main action.
+   */
+  autoFocus?: boolean;
 };
 
 /**
@@ -21,7 +27,7 @@ export type PocketIdButtonProps = {
  * buttons: Pocket ID's logo pinned left and a centred label, in Pocket ID's own
  * black pill, which turns light in dark mode.
  */
-export function PocketIdButton({href, onClick, label, isFullWidth}: PocketIdButtonProps) {
+export function PocketIdButton({href, onClick, label, isFullWidth, autoFocus}: PocketIdButtonProps) {
   const t = useMessages();
   const className = `pocket-id-button${isFullWidth ? ' pocket-id-button--full-width' : ''}`;
   const content = <>
@@ -29,8 +35,8 @@ export function PocketIdButton({href, onClick, label, isFullWidth}: PocketIdButt
     <span className="pocket-id-button__label">{label || t('@da-facility.pocketIdButton.label')}</span>
   </>;
   return href != null
-    ? <a className={className} href={href} onClick={onClick}>{content}</a>
-    : <button className={className} type="button" onClick={onClick}>{content}</button>;
+    ? <a className={className} href={href} onClick={onClick} autoFocus={autoFocus}>{content}</a>
+    : <button className={className} type="button" onClick={onClick} autoFocus={autoFocus}>{content}</button>;
 }
 
 /** Pocket ID's mark, inlined so pages with a strict CSP need no image source. */

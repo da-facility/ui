@@ -22,6 +22,11 @@ export type LoginPocketIdProps = {
   buttonLabel?: string;
   /** Content below the button, such as a help link. */
   footer?: ReactNode;
+  /**
+   * Focuses the button when the page loads, as Pocket ID's own sign-in page
+   * does, so Enter signs in and its focus ring shows. Defaults to true.
+   */
+  autoFocus?: boolean;
 };
 
 /**
@@ -29,7 +34,7 @@ export type LoginPocketIdProps = {
  * optional title and description explain why someone is here, such as an
  * expired or failed sign-in.
  */
-export function LoginPocketId({href, onSignIn, brand, title, description, buttonLabel, footer}: LoginPocketIdProps) {
+export function LoginPocketId({href, onSignIn, brand, title, description, buttonLabel, footer, autoFocus = true}: LoginPocketIdProps) {
   const t = useMessages();
   const id = useId();
   const hasButton = href != null || onSignIn != null;
@@ -43,7 +48,7 @@ export function LoginPocketId({href, onSignIn, brand, title, description, button
       {brand != null && <div className="login-pocket-id__brand">{brand}</div>}
       {hasTitle && <h1 id={`${id}-title`}>{title}</h1>}
       {description != null && <p className="login-pocket-id__description">{description}</p>}
-      {hasButton && <PocketIdButton href={href} onClick={onSignIn} label={buttonLabel} />}
+      {hasButton && <PocketIdButton href={href} onClick={onSignIn} label={buttonLabel} autoFocus={autoFocus} />}
       {footer != null && <div className="login-pocket-id__footer">{footer}</div>}
     </div>
   </main>;

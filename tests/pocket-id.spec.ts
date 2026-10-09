@@ -23,6 +23,14 @@ test('the page is only a Pocket ID button, centred, until it has a title', async
   expect(errors).toEqual([]);
 });
 
+test('the button is focused on load and shows Pocket ID’s focus ring', async ({page}) => {
+  await page.goto('/render/login-pocket-id');
+  const button = page.getByRole('main').getByRole('button', {name: 'Sign in with Pocket ID'});
+  await expect(button).toBeFocused();
+  await expect.poll(() => button.evaluate(element => getComputedStyle(element).borderColor)).toBe('oklch(0.708 0 0)');
+  await expect.poll(() => button.evaluate(element => getComputedStyle(element).boxShadow)).toContain('0px 0px 0px 3px');
+});
+
 test('a titled page explains itself, and a page without a way forward has no button', async ({page}) => {
   await presetTweaks(page, 'login-pocket-id', {expired: true});
   await page.goto('/render/login-pocket-id');
@@ -40,13 +48,13 @@ test('a titled page explains itself, and a page without a way forward has no but
 test('the button is Pocket ID’s black pill, light in dark mode', async ({page}) => {
   await page.goto('/render/pocket-id-button');
   const button = page.getByRole('main').getByRole('button', {name: 'Sign in with Pocket ID'}).first();
-  expect(await background(button)).toBe('rgb(23, 23, 23)');
+  expect(await background(button)).toBe('oklch(0.205 0 0)');
   await expect(button.locator('svg')).toHaveAttribute('aria-hidden', 'true');
   expect(await button.evaluate(element => getComputedStyle(element).borderRadius)).toBe('9999px');
 
   await presetTweaks(page, 'pocket-id-button', {}, {darkMode: true});
   await page.goto('/render/pocket-id-button');
-  expect(await background(page.getByRole('main').getByRole('button', {name: 'Sign in with Pocket ID'}).first())).toBe('rgb(229, 229, 229)');
+  expect(await background(page.getByRole('main').getByRole('button', {name: 'Sign in with Pocket ID'}).first())).toBe('oklch(0.922 0 0)');
 });
 
 test('with an href the button is a link, and full width fills its container', async ({page}) => {

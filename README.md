@@ -120,7 +120,7 @@ Every part except `navigation` and `children` is optional:
 <LoginPocketId href="/authentication/login" />
 ```
 
-A blank page with only a Pocket ID button in the middle. `href` is the app's route that starts the Pocket ID sign-in; use `onSignIn` instead to start it from code. `title` and `description` explain why someone is here, such as an expired or failed sign-in, and `buttonLabel` changes the button's text, such as to "Try again". Leave out both `href` and `onSignIn` for a page without a button, such as "No access", where signing in again would not help. `brand` sits above the title and `footer` below the button.
+A blank page with only a Pocket ID button in the middle. `href` is the app's route that starts the Pocket ID sign-in; use `onSignIn` instead to start it from code. `title` and `description` explain why someone is here, such as an expired or failed sign-in, and `buttonLabel` changes the button's text, such as to "Try again". Leave out both `href` and `onSignIn` for a page without a button, such as "No access", where signing in again would not help. `brand` sits above the title and `footer` below the button. Like Pocket ID's own sign-in page, the button is focused when the page loads, so Enter signs in and its focus ring shows; `autoFocus={false}` turns that off.
 
 The page is plain HTML and CSS with no effects, so it also renders on the server with `renderToStaticMarkup` for sign-in pages that load no JavaScript.
 
@@ -216,7 +216,7 @@ Items take the same shape as items in Astryx's `DropdownMenu`. Pass `compact` to
 
 Pocket ID's sign-in button, styled like the "Sign in with Apple" and Google buttons: Pocket ID's logo pinned left and a centred label, "Sign in with Pocket ID" unless `label` says otherwise. With `href` it is a link; without one, a `<button>` that calls `onClick`. `isFullWidth` stretches it to its container instead of its usual 280px.
 
-Like other brand buttons, it keeps Pocket ID's own colours instead of the app's accent: a black pill in light mode and a light one in dark mode. Set `--pocket-id-button-background`, `--pocket-id-button-hover`, `--pocket-id-button-foreground` and `--pocket-id-button-ring` on it to change them. The logo is inline SVG, so pages with a strict content security policy need no image source.
+Like other brand buttons, it copies Pocket ID's own primary button instead of using the app's accent: a black pill in light mode and a light one in dark mode, fading to 80% on hover, with Pocket ID's focus ring of a grey border inside a soft 3px halo. `autoFocus` focuses it when the page loads, as Pocket ID's sign-in page does, so the ring shows from the start. Set `--pocket-id-button-background`, `--pocket-id-button-hover`, `--pocket-id-button-foreground` and `--pocket-id-button-ring` on it to change them. The logo is inline SVG, so pages with a strict content security policy need no image source.
 
 ### CycleButton
 
