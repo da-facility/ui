@@ -1,0 +1,203 @@
+/* Sonner's toasts in shadcn's shape, coloured by the Astryx theme. Sonner
+   injects its own stylesheet at runtime, so the class is doubled to outrank
+   its selectors whichever loads first. Every colour is a theme token, so dark
+   mode follows the app's `Theme`. */
+.da-toaster.da-toaster[data-sonner-toaster] {
+  color: var(--color-text-primary);
+  font-family: var(--font-family-body);
+  --normal-bg: var(--color-background-popover);
+  --normal-border: var(--color-border);
+  --normal-text: var(--color-text-primary);
+  --success-bg: var(--color-background-green);
+  --success-border: var(--color-border-green);
+  --success-text: var(--color-text-green);
+  --info-bg: var(--color-background-blue);
+  --info-border: var(--color-border-blue);
+  --info-text: var(--color-text-blue);
+  --warning-bg: var(--color-background-yellow);
+  --warning-border: var(--color-border-yellow);
+  --warning-text: var(--color-text-yellow);
+  --error-bg: var(--color-background-red);
+  --error-border: var(--color-border-red);
+  --error-text: var(--color-text-red);
+}
+
+.da-toaster.da-toaster [data-sonner-toast][data-styled="true"] {
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  background: var(--color-background-popover);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-med);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.da-toaster.da-toaster [data-sonner-toast]:focus-visible {
+  box-shadow: var(--shadow-med), 0 0 0 2px var(--color-accent-muted);
+}
+
+.da-toaster.da-toaster [data-sonner-toast][data-styled="true"] [data-title] {
+  color: inherit;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.4;
+}
+
+.da-toaster.da-toaster [data-sonner-toast][data-styled="true"] [data-description] {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.da-toaster.da-toaster [data-sonner-toast][data-styled="true"] [data-icon] {
+  color: var(--color-icon-secondary);
+}
+
+.da-toaster.da-toaster [data-sonner-toast][data-type="success"] [data-icon] {
+  color: var(--color-success);
+}
+
+.da-toaster.da-toaster [data-sonner-toast][data-type="info"] [data-icon] {
+  color: var(--color-icon-accent);
+}
+
+.da-toaster.da-toaster [data-sonner-toast][data-type="warning"] [data-icon] {
+  color: var(--color-warning);
+}
+
+.da-toaster.da-toaster [data-sonner-toast][data-type="error"] [data-icon] {
+  color: var(--color-error);
+}
+
+.da-toaster.da-toaster [data-sonner-toast][data-rich-colors="true"] [data-icon] {
+  color: inherit;
+}
+
+.da-toaster.da-toaster .sonner-loading-bar {
+  background: var(--color-icon-secondary);
+}
+
+/* The action is a solid accent button, the cancel a muted one, as in shadcn. */
+.da-toaster.da-toaster [data-sonner-toast][data-styled="true"] [data-button] {
+  height: 28px;
+  padding: 0 12px;
+  border-radius: var(--radius-element);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  transition: background-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+}
+
+.da-toaster.da-toaster [data-sonner-toast][data-styled="true"] [data-button]:hover {
+  background: color-mix(in srgb, var(--color-accent), var(--color-tint-hover) 12%);
+}
+
+.da-toaster.da-toaster [data-sonner-toast][data-styled="true"] [data-button]:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-accent-muted);
+}
+
+.da-toaster.da-toaster[data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-cancel] {
+  background: var(--color-background-muted);
+  color: var(--color-text-primary);
+}
+
+.da-toaster.da-toaster[data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-cancel]:hover {
+  background: color-mix(in srgb, var(--color-background-muted), var(--color-tint-hover) 8%);
+}
+
+.da-toaster.da-toaster[data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-close-button] {
+  border-color: var(--color-border-emphasized);
+  background: var(--color-background-popover);
+  color: var(--color-text-secondary);
+}
+
+.da-toaster.da-toaster[data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-close-button]:hover {
+  border-color: var(--color-border-emphasized);
+  background: var(--color-background-muted);
+  color: var(--color-text-primary);
+}
+
+.da-toaster.da-toaster [data-sonner-toast][data-styled="true"] [data-close-button]:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-accent-muted);
+}
+
+/* Shooting star. A launched toast is hidden from its first paint and moves
+   straight to its place, so it can be measured; the trail is drawn on a
+   short-lived canvas and the card grows with a Web Animation, both in arrival.ts,
+   and the class goes once they are done. The trail reads its colour, length
+   (a percentage of the flight) and fade out from these properties, which
+   `Toaster`'s `arrival` prop sets. */
+.da-toaster.da-toaster {
+  --da-toast-arrival-color: var(--color-accent);
+  /* Used for error and warning toasts when `tintByType` is on. */
+  --da-toast-arrival-error-color: var(--color-data-categorical-red);
+  --da-toast-arrival-warning-color: light-dark(var(--color-data-yellow-4), var(--color-data-yellow-3));
+  --da-toast-trail-length: 45;
+  --da-toast-trail-fade-out: 180;
+}
+
+.da-toaster.da-toaster [data-sonner-toast].da-toast--arriving {
+  transition: none;
+  clip-path: inset(50% 50%);
+}
+
+/* The content stays hidden while the card opens, then fades in (arrival.ts).
+   Custom toasts are their own card, so they open as a whole instead. */
+.da-toaster.da-toaster [data-sonner-toast][data-styled="true"].da-toast--arriving > * {
+  opacity: 0;
+}
+
+/* Sonner fades a toast's content over 0.4s; that would take over from the
+   quicker fade above, so it stays off until the content has faded in. */
+.da-toaster.da-toaster [data-sonner-toast].da-toast--arriving > *,
+.da-toaster.da-toaster [data-sonner-toast].da-toast--settling > * {
+  transition: none;
+}
+
+/* Just below Sonner's toaster (z-index 999999999), so the card covers the
+   line's end as it fades. */
+.da-toast-trail {
+  position: fixed;
+  z-index: 999999998;
+  pointer-events: none;
+}
+
+/* The stand-in card that grows out of the impact, centred on the toast; arrival.ts
+   animates its size, corners, colours, border and shadow into the card's. */
+.da-toast-stand-in {
+  position: fixed;
+  z-index: 2147483647;
+  box-sizing: border-box;
+  width: 4px;
+  height: 4px;
+  translate: -50% -50%;
+  border: 0 solid transparent;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: width, height, transform;
+}
+
+/* Replacing a toast in place (wave.ts): a stand-in card inside the real one's
+   border, where a wave from the pressed element wipes the content clean. Its
+   front is a band of the trail's colour; inside it, the card's plain surface. */
+@property --da-wave-radius {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+.da-toast-wave {
+  position: fixed;
+  z-index: 2147483647;
+  box-sizing: border-box;
+  translate: -50% -50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--da-wave-x) var(--da-wave-y),
+    var(--da-wave-surface) calc(var(--da-wave-radius) - 22px),
+    var(--da-wave-tint) calc(var(--da-wave-radius) - 6px),
+    transparent var(--da-wave-radius)
+  );
+}

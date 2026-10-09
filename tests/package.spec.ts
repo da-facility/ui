@@ -36,7 +36,7 @@ import {InternationalizationProvider} from '@astryxdesign/core/i18n';
 import hr from '@da-facility/ui/locales/hr.json';
 import {Theme} from '@astryxdesign/core/theme';
 import {neutralTheme} from '@astryxdesign/theme-neutral/built';
-import {LoginSplit, ProjectSelector, SidebarLayout, UserMenu, type MobileNavigationSide} from '@da-facility/ui';
+import {LoginSplit, ProjectSelector, SidebarLayout, Toaster, toast, UserMenu, type MobileNavigationSide} from '@da-facility/ui';
 
 function App() {
   const [side, setSide] = useState<MobileNavigationSide>('right');
@@ -70,6 +70,8 @@ function App() {
     headerActions={<span>{project === 'a' ? 'Project A' : 'Project B'}</span>}>
     <h1>Projects</h1>
     <Button label="App's own Astryx button" variant="primary" />
+    <Button label="Show a toast" onClick={event => toast.success('Saved from the app', {from: event.currentTarget})} />
+    <Toaster />
     <div style={{height: 3000}}>Long content</div>
   </SidebarLayout>;
 }
@@ -124,8 +126,12 @@ test.afterAll(async () => {
 test('the package ships only its own code and shares the app’s Astryx', async () => {
   const installed = join(app, 'node_modules/@da-facility/ui');
   const code = await readFile(join(installed, 'dist/index.js'), 'utf8');
-  expect(code.length, 'Astryx must not be bundled').toBeLessThan(50_000);
+  // The package's own code is about 56 KB unminified; a bundled Astryx would add
+  // far more, and the imports below check it stays external.
+  expect(code.length, 'Astryx must not be bundled').toBeLessThan(100_000);
   expect(code).toMatch(/from "@astryxdesign\/core\/SideNav"/);
+  expect(code, 'Sonner is a dependency, not bundled').toMatch(/from "sonner"/);
+  expect(code).not.toMatch(/data-sonner-toaster/);
   expect(existsSync(join(installed, 'node_modules')), 'no nested dependency copies').toBe(false);
   expect(existsSync(join(installed, 'dist/index.d.ts'))).toBe(true);
 });
@@ -141,6 +147,15 @@ for (const [name, viewport] of Object.entries({desktop: {width: 1920, height: 10
     await expect(page.locator('.sidebar-layout__surface'), 'package CSS loads with the import').toHaveCSS('background-color', 'rgb(255, 255, 255)');
     await expect(page.locator('html')).toHaveCSS('overscroll-behavior-y', 'contain');
     await expect(page.getByRole('button', {name: "App's own Astryx button"})).toHaveCSS('cursor', 'pointer');
+
+    // Sonner comes with the package and is styled by its CSS.
+    await page.getByRole('button', {name: 'Show a toast'}).click();
+    const toastCard = page.locator('[data-sonner-toast]').filter({hasText: 'Saved from the app'});
+    await expect(toastCard).toBeVisible();
+    await expect(toastCard).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    await expect(toastCard).toHaveCSS('border-radius', '12px');
+    await expect(toastCard).not.toHaveClass(/da-toast--arriving/);
+    await expect(page.locator('.da-toast-stand-in')).toHaveCount(0);
 
     if (name === 'mobile') await page.getByRole('button', {name: 'Open navigation', exact: true}).click();
     await page.getByRole('button', {name: 'Account menu for Taylor'}).click();

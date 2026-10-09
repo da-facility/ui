@@ -11,6 +11,7 @@ Layouts, templates and components for Da Facility apps, built on [Meta Astryx](h
 | `ProjectSelector` | Component | The current project, with a searchable menu for switching projects. |
 | `UserMenu` | Component | Account avatar and name that opens a menu of account actions. |
 | `CycleButton` | Component | Button that steps through two to four states, such as light, dark and system theme. |
+| `Toaster`, `toast` | Component | Sonner toasts in the Astryx theme. A toast can fly in from the element that showed it. |
 | `PageScroll` | Component | Makes the document the page's scroller, with native bounce only while the page overflows. |
 | `ScrollArea` | Component | Scroll box inside fixed chrome, with native bounce while it overflows and content fading under its edges. |
 
@@ -215,6 +216,32 @@ An Astryx `Button` that moves to the next of its two to four states on each clic
 `isIconOnly` shows only the current icon, with the name as a tooltip. `variant`, `size` and `isDisabled` pass through to Astryx's `Button`. Leave out `value` to let the button keep its own state, starting at `defaultValue` or the first state.
 
 `appearance="group"` shows every state side by side in a shared track, with only the current one raised, using Astryx's `SegmentedControl`. A click, the arrow keys, or dragging across the track with a mouse or finger choose a state directly, while vertical swipes still scroll the page. `isIconOnly` hides every segment's label. `size` and `isDisabled` still apply; `variant` does not. Four labelled segments are about 340px wide at the medium size, so use `size="sm"` or `isIconOnly` where that is too wide, such as in a phone card.
+
+### Toaster and toast
+
+```tsx
+import {Toaster, toast} from '@da-facility/ui';
+
+// Once, anywhere in the app.
+<Toaster position="bottom-right" />
+
+// From any code, such as a click handler.
+<Button label="Archive" onClick={event => toast('Message archived', {
+  description: 'It is in the archive folder.',
+  action: {label: 'Undo', onClick: restore},
+  from: event.currentTarget,
+})} />
+```
+
+[Sonner](https://sonner.emilkowal.ski) (the toast shadcn/ui uses) in the Astryx theme: the card, text, buttons and icons take their colours, radius and shadow from the theme's tokens, so they follow the app's light and dark mode. `toast(message, options)` and `toast.success`, `.info`, `.warning`, `.error`, `.loading`, `.message`, `.custom` and `.promise` are Sonner's own, with its options (`description`, `action`, `cancel`, `duration`, `id`, `closeButton`, `onDismiss`, …), and `toast.dismiss(id)` hides one. The same `id` updates a toast in place.
+
+- **`from`.** Pass the element that showed the toast (`event.currentTarget`), its `DOMRect`, or a viewport point, and the toast arrives from there like a shooting star: a star with a fading trail flies from its centre on a slight curve to where the toast sits, speeding up for about 240ms so it lands at its fastest. The trail is one smooth shape, widest and brightest at the star and fading to nothing behind it. On impact the card grows out of the landing point in about 200ms: a stand-in with the card's own surface, border, corners and shadow bursts out from the star's dot and settles, getting taller and wider together as its colour turns from the trail's to the card's, and the real card takes over on its last frame. Meanwhile the rest of the trail slides in after the star and fades, so the toast absorbs it, and once the card is open its text fades in. The star starts behind the element it came from, emerging from under it. It is quick enough that the eye is led rather than made to follow. Without `from`, or when the person prefers reduced motion, the toast slides in as Sonner's do. The trail is drawn on a short-lived canvas beneath the toasts and the opening is a Web Animation; nothing listens to scroll or resize.
+- **Replacing a toast.** When `from` is an element inside another toast, such as its action button, the new toast takes that one's place instead of arriving: a wave in the trail's colour spreads from the pressed element and wipes the card clean, the card resizes to the new content where it stands in the stack, and the new content fades in. Nothing of the old toast carries over, and it is not dismissed, so an action like `onClick: event => toast.success('Message restored', {from: event.currentTarget})` turns the toast into its result.
+- **`arrival`.** Sets how the shooting star looks: `color` (any CSS colour or token, the theme's `--color-accent` by default), `tailLength` (how much of the flight the trail covers, as a percentage, 45 by default) and `fadeOut` (how long the trail takes to vanish into the toast after impact, 180 ms). They are also the custom properties `--da-toast-arrival-color`, `--da-toast-trail-length` and `--da-toast-trail-fade-out` on the toaster, for setting in CSS. `momentum` starts the card a little back along the star's path so it settles onto its place, carrying the star's motion. `tintByType` colours the trail of error toasts red and of warning toasts yellow instead (`--da-toast-arrival-error-color` and `--da-toast-arrival-warning-color`, from the theme's data colours by default). The neutral theme's accent is near-black in light mode and near-white in dark mode, so pass a colour such as `var(--color-data-categorical-blue)` for a coloured trail.
+- **`Toaster` props.** Besides `arrival`, `position`, `visibleToasts`, `expand`, `duration`, `gap`, `closeButton`, `richColors`, `offset`, `mobileOffset`, `hotkey`, `swipeDirections`, `icons`, `toastOptions`, `id`, `dir` and `label` pass through to Sonner. The theme follows Astryx's `Theme`, and the region's name and the close button's label are translated.
+- **Custom cards.** `toast.custom` renders exactly what you return, unstyled; give it a card of its own.
+
+Sonner is a dependency of the package, so apps do not install it themselves.
 
 ## Translations
 

@@ -6,6 +6,7 @@ New:
 
 - `CycleButton`: an Astryx button that steps through two to four states, such as light, dark and system theme, with a turning icon and dots showing its place in the cycle.
 - `CycleButton` takes `appearance="group"`, which shows every state side by side as an Astryx `SegmentedControl`, with only the current one raised. Dragging across it with a mouse or finger selects the segment under the pointer.
+- `Toaster` and `toast`: Sonner's toasts (the ones shadcn/ui uses) in the Astryx theme, with every variant and option, translated built-in text, and light and dark mode from the theme's tokens. `toast(message, {from: event.currentTarget})` makes the toast arrive from the element that showed it: a star with a fading trail flies to the toast's place, and the card grows out of its impact, bursting out from the star's dot and settling as its colour turns into the card's, while absorbing the trail, and its text fades in once it is open. The star starts behind the element that launched it. `arrival` on `Toaster` sets the trail's colour, length and fade out, `tintByType` turns error trails red and warning trails yellow, and `momentum` lets the card carry the star's motion as it settles. A toast shown `from` inside another toast, such as from its action button, replaces that toast in place: a wave wipes the card, which resizes to the new content and fades it in. It is skipped for people who prefer reduced motion. Sonner is a dependency of the package.
 
 ## 0.2.0
 

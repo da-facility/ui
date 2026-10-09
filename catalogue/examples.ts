@@ -4,6 +4,7 @@ import {LoginSplitExample} from './examples/login-split/LoginSplitExample';
 import {ProjectSelectorExample} from './examples/project-selector/ProjectSelectorExample';
 import {ScrollAreaExample} from './examples/scroll-area/ScrollAreaExample';
 import {CycleButtonExample} from './examples/cycle-button/CycleButtonExample';
+import {ToastsExample} from './examples/toasts/ToastsExample';
 import {UserMenuExample} from './examples/user-menu/UserMenuExample';
 
 export const examples: Example[] = [
@@ -65,6 +66,21 @@ export const examples: Example[] = [
       {id: 'bounce', label: 'Bounce', group: 'Scrolling', default: true},
     ],
     Component: ScrollAreaExample,
+  },
+  {
+    id: 'toasts',
+    name: 'Toasts',
+    kind: 'Component',
+    description: 'Sonner toasts in the Astryx theme, each arriving like a shooting star from the button that showed it.',
+    source: {label: 'Sonner · shadcn/ui', url: 'https://sonner.emilkowal.ski'},
+    tweaks: [
+      {id: 'expand', label: 'Expand the stack', group: 'Toasts'},
+      {id: 'closeButton', label: 'Close buttons', group: 'Toasts'},
+      {id: 'richColors', label: 'Rich colours', group: 'Toasts'},
+      {id: 'tintByType', label: 'Tint errors and warnings', group: 'Shooting star', default: true},
+      {id: 'momentum', label: 'Carry the star’s momentum', group: 'Shooting star'},
+    ],
+    Component: ToastsExample,
   },
   {
     id: 'user-menu',

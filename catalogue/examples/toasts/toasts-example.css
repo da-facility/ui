@@ -1,0 +1,173 @@
+.toasts-example {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 88px 32px 140px;
+}
+
+.toasts-example h1 {
+  margin: 0 0 12px;
+  font-size: 32px;
+  letter-spacing: -1px;
+}
+
+.toasts-example h3 {
+  margin: 0 0 16px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.toasts-example > p {
+  max-width: 640px;
+  margin: 0 0 20px;
+  color: var(--color-text-secondary);
+}
+
+.toasts-example__lead {
+  font-size: 16px;
+}
+
+.toasts-example code {
+  font-family: var(--font-family-code, ui-monospace, monospace);
+  font-size: 0.9em;
+}
+
+.toasts-example__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.toasts-example__arrival {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  /* Sliders line up even where only some have a description. */
+  align-items: end;
+  gap: 20px 28px;
+  margin-bottom: 20px;
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  background: var(--color-background-surface);
+}
+
+.toasts-example__arrival h3 {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.toasts-example__arrival > :nth-child(2) {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.toasts-example__groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.toasts-example__group {
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  background: var(--color-background-surface);
+}
+
+.toasts-example__group ul {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.toasts-example__group li {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+
+.toasts-example__group li > button {
+  justify-self: start;
+}
+
+.toasts-example__group small {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.toasts-example__status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+  margin: 20px 0 0;
+  color: var(--color-text-secondary);
+}
+
+.toasts-example__status svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+/* toast.custom draws the whole card, so this one is themed here. --width is
+   Sonner's toast width, inherited from the toaster. */
+.toasts-example__custom-toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  width: min(var(--width, 356px), 100%);
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  background: var(--color-background-popover);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-med);
+  font-family: var(--font-family-body);
+  font-size: 14px;
+}
+
+.toasts-example__custom-toast > svg {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  color: var(--color-icon-accent);
+}
+
+.toasts-example__custom-toast > div {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.toasts-example__custom-toast span {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .toasts-example {
+    padding: 32px 20px 120px;
+  }
+
+  .toasts-example__groups {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .toasts-example__group,
+  .toasts-example__arrival {
+    padding: 20px;
+  }
+
+  .toasts-example__group li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+}

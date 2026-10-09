@@ -114,5 +114,13 @@
   "@da-facility.cycleButton.label": {
     "defaultMessage": "{label}: {state}",
     "description": "Accessible name of a button that steps through states, such as “Theme: Dark”."
+  },
+  "@da-facility.toast.notifications": {
+    "defaultMessage": "Notifications",
+    "description": "Accessible name of the region the toasts appear in."
+  },
+  "@da-facility.toast.close": {
+    "defaultMessage": "Close notification",
+    "description": "Accessible name of a toast's close button."
   }
 }

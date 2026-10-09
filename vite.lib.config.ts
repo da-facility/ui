@@ -2,8 +2,9 @@ import {isAbsolute} from 'node:path';
 import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
 
-// Builds the published package. React and Astryx are peer dependencies, so
-// every bare import stays external and consumers share one copy of each.
+// Builds the published package. React and Astryx are peer dependencies and
+// Sonner is a dependency, so every bare import stays external and consumers
+// share one copy of each.
 export default defineConfig({
   plugins: [react()],
   build: {

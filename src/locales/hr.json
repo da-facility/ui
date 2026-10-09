@@ -85,5 +85,11 @@
   },
   "@da-facility.cycleButton.label": {
     "defaultMessage": "{label}: {state}"
+  },
+  "@da-facility.toast.notifications": {
+    "defaultMessage": "Obavijesti"
+  },
+  "@da-facility.toast.close": {
+    "defaultMessage": "Zatvori obavijest"
   }
 }
