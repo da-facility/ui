@@ -6,10 +6,12 @@ Layouts, templates and components for Da Facility apps, built on [Meta Astryx](h
 | --- | --- | --- |
 | `SidebarLayout` | Layout | App shell with a fixed navigation rail on desktop and a thumb-reachable drawer on mobile. Built on `PageScroll` and `ScrollArea`. |
 | `LoginSplit` | Template | Sign-in page with an email and password form beside a cover image. |
+| `LoginPocketId` | Template | Blank sign-in page with only a Pocket ID button, and an optional title for expired or failed sign-ins. |
 | `StatusBar` | Component | Loud full-width bar that says which kind of site this is, such as staging. |
 | `Assistant` | Component | Chat bar at the bottom of the screen that opens into a chat; the layout contracts around it. |
 | `ProjectSelector` | Component | The current project, with a searchable menu for switching projects. |
 | `UserMenu` | Component | Account avatar and name that opens a menu of account actions. |
+| `PocketIdButton` | Component | Pocket ID's sign-in button: its logo and black pill, like the Apple and Google sign-in buttons. |
 | `CycleButton` | Component | Button that steps through two to four states, such as light, dark and system theme. |
 | `Toaster`, `toast` | Component | Sonner toasts in the Astryx theme. A toast can fly in from the element that showed it. |
 | `PageScroll` | Component | Makes the document the page's scroller, with native bounce only while the page overflows. |
@@ -112,6 +114,16 @@ Every part except `navigation` and `children` is optional:
 
 `title`, `description`, `forgotPasswordHref`, `providers`, `signup` and `legal` fill the optional slots. The form uses native inputs, so browser and password-manager autofill keep working.
 
+### LoginPocketId
+
+```tsx
+<LoginPocketId href="/authentication/login" />
+```
+
+A blank page with only a Pocket ID button in the middle. `href` is the app's route that starts the Pocket ID sign-in; use `onSignIn` instead to start it from code. `title` and `description` explain why someone is here, such as an expired or failed sign-in, and `buttonLabel` changes the button's text, such as to "Try again". Leave out both `href` and `onSignIn` for a page without a button, such as "No access", where signing in again would not help. `brand` sits above the title and `footer` below the button.
+
+The page is plain HTML and CSS with no effects, so it also renders on the server with `renderToStaticMarkup` for sign-in pages that load no JavaScript.
+
 ### ProjectSelector
 
 ```tsx
@@ -195,6 +207,16 @@ How the "only while it overflows" part works: an element's CSS scroll timeline i
 ```
 
 Items take the same shape as items in Astryx's `DropdownMenu`. Pass `compact` to show only the avatar, for narrow headers, or `isFullWidth` to fill a sidebar footer.
+
+### PocketIdButton
+
+```tsx
+<PocketIdButton href="/authentication/login" />
+```
+
+Pocket ID's sign-in button, styled like the "Sign in with Apple" and Google buttons: Pocket ID's logo pinned left and a centred label, "Sign in with Pocket ID" unless `label` says otherwise. With `href` it is a link; without one, a `<button>` that calls `onClick`. `isFullWidth` stretches it to its container instead of its usual 280px.
+
+Like other brand buttons, it keeps Pocket ID's own colours instead of the app's accent: a black pill in light mode and a light one in dark mode. Set `--pocket-id-button-background`, `--pocket-id-button-hover`, `--pocket-id-button-foreground` and `--pocket-id-button-ring` on it to change them. The logo is inline SVG, so pages with a strict content security policy need no image source.
 
 ### CycleButton
 

@@ -1,11 +1,13 @@
 export {SidebarLayout, type SidebarLayoutProps} from './layouts/sidebar/SidebarLayout';
 export type {MobileNavigationSide} from './layouts/sidebar/MobileNavigation';
 export {LoginSplit, type LoginCredentials, type LoginSplitProps} from './templates/login-split/LoginSplit';
+export {LoginPocketId, type LoginPocketIdProps} from './templates/login-pocket-id/LoginPocketId';
 export {Assistant, type AssistantProps} from './components/assistant/Assistant';
 export {PageScroll, type PageScrollProps} from './components/scroll/PageScroll';
 export {ScrollArea, scrollAreaClassName, type ScrollAreaOptions, type ScrollAreaProps} from './components/scroll/ScrollArea';
 export {ProjectSelector, type Project, type ProjectSelectorProps} from './components/project-selector/ProjectSelector';
 export {StatusBar, type StatusBarProps} from './components/status-bar/StatusBar';
+export {PocketIdButton, type PocketIdButtonProps} from './components/pocket-id-button/PocketIdButton';
 export {CycleButton, type CycleButtonProps, type CycleButtonState, type CycleButtonStates} from './components/cycle-button/CycleButton';
 export {UserMenu, type UserMenuItem, type UserMenuProps} from './components/user-menu/UserMenu';
 export {Toaster, type ToastArrival, type ToasterOffset, type ToasterProps, type ToastPosition} from './components/toast/Toaster';

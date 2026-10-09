@@ -1,6 +1,8 @@
 import type {Example, Tweak} from './types';
 import {SidebarExample} from './examples/sidebar/SidebarExample';
 import {LoginSplitExample} from './examples/login-split/LoginSplitExample';
+import {LoginPocketIdExample} from './examples/login-pocket-id/LoginPocketIdExample';
+import {PocketIdButtonExample} from './examples/pocket-id-button/PocketIdButtonExample';
 import {ProjectSelectorExample} from './examples/project-selector/ProjectSelectorExample';
 import {ScrollAreaExample} from './examples/scroll-area/ScrollAreaExample';
 import {CycleButtonExample} from './examples/cycle-button/CycleButtonExample';
@@ -38,6 +40,17 @@ export const examples: Example[] = [
     Component: LoginSplitExample,
   },
   {
+    id: 'login-pocket-id',
+    name: 'Login with Pocket ID',
+    kind: 'Template',
+    description: 'Blank sign-in page with only a Pocket ID button, and an optional title for expired or failed sign-ins.',
+    tweaks: [
+      {id: 'expired', label: 'Expired sign-in', group: 'State'},
+      {id: 'noAccess', label: 'No access, without a button', group: 'State'},
+    ],
+    Component: LoginPocketIdExample,
+  },
+  {
     id: 'cycle-button',
     name: 'Cycle button',
     kind: 'Component',
@@ -48,6 +61,14 @@ export const examples: Example[] = [
       {id: 'disabled', label: 'Disabled', group: 'State'},
     ],
     Component: CycleButtonExample,
+  },
+  {
+    id: 'pocket-id-button',
+    name: 'Pocket ID button',
+    kind: 'Component',
+    description: 'Sign-in button in Pocket ID’s black pill with its logo, like the Apple and Google sign-in buttons.',
+    source: {label: 'Pocket ID', url: 'https://github.com/pocket-id/pocket-id'},
+    Component: PocketIdButtonExample,
   },
   {
     id: 'project-selector',

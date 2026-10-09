@@ -87,6 +87,14 @@
     "defaultMessage": "Unable to sign in. Please try again.",
     "description": "Shown when sign-in fails without a message of its own."
   },
+  "@da-facility.loginPocketId.label": {
+    "defaultMessage": "Sign in",
+    "description": "Accessible name of the Pocket ID sign-in page when it has no title."
+  },
+  "@da-facility.pocketIdButton.label": {
+    "defaultMessage": "Sign in with Pocket ID",
+    "description": "Button that starts signing in with Pocket ID, an identity provider. Keep “Pocket ID” untranslated."
+  },
   "@da-facility.assistant.label": {
     "defaultMessage": "Ask anything",
     "description": "Label of the chat bar and title of the open chat."

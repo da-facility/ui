@@ -1,0 +1,48 @@
+.pocket-id-button-example {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 88px 32px 140px;
+}
+
+.pocket-id-button-example h1 {
+  margin: 0 0 40px;
+  font-size: 32px;
+  letter-spacing: -1px;
+}
+
+.pocket-id-button-example__variants {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+.pocket-id-button-example__variants section {
+  min-height: 160px;
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  background: var(--color-background-surface);
+}
+
+.pocket-id-button-example h2 {
+  margin: 0 0 24px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.pocket-id-button-example > p {
+  min-height: 24px;
+  margin: 32px 0;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 768px) {
+  .pocket-id-button-example {
+    padding: 32px 20px 120px;
+  }
+
+  .pocket-id-button-example__variants {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

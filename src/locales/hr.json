@@ -65,6 +65,12 @@
   "@da-facility.loginSplit.error": {
     "defaultMessage": "Prijava nije uspjela. Pokušajte ponovno."
   },
+  "@da-facility.loginPocketId.label": {
+    "defaultMessage": "Prijava"
+  },
+  "@da-facility.pocketIdButton.label": {
+    "defaultMessage": "Prijava putem Pocket ID-a"
+  },
   "@da-facility.assistant.label": {
     "defaultMessage": "Pitajte bilo što"
   },

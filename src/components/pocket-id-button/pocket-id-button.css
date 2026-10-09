@@ -1,0 +1,78 @@
+/*
+ * A brand button, like Apple's and Google's: it keeps Pocket ID's own colours
+ * (its primary button) instead of the app's accent, so it reads as Pocket ID in
+ * every theme. Dark mode still follows the theme's colour scheme. Apps can
+ * change the colours through the custom properties.
+ */
+.pocket-id-button {
+  --pocket-id-button-background: light-dark(#171717, #e5e5e5);
+  --pocket-id-button-hover: light-dark(#171717cc, #e5e5e5cc);
+  --pocket-id-button-foreground: light-dark(#fafafa, #171717);
+  --pocket-id-button-ring: light-dark(#737373, #a3a3a3);
+
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 280px;
+  max-width: 100%;
+  height: 44px;
+  margin: 0;
+  padding: 0 48px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-full, 9999px);
+  color: var(--pocket-id-button-foreground);
+  background: var(--pocket-id-button-background);
+  background-clip: padding-box;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 150ms ease;
+}
+
+.pocket-id-button:hover {
+  background: var(--pocket-id-button-hover);
+  background-clip: padding-box;
+  text-decoration: none;
+}
+
+.pocket-id-button:active {
+  transform: translateY(1px);
+}
+
+.pocket-id-button:focus-visible {
+  outline: 2px solid var(--pocket-id-button-ring);
+  outline-offset: 2px;
+}
+
+.pocket-id-button--full-width {
+  width: 100%;
+}
+
+.pocket-id-button__logo {
+  position: absolute;
+  left: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.pocket-id-button__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pocket-id-button {
+    transition: none;
+  }
+
+  .pocket-id-button:active {
+    transform: none;
+  }
+}
