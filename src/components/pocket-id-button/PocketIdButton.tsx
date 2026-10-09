@@ -16,7 +16,8 @@ export type PocketIdButtonProps = {
   isFullWidth?: boolean;
   /**
    * Focuses the button when the page loads, as Pocket ID does on its own
-   * sign-in page, so Enter signs in and the focus ring shows from the start.
+   * sign-in page, so Enter signs in and the focus ring fades in as the page
+   * opens.
    * Use it only where the button is the page's main action.
    */
   autoFocus?: boolean;
@@ -29,7 +30,7 @@ export type PocketIdButtonProps = {
  */
 export function PocketIdButton({href, onClick, label, isFullWidth, autoFocus}: PocketIdButtonProps) {
   const t = useMessages();
-  const className = `pocket-id-button${isFullWidth ? ' pocket-id-button--full-width' : ''}`;
+  const className = `pocket-id-button${isFullWidth ? ' pocket-id-button--full-width' : ''}${autoFocus ? ' pocket-id-button--autofocus' : ''}`;
   const content = <>
     <PocketIdLogo />
     <span className="pocket-id-button__label">{label || t('@da-facility.pocketIdButton.label')}</span>

@@ -216,7 +216,7 @@ Items take the same shape as items in Astryx's `DropdownMenu`. Pass `compact` to
 
 Pocket ID's sign-in button, styled like the "Sign in with Apple" and Google buttons: Pocket ID's logo pinned left and a centred label, "Sign in with Pocket ID" unless `label` says otherwise. With `href` it is a link; without one, a `<button>` that calls `onClick`. `isFullWidth` stretches it to its container instead of its usual 280px.
 
-Like other brand buttons, it copies Pocket ID's own primary button instead of using the app's accent: a black pill in light mode and a light one in dark mode, fading to 80% on hover, with Pocket ID's focus ring of a grey border inside a soft 3px halo. `autoFocus` focuses it when the page loads, as Pocket ID's sign-in page does, so the ring shows from the start. Set `--pocket-id-button-background`, `--pocket-id-button-hover`, `--pocket-id-button-foreground` and `--pocket-id-button-ring` on it to change them. The logo is inline SVG, so pages with a strict content security policy need no image source.
+Like other brand buttons, it copies Pocket ID's own primary button instead of using the app's accent: a black pill in light mode and a light one in dark mode, fading to 80% on hover, with Pocket ID's focus ring of a grey border inside a soft 3px halo. `autoFocus` focuses it when the page loads, as Pocket ID's sign-in page does, and the ring fades in after 100ms as it does there, without JavaScript. Set `--pocket-id-button-background`, `--pocket-id-button-hover`, `--pocket-id-button-foreground` and `--pocket-id-button-ring` on it to change them. The logo is inline SVG, so pages with a strict content security policy need no image source.
 
 ### CycleButton
 

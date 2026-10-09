@@ -29,6 +29,7 @@ test('the button is focused on load and shows Pocket ID’s focus ring', async (
   await expect(button).toBeFocused();
   await expect.poll(() => button.evaluate(element => getComputedStyle(element).borderColor)).toBe('oklch(0.708 0 0)');
   await expect.poll(() => button.evaluate(element => getComputedStyle(element).boxShadow)).toContain('0px 0px 0px 3px');
+  expect(await button.evaluate(element => getComputedStyle(element).animationName)).toBe('pocket-id-button-focus');
 });
 
 test('a titled page explains itself, and a page without a way forward has no button', async ({page}) => {

@@ -48,10 +48,26 @@
   transform: translateY(1px);
 }
 
-/* Pocket ID's focus ring: a grey border inside a soft 3px halo. */
+/*
+ * Pocket ID's focus ring: a grey border inside a soft 3px halo. It fades in
+ * even when the button is focused before the first paint, as with autofocus.
+ */
 .pocket-id-button:focus-visible {
   border-color: var(--pocket-id-button-ring);
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--pocket-id-button-ring) 30%, transparent);
+  animation: pocket-id-button-focus 150ms cubic-bezier(0.4, 0, 0.2, 1) backwards;
+}
+
+/* Pocket ID focuses its sign-in button 100ms after the page loads. */
+.pocket-id-button--autofocus:focus-visible {
+  animation-delay: 100ms;
+}
+
+@keyframes pocket-id-button-focus {
+  from {
+    border-color: transparent;
+    box-shadow: 0 0 0 3px transparent;
+  }
 }
 
 /* Forced colours drop box shadows, so keep a visible outline there. */
@@ -85,5 +101,9 @@
 
   .pocket-id-button:active {
     transform: none;
+  }
+
+  .pocket-id-button:focus-visible {
+    animation: none;
   }
 }
