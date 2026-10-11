@@ -2,7 +2,7 @@
 
 ## Purpose
 
-- This repository is `@da-facility/ui`: layouts, templates and components built on Meta Astryx, shared across Da Facility apps through GitHub Packages.
+- This repository is `@da-facility/ui`: layouts, templates and components built on Meta Astryx, shared across Da Facility apps and published to npm.
 - The main goal is high-quality components, layouts and templates. Exports must be simple to import and easy to read.
 
 ## Structure
@@ -22,6 +22,17 @@
 - Colours come from Astryx tokens so dark mode works; check new work with the catalogue's Dark mode tweak.
 - Run `bun run typecheck` and `bun run test:headless` before handing off work that touches `src/` or `catalogue/`.
 - On the local machine, run the full `bun run test` only when the change touches scrolling: `PageScroll`, `ScrollArea`, `SidebarLayout`'s scroll structure, overscroll or bounce CSS. Its native-overscroll tests open visible Chromium windows and drive real input, which makes the computer hard to use while they run. CI runs the full suite either way.
+
+## Releasing
+
+- Releases follow semantic versioning: a fix is a patch, a new export or prop a minor, and anything that makes an app change its code (a removed or renamed export or prop, a changed default, a new required peer) a major.
+- Every user-facing change goes into `CHANGELOG.md` under `## Unreleased` as it lands, under "New", "Breaking changes" or "Other changes", written for the people using the package.
+- Release only when the user asks for one, and only from `main`:
+  1. Check `main` is clean and level with `origin/main`, and that `bun run typecheck`, `bun run test:headless` and `bun run test:package` pass.
+  2. Pick the version from the Unreleased entries, rename `## Unreleased` to `## <version>`, and set `version` in `package.json` to match.
+  3. Commit as "Release <version>", then tag and push: `git tag v<version> && git push origin main v<version>`.
+  4. The Release workflow (`.github/workflows/release.yml`, on Blacksmith) checks the tag matches `package.json`, runs the checks, publishes to npm with provenance through npm trusted publishing, and creates the GitHub release from that version's changelog section. Report the workflow's result to the user.
+- Never publish from a local machine and never store an npm token in the repository or its secrets; trusted publishing needs neither. Never move or delete a tag that has been pushed: fix forward with a new patch release.
 
 ## Screenshot Coverage
 

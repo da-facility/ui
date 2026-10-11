@@ -1,14 +1,27 @@
 {
   "name": "@da-facility/ui",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Layouts, templates and components for Da Facility apps, built on Meta Astryx.",
-  "license": "UNLICENSED",
+  "keywords": [
+    "react",
+    "astryx",
+    "components",
+    "layout",
+    "sidebar",
+    "toast",
+    "design-system"
+  ],
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/da-facility/ui.git"
   },
+  "homepage": "https://github.com/da-facility/ui#readme",
+  "bugs": {
+    "url": "https://github.com/da-facility/ui/issues"
+  },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
   },
   "type": "module",
   "main": "./dist/index.js",
@@ -24,6 +37,7 @@
   },
   "files": [
     "dist",
+    "LICENSE",
     "LICENSE.third-party"
   ],
   "sideEffects": [

@@ -19,16 +19,7 @@ Layouts, templates and components for Da Facility apps, built on [Meta Astryx](h
 
 ## Install
 
-The package is published to GitHub Packages. Point the `@da-facility` scope at it in the app's `.npmrc` (Bun, npm and pnpm all read this file):
-
-```ini
-@da-facility:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
-```
-
-`GITHUB_TOKEN` needs `read:packages`. Locally, a personal access token works; in GitHub Actions, use the workflow's `GITHUB_TOKEN` and give the app's repository access in the package settings.
-
-Then install the package with its peers:
+Install the package from npm with its peers:
 
 ```sh
 bun add @da-facility/ui @astryxdesign/core @astryxdesign/theme-neutral @stylexjs/stylex
@@ -322,13 +313,6 @@ The native-overscroll tests run only on macOS, in visible Chromium windows, afte
 
 ## Release
 
-1. Bump `version` in `package.json` and add an entry to `CHANGELOG.md`.
-2. Commit, then tag and push:
+Releases are published to npm from a version tag; the steps are in "Releasing" in [AGENTS.md](AGENTS.md). Each release's notes are its section of `CHANGELOG.md`.
 
-   ```sh
-   git tag v0.2.0 && git push origin main v0.2.0
-   ```
-
-   The release workflow checks that the tag matches the version, builds the package, and publishes it to GitHub Packages.
-
-Code adapted from Astryx keeps its license notice in `LICENSE.third-party`, which ships with the package.
+The package is MIT licensed (`LICENSE`). Code adapted from Astryx keeps its license notice in `LICENSE.third-party`, which ships with the package.
