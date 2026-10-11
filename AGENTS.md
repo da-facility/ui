@@ -25,14 +25,49 @@
 
 ## Releasing
 
-- Releases follow semantic versioning: a fix is a patch, a new export or prop a minor, and anything that makes an app change its code (a removed or renamed export or prop, a changed default, a new required peer) a major.
-- Every user-facing change goes into `CHANGELOG.md` under `## Unreleased` as it lands, under "New", "Breaking changes" or "Other changes", written for the people using the package.
-- Release only when the user asks for one, and only from `main`:
-  1. Check `main` is clean and level with `origin/main`, and that `bun run typecheck`, `bun run test:headless` and `bun run test:package` pass.
-  2. Pick the version from the Unreleased entries, rename `## Unreleased` to `## <version>`, and set `version` in `package.json` to match.
-  3. Commit as "Release <version>", then tag and push: `git tag v<version> && git push origin main v<version>`.
-  4. The Release workflow (`.github/workflows/release.yml`, on Blacksmith) checks the tag matches `package.json`, runs the checks, publishes to npm with provenance through npm trusted publishing, and creates the GitHub release from that version's changelog section. Report the workflow's result to the user.
-- Never publish from a local machine and never store an npm token in the repository or its secrets; trusted publishing needs neither. Never move or delete a tag that has been pushed: fix forward with a new patch release.
+Versions are `MAJOR.MINOR.PATCH`. Decide the bump from what changed since the last release:
+
+| Bump | Example | When |
+| --- | --- | --- |
+| Patch | 1.0.0 → 1.0.1 | Bug fixes, and changes apps won't notice: styling fixes, docs, tests, CI, internal refactors. |
+| Minor | 1.0.1 → 1.1.0 | New components, layouts, templates, exports or props, and new optional behaviour. Resets the patch number. |
+| Major | 1.1.0 → 2.0.0 | Anything that makes an app change its code or its look on upgrade: a removed or renamed export or prop, a changed default or required prop, a new or raised peer dependency, dropped browser support, or a deliberate redesign. Resets minor and patch. |
+
+When unsure between two bumps, pick the larger one; for minor or major, ask.
+
+### Patch and minor releases are automatic
+
+Release on your own, without asking, when a task ends with fixes or new components on `main`. One release per task, covering everything the task changed:
+
+1. Keep `CHANGELOG.md` up to date as you work: each user-facing change goes under `## Unreleased`, in "New", "Breaking changes" or "Other changes", written for the people using the package. Fixes go in "Other changes".
+2. Check `main` is clean and level with `origin/main`, and that `bun run typecheck`, `bun run test:headless` and `bun run test:package` pass.
+3. Work out the bump from the Unreleased entries: minor if any is new, otherwise patch. If any is breaking, stop and follow the major release steps instead.
+4. Rename `## Unreleased` to `## <version>`, set `version` in `package.json` to match, and commit as "Release <version>".
+5. Tag and push: `git tag v<version> && git push origin main v<version>`.
+6. Watch the Release workflow (`.github/workflows/release.yml`, on Blacksmith). It checks the tag matches `package.json`, runs the checks, publishes to npm with provenance through npm trusted publishing, and creates the GitHub release from that version's changelog section.
+7. Tell the user the version, why it is a patch or minor, what it contains, and the workflow's result with links to the npm package and the GitHub release.
+
+Don't release when the task changed nothing that ships: catalogue, tests, CI or docs only. Those wait in Unreleased, or are left out of the changelog, until the next real release.
+
+### Major releases need the user's approval
+
+Never tag a major release, and never push a breaking change to `main`, without the user's explicit go-ahead. Once a breaking change is on `main`, every release after it is a major one, so landing it blocks the automatic releases above.
+
+When a change would be breaking, stop before pushing it and ask the user, in detail:
+
+- **What breaks:** every removed or changed export, prop, default, style or peer dependency, and who is affected: which apps or usages stop compiling, behave differently or look different.
+- **Why:** what the change makes possible, and why it can't be done without breaking.
+- **Alternatives:** whether it can ship as a minor instead, for example by adding the new prop or component alongside the old one, deprecating the old one with a JSDoc `@deprecated` note, and removing it in a later major.
+- **Migration:** the exact steps an app takes to upgrade, with before and after code.
+- **The release:** the proposed version, its full changelog entry, and anything else waiting in Unreleased that would ship with it.
+
+If the user approves, write the migration steps into the changelog entry under "Breaking changes", then release as above. If they don't, take the alternative or drop the change.
+
+### Rules for every release
+
+- Release only from `main`, and only through the tag and the Release workflow. Never publish from a local machine, and never store an npm token in the repository or its secrets; trusted publishing needs neither.
+- Never move or delete a pushed tag, and never unpublish from npm. If a release is broken, fix forward with a new patch release.
+- If the Release workflow fails, nothing is published. If the cause is passing, such as a flaky test or a runner problem, re-run the failed run. If the code needs a fix, fix it on `main` and release the next patch version with a new tag rather than reusing the failed one.
 
 ## Screenshot Coverage
 
