@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+New:
+
+- Supports Astryx 0.6 as well as 0.5: the `@astryxdesign/core` peer range is now `^0.5.4 || ^0.6.0`, and the package is developed and tested against 0.6.8.
+
+Other changes:
+
+- `SidebarLayout` keeps the padding of an Astryx `LayoutContent` inside it with Astryx 0.6, whose `LayoutContent` otherwise loses its side padding outside an Astryx `Layout`.
+
 ## 1.0.0
 
 The first public release, published to npm.

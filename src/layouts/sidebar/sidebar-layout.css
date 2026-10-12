@@ -92,6 +92,10 @@
 }
 
 .sidebar-layout__main {
+  /* Astryx's LayoutContent (0.6 and later) centres itself against this width,
+     which its own Layout provides. Give it Layout's default, the full width,
+     so LayoutContent inside SidebarLayout keeps its padding. */
+  --layout-alignment-width: 100cqi;
   min-width: 0;
   min-height: 100dvh;
   margin-inline: calc(var(--sidebar-width) + var(--sidebar-layout-inset)) var(--sidebar-layout-inset);
