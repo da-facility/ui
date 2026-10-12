@@ -44,7 +44,7 @@ Release on your own, without asking, when a task ends with fixes or new componen
 3. Work out the bump from the Unreleased entries: minor if any is new, otherwise patch. If any is breaking, stop and follow the major release steps instead.
 4. Rename `## Unreleased` to `## <version>`, set `version` in `package.json` to match, and commit as "Release <version>".
 5. Tag and push: `git tag v<version> && git push origin main v<version>`.
-6. Watch the Release workflow (`.github/workflows/release.yml`, on Blacksmith). It checks the tag matches `package.json`, runs the checks, publishes to npm with provenance through npm trusted publishing, and creates the GitHub release from that version's changelog section.
+6. Watch the Release workflow (`.github/workflows/release.yml`). On Blacksmith it checks the tag matches `package.json` and runs the checks; then a GitHub-hosted runner publishes to npm with provenance through npm trusted publishing, because npm accepts provenance only from GitHub-hosted runners; then it creates the GitHub release from that version's changelog section.
 7. Tell the user the version, why it is a patch or minor, what it contains, and the workflow's result with links to the npm package and the GitHub release.
 
 Don't release when the task changed nothing that ships: catalogue, tests, CI or docs only. Those wait in Unreleased, or are left out of the changelog, until the next real release.

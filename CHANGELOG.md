@@ -1,6 +1,8 @@
 # Changelog
 
-## 1.1.0
+## 1.1.1
+
+1.1.0 was tagged but never published to npm, because npm only accepts provenance from GitHub-hosted runners and the release ran on Blacksmith. This release publishes its changes.
 
 New:
 
@@ -9,6 +11,10 @@ New:
 Other changes:
 
 - `SidebarLayout` keeps the padding of an Astryx `LayoutContent` inside it with Astryx 0.6, whose `LayoutContent` otherwise loses its side padding outside an Astryx `Layout`.
+
+## 1.1.0
+
+Tagged but not published to npm; its changes shipped in 1.1.1.
 
 ## 1.0.0
 

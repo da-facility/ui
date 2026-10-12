@@ -1,6 +1,6 @@
 {
   "name": "@da-facility/ui",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Layouts, templates and components for Da Facility apps, built on Meta Astryx.",
   "keywords": [
     "react",
