@@ -52,6 +52,8 @@
     "test:headless": "playwright test --project=desktop --project=mobile --project=webkit",
     "test:package": "playwright test --project=package",
     "screenshots": "playwright test --project=screenshots",
+    "behaviour:record": "CATALOGUE_PORT=5180 playwright test --project=behaviour-desktop --project=behaviour-mobile --update-snapshots=all --reporter=line",
+    "behaviour:compare": "CATALOGUE_PORT=5180 PLAYWRIGHT_HTML_OPEN=never playwright test --project=behaviour-desktop --project=behaviour-mobile --retries=1 --reporter=list,html",
     "prepublishOnly": "bun run build"
   },
   "peerDependencies": {

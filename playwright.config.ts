@@ -3,7 +3,7 @@ import {defineConfig} from '@playwright/test';
 // Viewports follow AGENTS.md: desktop 1920×1080 and mobile 390×844 CSS pixels.
 const desktop = {viewport: {width: 1920, height: 1080}, deviceScaleFactor: 1};
 const mobile = {viewport: {width: 390, height: 844}, deviceScaleFactor: 1, hasTouch: true};
-const separate = ['package.spec.ts', 'screenshots.spec.ts'];
+const separate = ['package.spec.ts', 'screenshots.spec.ts', 'behaviour.spec.ts'];
 const port = Number(process.env.CATALOGUE_PORT ?? 5174);
 
 export default defineConfig({
@@ -31,6 +31,15 @@ export default defineConfig({
     {name: 'webkit', use: {...desktop, browserName: 'webkit'}, testMatch: ['overscroll-switch.spec.ts', 'toasts.spec.ts']},
     {name: 'package', testMatch: 'package.spec.ts'},
     {name: 'screenshots', testMatch: 'screenshots.spec.ts'},
+    // Records how every page looks and reads, to compare before and after a
+    // change; see tests/behaviour.spec.ts. Baselines stay on this machine.
+    ...(['desktop', 'mobile'] as const).map(name => ({
+      name: `behaviour-${name}`,
+      testMatch: 'behaviour.spec.ts',
+      use: {...(name === 'desktop' ? desktop : mobile), reducedMotion: 'reduce' as const},
+      snapshotPathTemplate: `artifacts/behaviour/${name}/{arg}{ext}`,
+      expect: {toHaveScreenshot: {animations: 'disabled' as const, caret: 'hide' as const, maxDiffPixelRatio: 0.0002}},
+    })),
   ],
   // Reuses a running `bun run dev`. Otherwise serves a production build, which
   // avoids the dev server's first-load dependency optimisation reloading pages.

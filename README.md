@@ -283,6 +283,8 @@ bun run test           # browser tests, desktop and mobile
 bun run test:headless  # the same without native bounce, which opens visible windows
 bun run test:package   # pack, install into a fresh app, and test it there
 bun run screenshots    # desktop and mobile captures in artifacts/screenshots
+bun run behaviour:record   # record how every catalogue state looks and reads, as a baseline
+bun run behaviour:compare  # compare with the baseline after a change; the report shows every difference
 bun run build          # the package, into dist/
 ```
 
