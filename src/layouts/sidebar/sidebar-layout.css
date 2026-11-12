@@ -222,6 +222,7 @@
    and no title or header actions, wider screens have no header at all. */
 
 .sidebar-layout__mobile-title,
+.sidebar-layout__top-bar-end,
 .sidebar-layout__header > .mobile-navigation__bar-trigger.mobile-navigation__bar-trigger {
   display: none;
 }
@@ -333,6 +334,13 @@
     letter-spacing: -0.3px;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .sidebar-layout__top-bar-end {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    margin-inline-start: auto;
   }
 
   .sidebar-layout__mobile-title ~ .sidebar-layout__title {

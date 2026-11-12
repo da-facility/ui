@@ -78,6 +78,8 @@ export function MobileNavigation({
   onOpenChange,
 }: MobileNavigationProps) {
   const t = useMessages();
+  // The top bar's drawer starts its list at the top, under the header, and has one close control.
+  const isTopBar = trigger === 'top-bar';
 
   // Astryx positions the drawer by logical edge; translate the physical side.
   const direction = useDirection();
@@ -104,7 +106,7 @@ export function MobileNavigation({
       onOpen={() => onOpenChange(true)}
     />}
     <MobileNav
-      className="mobile-navigation__drawer"
+      className={isTopBar ? 'mobile-navigation__drawer mobile-navigation__drawer--top-bar' : 'mobile-navigation__drawer'}
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       side={drawerEdge}
@@ -113,10 +115,11 @@ export function MobileNavigation({
       header={navigationHeader}>
       <div className="mobile-navigation__body" style={scrollStyle}>
         <nav className={`mobile-navigation__sections ${scrollAreaClassName}`} aria-label={navigationLabel}>
-          {navigationArtwork && <div className="mobile-navigation__artwork" aria-hidden="true">{navigationArtwork}</div>}
+          {navigationArtwork && !isTopBar && <div className="mobile-navigation__artwork" aria-hidden="true">{navigationArtwork}</div>}
           {navigation}
         </nav>
-        <footer className="mobile-navigation__footer">
+        {/* With the top bar, the drawer's own X (and Escape, and the backdrop) close it: no second close button. */}
+        {(navigationFooter || onSideChange || !isTopBar) && <footer className="mobile-navigation__footer">
           {navigationFooter}
           {onSideChange && <Switch
             label={t('@da-facility.mobileNavigation.leftHanded')}
@@ -125,14 +128,14 @@ export function MobileNavigation({
             labelPosition={side === 'left' ? 'end' : 'start'}
             labelSpacing="spread"
           />}
-          <Button
+          {!isTopBar && <Button
             className="mobile-navigation__close"
             label={t('@da-facility.mobileNavigation.close')}
             icon={<Icon icon="close" />}
             variant="secondary"
             onClick={() => onOpenChange(false)}
-          />
-        </footer>
+          />}
+        </footer>}
       </div>
     </MobileNav>
   </>;

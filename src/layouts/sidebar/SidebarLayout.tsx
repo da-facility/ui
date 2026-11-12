@@ -55,6 +55,17 @@ export type SidebarLayoutProps = Pick<PageScrollProps, 'background' | 'overscrol
    * screens.
    */
   mobileTitle?: ReactNode;
+  /**
+   * At the end of the phone top bar, such as a compact `UserMenu` (an avatar
+   * that opens the person's menu). Only with `mobileNavigationTrigger="top-bar"`.
+   */
+  mobileTopBarEnd?: ReactNode;
+  /**
+   * What the phone drawer shows below the navigation. Defaults to
+   * `navigationFooter`; pass `null` for none, such as when `mobileTopBarEnd`
+   * already holds the person's menu.
+   */
+  mobileNavigationFooter?: ReactNode;
   /** Shows a left-handed toggle in the mobile drawer. The app owns persistence. */
   onMobileNavigationSideChange?: (side: MobileNavigationSide) => void;
   /** Distance in pixels between the floating mobile menu button and whatever is below it. */
@@ -88,6 +99,8 @@ export function SidebarLayout({
   mobileNavigationSide = 'right',
   mobileNavigationTrigger = 'floating',
   mobileTitle,
+  mobileTopBarEnd,
+  mobileNavigationFooter,
   onMobileNavigationSideChange,
   mobileNavigationOffset = 20,
   mobileNavigationArtwork,
@@ -147,6 +160,7 @@ export function SidebarLayout({
       {hasTopBar && topBarTitle != null && topBarTitle !== '' && <span className="sidebar-layout__mobile-title">{topBarTitle}</span>}
       {title && <span id={titleId} className="sidebar-layout__title">{title}</span>}
       {headerActions}
+      {hasTopBar && mobileTopBarEnd != null && mobileTopBarEnd !== false && <div className="sidebar-layout__top-bar-end">{mobileTopBarEnd}</div>}
     </header>}
     <main className="sidebar-layout__main" aria-labelledby={title ? titleId : undefined}>
       <div className="sidebar-layout__surface">{children}</div>
@@ -155,7 +169,7 @@ export function SidebarLayout({
     <MobileNavigation
       navigation={navigation}
       navigationHeader={navigationHeader}
-      navigationFooter={navigationFooter}
+      navigationFooter={mobileNavigationFooter === undefined ? navigationFooter : mobileNavigationFooter}
       navigationLabel={navigationLabel}
       navigationArtwork={mobileNavigationArtwork}
       scrollStyle={scrollStyle}

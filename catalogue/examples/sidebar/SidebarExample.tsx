@@ -103,6 +103,18 @@ export function SidebarExample({page: pageId, onPageChange, tweaks, onTweakChang
     mobileNavigationSide={tweaks.leftHanded ? 'left' : 'right'}
     mobileNavigationTrigger={tweaks.topBar ? 'top-bar' : 'floating'}
     mobileTitle={page.label}
+    // With the top bar, the person's menu moves into it and leaves the drawer.
+    mobileTopBarEnd={tweaks.topBar && tweaks.navigationFooter && <UserMenu
+      user={{name: settings.displayName, description: 'Personal account'}}
+      compact
+      placement="below"
+      alignment="end"
+      items={[
+        {id: 'profile', label: 'Profile', icon: UserCircleIcon, onClick: () => onPageChange('profile')},
+        {id: 'appearance', label: 'Appearance', icon: PaintBrushIcon, onClick: () => onPageChange('appearance')},
+      ]}
+    />}
+    mobileNavigationFooter={tweaks.topBar ? null : undefined}
     onMobileNavigationSideChange={side => onTweakChange('leftHanded', side === 'left')}
     mobileNavigationOffset={112}
     mobileNavigationArtwork={<img className="sidebar-example__sky" src={clearSky} alt="" draggable={false} />}>

@@ -115,3 +115,15 @@
     animation: none;
   }
 }
+
+/* Opened from the top bar: the list starts at the top, under the header,
+   rather than sinking to the thumb, and the header's X is the one close
+   control, a 44px target. */
+.mobile-navigation__drawer--top-bar .mobile-navigation__sections > .astryx-side-nav-section:first-child {
+  margin-top: 0;
+}
+
+.mobile-navigation__drawer--top-bar > div > div:first-child > button:last-child {
+  width: 44px;
+  height: 44px;
+}
