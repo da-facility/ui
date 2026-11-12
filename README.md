@@ -7,6 +7,7 @@ Layouts, templates and components for Da Facility apps, built on [Meta Astryx](h
 | `SidebarLayout` | Layout | App shell with a fixed navigation rail on desktop and a thumb-reachable drawer on mobile. Built on `PageScroll` and `ScrollArea`. |
 | `LoginSplit` | Template | Sign-in page with an email and password form beside a cover image. |
 | `LoginPocketId` | Template | Blank sign-in page with only a Pocket ID button, and an optional title for expired or failed sign-ins. |
+| `CodeInput` | Component | One-time sign-in code as a row of boxes over one real input, so paste and autofill work. |
 | `StatusBar` | Component | Loud full-width bar that says which kind of site this is, such as staging. |
 | `Assistant` | Component | Chat bar at the bottom of the screen that opens into a chat; the layout contracts around it. |
 | `ProjectSelector` | Component | The current project, with a searchable menu for switching projects. |
@@ -114,6 +115,23 @@ Every part except `navigation` and `children` is optional:
 A blank page with only a Pocket ID button in the middle. `href` is the app's route that starts the Pocket ID sign-in; use `onSignIn` instead to start it from code. `title` and `description` explain why someone is here, such as an expired or failed sign-in, and `buttonLabel` changes the button's text, such as to "Try again". Leave out both `href` and `onSignIn` for a page without a button, such as "No access", where signing in again would not help. `brand` sits above the title and `footer` below the button. Like Pocket ID's own sign-in page, the button is focused when the page loads, so Enter signs in and its focus ring shows; `autoFocus={false}` turns that off.
 
 The page is plain HTML and CSS with no effects, so it also renders on the server with `renderToStaticMarkup` for sign-in pages that load no JavaScript.
+
+### CodeInput
+
+```tsx
+<CodeInput
+  onComplete={async code => {
+    setChecking(true);
+    const result = await verify(code);
+    setChecking(false);
+    if (!result.ok) setError('That code isn’t right. Request a new code.');
+  }}
+  error={error}
+  isChecking={isChecking}
+/>
+```
+
+Six boxes (`length` changes that) drawn over one real `<input inputmode="numeric" autocomplete="one-time-code">`, so typing moves forward, Backspace moves back, and a pasted code or the browser's autofill from a message fills every box. Spaces, dashes and letters are dropped. `onComplete` runs on the last digit; there is no submit button. `isChecking` makes the boxes read-only, and `error` shows above them in red and selects the digits so the next ones typed start over. Pass `value` and `onChange` to control it, `isDisabled` to turn it off, and `label` to change its accessible name ("One-time code").
 
 ### ProjectSelector
 

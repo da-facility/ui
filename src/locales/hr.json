@@ -97,5 +97,8 @@
   },
   "@da-facility.toast.close": {
     "defaultMessage": "Zatvori obavijest"
+  },
+  "@da-facility.codeInput.label": {
+    "defaultMessage": "Jednokratni kod"
   }
 }

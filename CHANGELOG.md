@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+New:
+
+- `CodeInput`: a one-time sign-in code as a row of boxes over one real input, so paste, the browser's one-time-code autofill and screen readers work. It completes on the last digit, is read-only while checking, and shows an error above the boxes.
+
 ## 1.1.1
 
 1.1.0 was tagged but never published to npm, because npm only accepts provenance from GitHub-hosted runners and the release ran on Blacksmith. This release publishes its changes.

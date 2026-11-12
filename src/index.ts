@@ -12,3 +12,4 @@ export {CycleButton, type CycleButtonProps, type CycleButtonState, type CycleBut
 export {UserMenu, type UserMenuItem, type UserMenuProps} from './components/user-menu/UserMenu';
 export {Toaster, type ToastArrival, type ToasterOffset, type ToasterProps, type ToastPosition} from './components/toast/Toaster';
 export {toast, type ToastFrom, type ToastId, type ToastOptions, type ToastPromiseOptions} from './components/toast/toast';
+export {CodeInput, type CodeInputProps} from './components/code-input/CodeInput';

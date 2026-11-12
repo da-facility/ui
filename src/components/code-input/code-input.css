@@ -1,0 +1,101 @@
+.code-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  font-family: var(--font-family-body);
+}
+
+.code-input__error {
+  margin: 0;
+  color: var(--color-error);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.code-input__field {
+  position: relative;
+  width: min(100%, calc(var(--code-input-length) * 40px + (var(--code-input-length) - 1) * 6px));
+}
+
+/* The real input covers the boxes and takes every tap, paste and autofill,
+   but shows nothing itself: the boxes draw the digits. */
+.code-input__input {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  color: transparent;
+  background: transparent;
+  caret-color: transparent;
+  /* 16px stops iOS zooming in on focus. */
+  font-size: 16px;
+  letter-spacing: 0;
+  cursor: text;
+}
+
+.code-input__input::selection {
+  background: transparent;
+}
+
+.code-input__input:disabled {
+  cursor: not-allowed;
+}
+
+.code-input__boxes {
+  display: flex;
+  gap: 6px;
+}
+
+.code-input__box {
+  display: grid;
+  flex: 1 1 0;
+  place-items: center;
+  max-width: 40px;
+  height: 44px;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-element);
+  color: var(--color-text-primary);
+  background: var(--color-background-surface);
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.code-input__input:focus-visible + .code-input__boxes .code-input__box[data-active],
+.code-input__input:focus + .code-input__boxes .code-input__box[data-active] {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-muted);
+}
+
+.code-input[data-error] .code-input__box {
+  border-color: var(--color-error);
+}
+
+.code-input[data-checking] .code-input__box {
+  color: var(--color-text-secondary);
+}
+
+.code-input[data-disabled] .code-input__box {
+  color: var(--color-text-disabled);
+  background: var(--color-background-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .code-input__box {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .code-input__input:focus + .code-input__boxes .code-input__box[data-active] {
+    outline: 2px solid Highlight;
+  }
+}

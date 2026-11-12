@@ -130,5 +130,9 @@
   "@da-facility.toast.close": {
     "defaultMessage": "Close notification",
     "description": "Accessible name of a toast's close button."
+  },
+  "@da-facility.codeInput.label": {
+    "defaultMessage": "One-time code",
+    "description": "Accessible name of the boxes for a sign-in code sent by email or text message."
   }
 }

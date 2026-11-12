@@ -5,6 +5,7 @@ import {LoginPocketIdExample} from './examples/login-pocket-id/LoginPocketIdExam
 import {PocketIdButtonExample} from './examples/pocket-id-button/PocketIdButtonExample';
 import {ProjectSelectorExample} from './examples/project-selector/ProjectSelectorExample';
 import {ScrollAreaExample} from './examples/scroll-area/ScrollAreaExample';
+import {CodeInputExample} from './examples/code-input/CodeInputExample';
 import {CycleButtonExample} from './examples/cycle-button/CycleButtonExample';
 import {ToastsExample} from './examples/toasts/ToastsExample';
 import {UserMenuExample} from './examples/user-menu/UserMenuExample';
@@ -49,6 +50,19 @@ export const examples: Example[] = [
       {id: 'noAccess', label: 'No access, without a button', group: 'State'},
     ],
     Component: LoginPocketIdExample,
+  },
+  {
+    id: 'code-input',
+    name: 'Code input',
+    kind: 'Component',
+    description: 'One-time sign-in code as a row of boxes, with paste, autofill, checking and error states.',
+    tweaks: [
+      {id: 'error', label: 'Wrong code', group: 'State'},
+      {id: 'checking', label: 'Checking', group: 'State'},
+      {id: 'disabled', label: 'Disabled', group: 'State'},
+      {id: 'fourDigits', label: 'Four digits', group: 'Length'},
+    ],
+    Component: CodeInputExample,
   },
   {
     id: 'cycle-button',
