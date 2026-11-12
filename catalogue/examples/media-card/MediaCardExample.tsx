@@ -16,7 +16,7 @@ export function MediaCardExample({tweaks}: ExampleProps) {
       <MediaCard href="#season" title="Regular season" images={cover(3, 3)} meta={[`22 galleries · ${count(3310)} photos`]} activity={`Last added ${date('2026-06-02T12:00:00Z')}`} />
       <MediaCard href="#training" title="Training camp, the long name of an away week by the sea" images={cover(6, 2)} meta={[`2 galleries · ${count(148)} photos`]} activity={`Last added ${date('2026-05-20T12:00:00Z')}`} />
       <MediaCard href="#media-day" title="Media day" images={cover(8, 1)} meta={[`1 gallery · ${count(36)} photos`]} />
-      <MediaCard href="#portraits" title="Official portraits" meta={['No photos yet']} />
+      <MediaCard href="#portraits" title="Official portraits" meta={['No photos yet']} emptyLabel={tweaks.emptyLabel ? 'No photos yet' : undefined} />
     </div>
   </main>;
 }

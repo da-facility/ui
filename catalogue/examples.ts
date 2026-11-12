@@ -103,6 +103,7 @@ export const examples: Example[] = [
     description: 'Link card with a cover of up to three images, a title, meta lines and a dot for something new.',
     tweaks: [
       {id: 'noCovers', label: 'Without covers', group: 'Content'},
+      {id: 'emptyLabel', label: 'Empty cover says so', group: 'Content'},
     ],
     Component: MediaCardExample,
   },

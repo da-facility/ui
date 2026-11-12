@@ -8,6 +8,7 @@ New:
 - `SidebarLayout`: `--da-sidebar-width` sets the desktop rail's width (260px by default).
 - `MediaGrid` and `MediaTile`: `state` (`'pending'` or `'failed'`) for an item whose image isn't there yet. The tile stays a link and selectable, shows a quiet well (with a broken-image mark when failed) and says why to screen readers. `src` is optional on `MediaGridItem` for this.
 - `SelectionBar`: `isPinned` keeps the bar at the bottom of the window inside `SidebarLayout`'s content area even on short pages, without covering the last row at the end of long ones (`--da-selection-bar-inset` sets its distance from the sides).
+- `MediaCard`: `emptyLabel` is said in the cover when there are no images, such as "No photos yet".
 
 Other changes:
 

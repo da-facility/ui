@@ -46,3 +46,18 @@ test('cards share a row on desktop, stack on phones, and follow dark mode', asyn
   const [r, g, b] = background.match(/\d+/g)!.map(Number);
   expect((r + g + b) / 3, 'a dark card in dark mode').toBeLessThan(80);
 });
+
+test('an empty cover can say so instead of looking like an image that failed', async ({page}) => {
+  await presetTweaks(page, 'media-card', {emptyLabel: true});
+  await page.goto('/render/media-card');
+  const card = page.getByRole('link', {name: /^Official portraits/});
+  const cover = card.locator('.media-card__cover');
+  await expect(cover.locator('img')).toHaveCount(0);
+  await expect(cover).toHaveText('No photos yet');
+  const [label, well] = [(await cover.locator('.media-card__empty').boundingBox())!, (await cover.boundingBox())!];
+  expect(Math.abs(label.y + label.height / 2 - (well.y + well.height / 2))).toBeLessThan(2);
+  // Read after the title, so the link's name still starts with it.
+  await expect(card).toHaveAccessibleName(/^Official portraits No photos yet/);
+  // Cards with images never show it.
+  await expect(page.locator('.media-card__empty')).toHaveCount(1);
+});

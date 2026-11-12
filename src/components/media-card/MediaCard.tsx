@@ -30,17 +30,26 @@ export type MediaCardProps = {
    * only sign: `activity` should say it in words, and screen readers hear "New".
    */
   isNew?: boolean;
+  /**
+   * Said in the cover when there are no `images`, such as "No photos yet", so
+   * an empty project or gallery doesn't look like a cover that failed to load.
+   * Without it the cover is a plain well.
+   */
+  emptyLabel?: ReactNode;
   onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
 };
 
 /** A link card with a cover of up to three images, a title and meta lines. */
-export function MediaCard({href, title, images = [], meta = [], activity, isNew = false, onClick}: MediaCardProps) {
+export function MediaCard({href, title, images = [], meta = [], activity, isNew = false, emptyLabel, onClick}: MediaCardProps) {
   const t = useMessages();
   const Link = useLinkComponent();
   const cover = images.slice(0, 3);
+  const showEmpty = cover.length === 0 && emptyLabel != null && emptyLabel !== '';
   const lines = meta.filter(line => line != null && line !== false && line !== '');
   return <Link className="media-card" href={href} onClick={onClick}>
     <span className="media-card__cover" data-count={cover.length}>
+      {/* Shown in the cover, read after the title (below), so the link's name starts with the title. */}
+      {showEmpty && <span className="media-card__empty" aria-hidden="true">{emptyLabel}</span>}
       {cover.map((image, index) => <img
         key={`${index}-${image.src}`}
         className="media-card__image"
@@ -52,6 +61,7 @@ export function MediaCard({href, title, images = [], meta = [], activity, isNew 
     </span>
     <span className="media-card__body">
       <span className="media-card__title">{title}</span>
+      {showEmpty && <span className="media-card__visually-hidden">{emptyLabel}</span>}
       {lines.map((line, index) => <span key={index} className="media-card__meta">{line}</span>)}
       {(activity != null || isNew) && <span className="media-card__meta media-card__activity">
         {isNew && <>

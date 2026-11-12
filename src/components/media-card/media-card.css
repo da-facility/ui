@@ -33,6 +33,18 @@
   background: var(--color-background-muted);
 }
 
+/* An empty cover that says so, centred in the well. */
+.media-card__empty {
+  grid-area: 1 / 1 / -1 / -1;
+  align-self: center;
+  justify-self: center;
+  padding: 0 12px;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  line-height: 18px;
+  text-align: center;
+}
+
 .media-card__image {
   display: block;
   width: 100%;
