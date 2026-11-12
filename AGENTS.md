@@ -17,7 +17,7 @@ Shared by all coding agents (Codex reads this file; `CLAUDE.md` imports it). Wha
 ## Structure
 
 - `src/` is the published package. Everything public is exported from `src/index.ts`, with JSDoc on every prop.
-- `catalogue/` is the local preview app. Each example in `catalogue/examples/` is registered in `catalogue/examples.ts` and imports `@da-facility/ui` like a consuming app would. Examples receive their sub-page and tweaks as props and never import catalogue internals.
+- `catalogue/` is the local preview app. Each example in `catalogue/examples/` is registered in `catalogue/examples.ts` and imports `@da-facility/ui` like a consuming app would. Examples receive their sub-page and tweaks as props and never import catalogue internals. `catalogue/examples/shared/` holds what several examples use, such as the drawn stand-in photographs.
 - `tests/` holds the Playwright tests. `bun run test` covers desktop, mobile, WebKit and native macOS bounce; `bun run test:headless` is the same without native bounce; `bun run test:package` packs the package and tests it in a fresh app.
 
 ## Rules
@@ -29,6 +29,7 @@ Shared by all coding agents (Codex reads this file; `CLAUDE.md` imports it). Wha
 - Choose between desktop and phone layouts with CSS media queries, not by branching on `useMediaQuery` in render, so server-rendered pages start right.
 - Built-in text goes through `useMessages()` (`src/i18n.ts`) with a key in `src/locales/en.json` and `hr.json`, never as a literal in a component. Pass counts as numbers, so they get the locale's grouping; Translations may use ICU plurals (`{count, plural, one {…} few {…} other {…}}`), which Astryx's translator formats; `en.json` keeps to plain `{name}` placeholders, because untranslated English is formatted without Astryx.
 - Colours come from Astryx tokens so dark mode works; check new work with the catalogue's Dark mode tweak.
+- Surfaces that stay dark in both modes (the media viewer, the sign-in brand panel) set `color-scheme: dark`, which turns Astryx's `light-dark()` tokens to their dark values inside them, and read the library's `--da-media-*` custom properties with those tokens as fallbacks. Apps set the properties from their theme; the library never hard-codes a brand's colours.
 - Run `bun run typecheck` and `bun run test:headless` before handing off work that touches `src/` or `catalogue/`.
 - On the local machine, run the full `bun run test` only when the change touches scrolling: `PageScroll`, `ScrollArea`, `SidebarLayout`'s scroll structure, overscroll or bounce CSS. Its native-overscroll tests open visible Chromium windows and drive real input, which makes the computer hard to use while they run. CI runs the full suite either way.
 

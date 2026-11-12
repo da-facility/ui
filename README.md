@@ -7,6 +7,7 @@ Layouts, templates and components for Da Facility apps, built on [Meta Astryx](h
 | `SidebarLayout` | Layout | App shell with a fixed navigation rail on desktop and a thumb-reachable drawer on mobile. Built on `PageScroll` and `ScrollArea`. |
 | `LoginSplit` | Template | Sign-in page with an email and password form beside a cover image. |
 | `LoginPocketId` | Template | Blank sign-in page with only a Pocket ID button, and an optional title for expired or failed sign-ins. |
+| `LoginEmailCode` | Template | Two-step sign-in: an email address, then a one-time code, with a resend cool-down and a lock after too many attempts. |
 | `CodeInput` | Component | One-time sign-in code as a row of boxes over one real input, so paste and autofill work. |
 | `StatusBar` | Component | Loud full-width bar that says which kind of site this is, such as staging. |
 | `Assistant` | Component | Chat bar at the bottom of the screen that opens into a chat; the layout contracts around it. |
@@ -132,6 +133,30 @@ The page is plain HTML and CSS with no effects, so it also renders on the server
 ```
 
 Six boxes (`length` changes that) drawn over one real `<input inputmode="numeric" autocomplete="one-time-code">`, so typing moves forward, Backspace moves back, and a pasted code or the browser's autofill from a message fills every box. Spaces, dashes and letters are dropped. `onComplete` runs on the last digit; there is no submit button. `isChecking` makes the boxes read-only, and `error` shows above them in red and selects the digits so the next ones typed start over. Pass `value` and `onChange` to control it, `isDisabled` to turn it off, and `label` to change its accessible name ("One-time code").
+
+### LoginEmailCode
+
+```tsx
+<LoginEmailCode
+  brand={<Wordmark />}
+  brandPanel={<BrandPanel />}
+  onRequestCode={async email => {
+    const response = await api.sendCode(email);
+    if (response.error === 'too_many_attempts') return {reason: 'too-many-attempts', retryAfterMinutes: response.minutes};
+  }}
+  onVerifyCode={async (code, email) => {
+    const response = await api.verifyCode(email, code);
+    if (response.error === 'invalid_code') return {reason: 'invalid-code'};
+    if (response.error === 'expired_code') return {reason: 'expired-code'};
+    if (response.error === 'too_many_attempts') return {reason: 'too-many-attempts', retryAfterMinutes: response.minutes};
+    navigate('/');
+  }}
+/>
+```
+
+Step one asks for an email address and step two for the code sent to it, in a `CodeInput` that checks itself on the last digit. The page makes no requests: the app's handlers do, and they return a failure (`invalid-code`, `expired-code`, `too-many-attempts` with `retryAfterMinutes`, or `other` with a `message`) or throw to show an error's message. Too many attempts turns the inputs off and counts the minutes down. "Send a new code" waits `resendCooldown` seconds (30) after each code. "Use a different email" goes back with the address kept.
+
+`brandPanel` sits beside the form on desktop and above it on phones, on the dark media canvas in light and dark mode (see "Media colours"); without it the form is a single card. `title`, `description`, `codeTitle` and `codeDescription` (also a function of the address, for a line such as how long the code is valid) replace the built-in text, `defaultEmail` and `defaultStep` start elsewhere, `onStepChange` reports the step for apps that keep it in the URL, and `footer` holds links such as the terms.
 
 ### ProjectSelector
 
@@ -273,6 +298,22 @@ import {Toaster, toast} from '@da-facility/ui';
 - **Custom cards.** `toast.custom` renders exactly what you return, unstyled; give it a card of its own.
 
 Sonner is a dependency of the package, so apps do not install it themselves.
+
+## Media colours
+
+Photographs read true on a dark ground, so the surfaces they sit on stay dark in light and dark mode alike: `LoginEmailCode`'s brand panel and the media viewer. They set `color-scheme: dark`, so Astryx's tokens inside them take their dark values, and they read these custom properties, each falling back to that dark token:
+
+| Property | What it colours | Fallback |
+| --- | --- | --- |
+| `--da-media-canvas` | The ground behind the photograph | `--color-background-body` |
+| `--da-media-surface` | Panels and buttons on the canvas | `--color-background-surface` |
+| `--da-media-text` | Text on the canvas | `--color-text-primary` |
+| `--da-media-text-secondary` | Labels and meta text on the canvas | `--color-text-secondary` |
+| `--da-media-border` | Hairlines on the canvas | `--color-border` |
+| `--da-media-accent` | The one strong action on the canvas | `--color-accent` |
+| `--da-media-on-accent` | Text on that action | `--color-on-accent` |
+
+Set them on `:root` (or any ancestor) from the app's theme, for example `--da-media-canvas: #14161a`. Values are read inside the dark surface, so a `light-dark()` value resolves to its dark half there.
 
 ## Translations
 

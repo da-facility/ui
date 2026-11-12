@@ -2,6 +2,7 @@ import type {Example, Tweak} from './types';
 import {SidebarExample} from './examples/sidebar/SidebarExample';
 import {LoginSplitExample} from './examples/login-split/LoginSplitExample';
 import {LoginPocketIdExample} from './examples/login-pocket-id/LoginPocketIdExample';
+import {LoginEmailCodeExample} from './examples/login-email-code/LoginEmailCodeExample';
 import {PocketIdButtonExample} from './examples/pocket-id-button/PocketIdButtonExample';
 import {ProjectSelectorExample} from './examples/project-selector/ProjectSelectorExample';
 import {ScrollAreaExample} from './examples/scroll-area/ScrollAreaExample';
@@ -50,6 +51,18 @@ export const examples: Example[] = [
       {id: 'noAccess', label: 'No access, without a button', group: 'State'},
     ],
     Component: LoginPocketIdExample,
+  },
+  {
+    id: 'login-email-code',
+    name: 'Login with an email code',
+    kind: 'Template',
+    description: 'Two-step sign-in: an email address, then a one-time code, with a resend cool-down and a lock after too many attempts.',
+    tweaks: [
+      {id: 'brandPanel', label: 'Brand panel', group: 'Layout', default: true},
+      {id: 'codeStep', label: 'Start on the code step', group: 'State'},
+      {id: 'locked', label: 'Too many attempts', group: 'State'},
+    ],
+    Component: LoginEmailCodeExample,
   },
   {
     id: 'code-input',

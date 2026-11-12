@@ -100,5 +100,50 @@
   },
   "@da-facility.codeInput.label": {
     "defaultMessage": "Jednokratni kod"
+  },
+  "@da-facility.loginEmailCode.title": {
+    "defaultMessage": "Prijava"
+  },
+  "@da-facility.loginEmailCode.description": {
+    "defaultMessage": "Upišite e-mail adresu. Poslat ćemo vam jednokratni kod."
+  },
+  "@da-facility.loginEmailCode.email": {
+    "defaultMessage": "E-mail adresa"
+  },
+  "@da-facility.loginEmailCode.emailPlaceholder": {
+    "defaultMessage": "ime@tvrtka.hr"
+  },
+  "@da-facility.loginEmailCode.sendCode": {
+    "defaultMessage": "Pošalji kod"
+  },
+  "@da-facility.loginEmailCode.codeTitle": {
+    "defaultMessage": "Upišite kod"
+  },
+  "@da-facility.loginEmailCode.codeDescription": {
+    "defaultMessage": "Poslali smo kod na {email}."
+  },
+  "@da-facility.loginEmailCode.resend": {
+    "defaultMessage": "Pošalji novi kod"
+  },
+  "@da-facility.loginEmailCode.resendIn": {
+    "defaultMessage": "Novi kod za {seconds} s"
+  },
+  "@da-facility.loginEmailCode.resent": {
+    "defaultMessage": "Poslali smo novi kod."
+  },
+  "@da-facility.loginEmailCode.changeEmail": {
+    "defaultMessage": "Promijeni e-mail adresu"
+  },
+  "@da-facility.loginEmailCode.invalidCode": {
+    "defaultMessage": "Kod nije ispravan. Provjerite e-mail ili zatražite novi kod."
+  },
+  "@da-facility.loginEmailCode.expiredCode": {
+    "defaultMessage": "Kod je istekao. Zatražite novi kod."
+  },
+  "@da-facility.loginEmailCode.tooManyAttempts": {
+    "defaultMessage": "Previše pokušaja. Pokušajte ponovno za {minutes} min."
+  },
+  "@da-facility.loginEmailCode.error": {
+    "defaultMessage": "Nešto nije u redu. Pokušajte ponovno."
   }
 }

@@ -2,6 +2,7 @@ export {SidebarLayout, type SidebarLayoutProps} from './layouts/sidebar/SidebarL
 export type {MobileNavigationSide} from './layouts/sidebar/MobileNavigation';
 export {LoginSplit, type LoginCredentials, type LoginSplitProps} from './templates/login-split/LoginSplit';
 export {LoginPocketId, type LoginPocketIdProps} from './templates/login-pocket-id/LoginPocketId';
+export {LoginEmailCode, type LoginEmailCodeFailure, type LoginEmailCodeProps, type LoginEmailCodeStep} from './templates/login-email-code/LoginEmailCode';
 export {Assistant, type AssistantProps} from './components/assistant/Assistant';
 export {PageScroll, type PageScrollProps} from './components/scroll/PageScroll';
 export {ScrollArea, scrollAreaClassName, type ScrollAreaOptions, type ScrollAreaProps} from './components/scroll/ScrollArea';

@@ -134,5 +134,65 @@
   "@da-facility.codeInput.label": {
     "defaultMessage": "One-time code",
     "description": "Accessible name of the boxes for a sign-in code sent by email or text message."
+  },
+  "@da-facility.loginEmailCode.title": {
+    "defaultMessage": "Sign in",
+    "description": "Heading of the first sign-in step, where the person enters their email address."
+  },
+  "@da-facility.loginEmailCode.description": {
+    "defaultMessage": "Enter your email address. We’ll send you a one-time code.",
+    "description": "Text under the first step’s heading."
+  },
+  "@da-facility.loginEmailCode.email": {
+    "defaultMessage": "Email",
+    "description": "Label of the email field."
+  },
+  "@da-facility.loginEmailCode.emailPlaceholder": {
+    "defaultMessage": "name@company.com",
+    "description": "Placeholder of the email field."
+  },
+  "@da-facility.loginEmailCode.sendCode": {
+    "defaultMessage": "Send code",
+    "description": "Button that sends a one-time code to the email address."
+  },
+  "@da-facility.loginEmailCode.codeTitle": {
+    "defaultMessage": "Enter the code",
+    "description": "Heading of the second step, where the person types the code from the email."
+  },
+  "@da-facility.loginEmailCode.codeDescription": {
+    "defaultMessage": "We sent a code to {email}.",
+    "description": "Text under the second step’s heading. {email} is the address the code went to."
+  },
+  "@da-facility.loginEmailCode.resend": {
+    "defaultMessage": "Send a new code",
+    "description": "Link under the code boxes that sends another code."
+  },
+  "@da-facility.loginEmailCode.resendIn": {
+    "defaultMessage": "Send a new code in {seconds} s",
+    "description": "The resend link while it waits. {seconds} counts down."
+  },
+  "@da-facility.loginEmailCode.resent": {
+    "defaultMessage": "We sent a new code.",
+    "description": "Confirmation after a new code was sent."
+  },
+  "@da-facility.loginEmailCode.changeEmail": {
+    "defaultMessage": "Use a different email",
+    "description": "Link back to the email step."
+  },
+  "@da-facility.loginEmailCode.invalidCode": {
+    "defaultMessage": "That code isn’t right. Check your email or request a new code.",
+    "description": "Shown when the code is wrong."
+  },
+  "@da-facility.loginEmailCode.expiredCode": {
+    "defaultMessage": "That code has expired. Request a new code.",
+    "description": "Shown when the code is too old."
+  },
+  "@da-facility.loginEmailCode.tooManyAttempts": {
+    "defaultMessage": "Too many attempts. Try again in {minutes} min.",
+    "description": "Shown while sign-in is locked. {minutes} is how long to wait."
+  },
+  "@da-facility.loginEmailCode.error": {
+    "defaultMessage": "Something went wrong. Try again.",
+    "description": "Shown when sending or checking a code fails without a message of its own."
   }
 }
