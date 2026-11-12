@@ -304,6 +304,12 @@
   border-bottom: 1px solid var(--menu-line);
 }
 
+/* Collapsed, the tweaks are just their toggle, which a long example list
+   beside them must not squeeze under the bar. */
+.catalogue-menu__tweaks:has(> .catalogue-menu__tweaks-toggle[aria-expanded="false"]) {
+  flex-shrink: 0;
+}
+
 .catalogue-menu:not([data-opens-up]) .catalogue-menu__tweaks {
   border-top: 1px solid var(--menu-line);
   border-bottom: 0;

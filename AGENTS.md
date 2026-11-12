@@ -96,7 +96,7 @@ If the user approves, write the migration steps into the changelog entry under "
 
 ## Behaviour recordings
 
-- `tests/behaviour.spec.ts` records how every catalogue state looks and reads: every example and sidebar page in light and dark, each tweak switched, Croatian, and interactive states (open menus, the phone drawer, the chat, form errors, toasts), at desktop and mobile sizes. Each state saves a screenshot and an ARIA snapshot.
+- `tests/behaviour.spec.ts` records how every catalogue state looks and reads: every example and sidebar page in light and dark, each tweak switched, Croatian, and interactive states (open menus, the phone drawer, the chat, form errors, toasts, the code steps, a selected media grid and a zoomed viewer), at desktop and mobile sizes. Each state saves a screenshot and an ARIA snapshot.
 - Use it to check that a change didn't alter anything it shouldn't: before a dependency upgrade (Astryx, React, Sonner), a CSS refactor or any change to shared styles, run `bun run behaviour:record` on the unchanged code, make the change, then run `bun run behaviour:compare`. Every state that looks or reads differently fails, and `playwright-report/` shows the expected, actual and difference images. A state that differs once and matches on its retry is reported as flaky and is timing noise, not a change.
 - Report every difference to the user with what changed and whether it comes from this package or upstream. Fix the ones this package should prevent; list the rest.
 - Baselines are machine-specific and stay in `artifacts/behaviour/`, which is not committed. The scripts serve a fresh production build on port 5180, never the dev server. Recording takes about eight minutes and comparing about four, with no visible windows.

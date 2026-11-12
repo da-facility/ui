@@ -13,7 +13,9 @@ import {presetTweaks} from './helpers';
  * names and text a screen reader gets). States cover every example and
  * sidebar page in light and dark, each example tweak switched from its
  * default, Croatian, and the interactive states: open menus, the phone
- * drawer, the chat, form errors, toasts and replaced toasts.
+ * drawer, the chat, form errors, toasts and replaced toasts, the code
+ * input's error, the email code step, a selected media grid and a zoomed
+ * media viewer.
  *
  * Baselines are machine-specific (fonts render differently on each system),
  * so they live in artifacts/behaviour, which is not committed. Motion is
@@ -204,6 +206,36 @@ test.describe('interactions', () => {
       await page.getByRole('button', {name: 'Theme: System'}).first().click();
       await page.getByRole('radiogroup', {name: 'View'}).first().getByRole('radio', {name: 'Board'}).click();
       await record(page, `cycle-button-stepped--${theme}`, {fullPage: false});
+    });
+
+    test(`code input wrong code ${theme}`, async ({page}) => {
+      await open(page, 'code-input', 'code-input', {error: true}, {darkMode});
+      await expect(page.getByRole('alert')).toBeVisible();
+      await record(page, `code-input-error--${theme}`, {fullPage: false});
+    });
+
+    test(`login email code step ${theme}`, async ({page}) => {
+      await open(page, 'login-email-code', 'login-email-code', {}, {darkMode});
+      await page.getByRole('textbox', {name: 'Email', exact: true}).fill('taylor@example.com');
+      await page.keyboard.press('Enter');
+      await expect(page.getByRole('heading', {name: 'Enter the code'})).toBeVisible();
+      await record(page, `login-email-code-step--${theme}`, {fullPage: false});
+    });
+
+    test(`media grid with a selection ${theme}`, async ({page}) => {
+      await open(page, 'media-grid', 'media-grid', {}, {darkMode});
+      await page.locator('.media-tile[data-index="1"]').getByRole('checkbox').check({force: true});
+      await page.locator('.media-tile[data-index="4"] .media-tile__link').click({modifiers: ['Shift']});
+      await expect(page.locator('.selection-bar')).toContainText('4 selected');
+      await record(page, `media-grid-selected--${theme}`, {fullPage: false});
+    });
+
+    test(`media viewer zoomed and without the panel ${theme}`, async ({page}) => {
+      await open(page, 'media-viewer', 'media-viewer', {}, {darkMode});
+      await page.keyboard.press('i');
+      await page.keyboard.press('+');
+      await expect(page.locator('.media-viewer__zoomed')).toBeVisible();
+      await record(page, `media-viewer-zoomed--${theme}`, {fullPage: false});
     });
 
     test(`toasts ${theme}`, async ({page}) => {
