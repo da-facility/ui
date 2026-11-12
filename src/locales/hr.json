@@ -145,5 +145,8 @@
   },
   "@da-facility.loginEmailCode.error": {
     "defaultMessage": "Nešto nije u redu. Pokušajte ponovno."
+  },
+  "@da-facility.pageHeader.filters": {
+    "defaultMessage": "Filtri"
   }
 }

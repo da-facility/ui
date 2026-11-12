@@ -194,5 +194,9 @@
   "@da-facility.loginEmailCode.error": {
     "defaultMessage": "Something went wrong. Try again.",
     "description": "Shown when sending or checking a code fails without a message of its own."
+  },
+  "@da-facility.pageHeader.filters": {
+    "defaultMessage": "Filters",
+    "description": "Accessible name of the filter chips under a page title."
   }
 }

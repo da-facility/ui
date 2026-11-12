@@ -1,0 +1,24 @@
+.page-header-example {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 48px 32px 140px;
+}
+
+.page-header-example__content {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 6px;
+  margin-top: 28px;
+}
+
+.page-header-example__content div {
+  aspect-ratio: 3 / 2;
+  border-radius: 4px;
+  background: var(--color-background-muted);
+}
+
+@media (max-width: 768px) {
+  .page-header-example {
+    padding: 24px 16px 120px;
+  }
+}

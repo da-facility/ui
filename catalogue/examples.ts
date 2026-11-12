@@ -3,6 +3,7 @@ import {SidebarExample} from './examples/sidebar/SidebarExample';
 import {LoginSplitExample} from './examples/login-split/LoginSplitExample';
 import {LoginPocketIdExample} from './examples/login-pocket-id/LoginPocketIdExample';
 import {LoginEmailCodeExample} from './examples/login-email-code/LoginEmailCodeExample';
+import {PageHeaderExample} from './examples/page-header/PageHeaderExample';
 import {PocketIdButtonExample} from './examples/pocket-id-button/PocketIdButtonExample';
 import {ProjectSelectorExample} from './examples/project-selector/ProjectSelectorExample';
 import {ScrollAreaExample} from './examples/scroll-area/ScrollAreaExample';
@@ -88,6 +89,19 @@ export const examples: Example[] = [
       {id: 'disabled', label: 'Disabled', group: 'State'},
     ],
     Component: CycleButtonExample,
+  },
+  {
+    id: 'page-header',
+    name: 'Page header',
+    kind: 'Component',
+    description: 'Breadcrumbs, title with a meta line and actions, and a row for search and filter chips.',
+    tweaks: [
+      {id: 'breadcrumbs', label: 'Breadcrumbs', group: 'Parts', default: true},
+      {id: 'actions', label: 'Actions', group: 'Parts', default: true},
+      {id: 'tools', label: 'Search and filters', group: 'Parts', default: true},
+      {id: 'longTitle', label: 'Long title', group: 'Content'},
+    ],
+    Component: PageHeaderExample,
   },
   {
     id: 'pocket-id-button',

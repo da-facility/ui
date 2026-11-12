@@ -9,6 +9,7 @@ Layouts, templates and components for Da Facility apps, built on [Meta Astryx](h
 | `LoginPocketId` | Template | Blank sign-in page with only a Pocket ID button, and an optional title for expired or failed sign-ins. |
 | `LoginEmailCode` | Template | Two-step sign-in: an email address, then a one-time code, with a resend cool-down and a lock after too many attempts. |
 | `CodeInput` | Component | One-time sign-in code as a row of boxes over one real input, so paste and autofill work. |
+| `PageHeader` | Component | The top of a page: breadcrumbs, title, meta line, actions, and a row for search and filter chips. |
 | `StatusBar` | Component | Loud full-width bar that says which kind of site this is, such as staging. |
 | `Assistant` | Component | Chat bar at the bottom of the screen that opens into a chat; the layout contracts around it. |
 | `ProjectSelector` | Component | The current project, with a searchable menu for switching projects. |
@@ -171,6 +172,25 @@ Six boxes (`length` changes that) drawn over one real `<input inputmode="numeric
 Step one asks for an email address and step two for the code sent to it, in a `CodeInput` that checks itself on the last digit. The page makes no requests: the app's handlers do, and they return a failure (`invalid-code`, `expired-code`, `too-many-attempts` with `retryAfterMinutes`, or `other` with a `message`) or throw to show an error's message. Too many attempts turns the inputs off and counts the minutes down. "Send a new code" waits `resendCooldown` seconds (30) after each code. "Use a different email" goes back with the address kept.
 
 `brandPanel` sits beside the form on desktop and above it on phones, on the dark media canvas in light and dark mode (see "Media colours"); without it the form is a single card. `title`, `description`, `codeTitle` and `codeDescription` (also a function of the address, for a line such as how long the code is valid) replace the built-in text, `defaultEmail` and `defaultStep` start elsewhere, `onStepChange` reports the step for apps that keep it in the URL, and `footer` holds links such as the terms.
+
+### PageHeader
+
+```tsx
+<PageHeader
+  breadcrumbs={[{label: client.name, href: clientHref}, {label: project.name, href: projectHref}, {label: gallery.name}]}
+  title={gallery.name}
+  meta={[gallery.place, formatDate(gallery.date), `${formatCount(gallery.count)} photos`]}
+  actions={<>
+    <Button label="Sort: time" variant="secondary" size="sm" />
+    {canDownload && <Button label="Download all" variant="primary" size="sm" />}
+  </>}
+  search={<TextInput label="Search" isLabelHidden value={query} onChange={setQuery} size="sm" />}
+  chips={keywords.map(word => ({id: word, label: word, isSelected: filters.includes(word)}))}
+  onChipClick={toggleFilter}
+/>
+```
+
+Every part but the last breadcrumb is a link, through Astryx's `LinkProvider`, so the app's router handles it; the last is the current page. The title is the page's `h1` (`headingLevel={2}` for a nested one). `meta` parts are joined with " · ", and empty ones are left out. Actions sit to the right of the title and wrap under it on phones. `search` and `chips` share the row under the title; chips are toggle buttons (`aria-pressed`) in a group named "Filters" (`chipsLabel`), and the app turns filters on and off in `onChipClick`. A slot given `false` renders nothing.
 
 ### ProjectSelector
 
