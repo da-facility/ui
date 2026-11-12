@@ -1,0 +1,29 @@
+.media-grid-example {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 40px 32px 160px;
+}
+
+.media-grid-example__end {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .media-grid-example {
+    gap: 20px;
+    padding: 24px 16px 140px;
+  }
+}
+
+.media-grid-example__viewer {
+  display: grid;
+  min-height: 60vh;
+  place-content: center;
+  gap: 12px;
+}

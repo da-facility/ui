@@ -151,5 +151,17 @@
   },
   "@da-facility.mediaCard.new": {
     "defaultMessage": "Novo"
+  },
+  "@da-facility.mediaTile.select": {
+    "defaultMessage": "Odaberi: {name}"
+  },
+  "@da-facility.mediaTile.selected": {
+    "defaultMessage": "odabrano"
+  },
+  "@da-facility.mediaGrid.label": {
+    "defaultMessage": "Galerija"
+  },
+  "@da-facility.mediaGrid.selectedAll": {
+    "defaultMessage": "Odabrano sve učitano: {count}."
   }
 }

@@ -1,0 +1,68 @@
+/* Tiles are --da-media-grid-min wide or more, --da-media-gap apart; phones
+   get --da-media-grid-phone-columns columns --da-media-gap-phone apart. The
+   probe and every block share these rules, so the column count read from the
+   probe is the one the blocks use. */
+.media-grid {
+  --media-grid-outline: 6px;
+  position: relative;
+  min-width: 0;
+}
+
+.media-grid__probe,
+.media-grid__chunk {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--da-media-grid-min, 118px), 100%), 1fr));
+  gap: var(--da-media-gap, 6px);
+}
+
+.media-grid__chunks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--da-media-gap, 6px);
+}
+
+/* Off-screen blocks skip layout and paint. That also clips their painting to
+   the block, so each block has room for the selection and focus rings around
+   its tiles, given back with a negative margin. */
+.media-grid__probe,
+.media-grid__chunk {
+  margin: calc(-1 * var(--media-grid-outline));
+  padding: var(--media-grid-outline);
+}
+
+.media-grid__probe {
+  height: 0;
+  margin-block: 0;
+  padding-block: 0;
+  visibility: hidden;
+}
+
+.media-grid__chunk[data-windowed] {
+  content-visibility: auto;
+}
+
+.media-grid__sentinel {
+  height: 1px;
+  margin-top: -1px;
+}
+
+.media-grid__announcer {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .media-grid__probe,
+  .media-grid__chunk {
+    grid-template-columns: repeat(var(--da-media-grid-phone-columns, 3), minmax(0, 1fr));
+    gap: var(--da-media-gap-phone, 3px);
+  }
+
+  .media-grid__chunks {
+    gap: var(--da-media-gap-phone, 3px);
+  }
+}

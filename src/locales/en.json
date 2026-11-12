@@ -202,5 +202,21 @@
   "@da-facility.mediaCard.new": {
     "defaultMessage": "New",
     "description": "Read before the latest activity of a card that has something new; the green dot shows it visually."
+  },
+  "@da-facility.mediaTile.select": {
+    "defaultMessage": "Select {name}",
+    "description": "Checkbox in the corner of an image tile. {name} is the image’s description."
+  },
+  "@da-facility.mediaTile.selected": {
+    "defaultMessage": "selected",
+    "description": "Read after a selected image’s description."
+  },
+  "@da-facility.mediaGrid.label": {
+    "defaultMessage": "Gallery",
+    "description": "Default accessible name of a grid of images."
+  },
+  "@da-facility.mediaGrid.selectedAll": {
+    "defaultMessage": "Selected all {count} loaded.",
+    "description": "Announced after Ctrl or Cmd and A selects every image loaded so far."
   }
 }

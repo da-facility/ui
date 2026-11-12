@@ -4,6 +4,7 @@ import {LoginSplitExample} from './examples/login-split/LoginSplitExample';
 import {LoginPocketIdExample} from './examples/login-pocket-id/LoginPocketIdExample';
 import {LoginEmailCodeExample} from './examples/login-email-code/LoginEmailCodeExample';
 import {MediaCardExample} from './examples/media-card/MediaCardExample';
+import {MediaGridExample} from './examples/media-grid/MediaGridExample';
 import {PageHeaderExample} from './examples/page-header/PageHeaderExample';
 import {PocketIdButtonExample} from './examples/pocket-id-button/PocketIdButtonExample';
 import {ProjectSelectorExample} from './examples/project-selector/ProjectSelectorExample';
@@ -100,6 +101,18 @@ export const examples: Example[] = [
       {id: 'noCovers', label: 'Without covers', group: 'Content'},
     ],
     Component: MediaCardExample,
+  },
+  {
+    id: 'media-grid',
+    name: 'Media grid',
+    kind: 'Component',
+    description: 'Even grid of 3:2 tiles with selection, keyboard focus and paging; /media-grid/large holds 20,000 photos.',
+    tweaks: [
+      {id: 'selectable', label: 'Selection', group: 'Behaviour', default: true},
+      {id: 'shortPages', label: 'Short pages', group: 'Loading'},
+      {id: 'slowNetwork', label: 'Slow network', group: 'Loading'},
+    ],
+    Component: MediaGridExample,
   },
   {
     id: 'page-header',
