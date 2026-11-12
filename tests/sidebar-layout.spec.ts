@@ -170,6 +170,14 @@ test.describe('desktop navigation rail', () => {
     expect(await scrollY(page), 'the page never moves').toBe(0);
   });
 
+  test('--da-sidebar-width sets the rail\'s width, and the page follows', async ({page}) => {
+    await page.goto('/render/sidebar/profile');
+    expect((await page.locator('.sidebar-layout__rail').boundingBox())!.width).toBe(260);
+    await root(page).evaluate(html => html.style.setProperty('--da-sidebar-width', '208px'));
+    expect((await page.locator('.sidebar-layout__rail').boundingBox())!.width).toBe(208);
+    expect((await page.getByRole('main').boundingBox())!.x).toBe(208);
+  });
+
   test('handedness only affects mobile', async ({page}) => {
     await page.goto('/sidebar/long-table');
     await setTweak(page, 'Left-handed navigation', true);

@@ -27,7 +27,7 @@
 }
 
 .sidebar-layout {
-  --sidebar-width: 260px;
+  --sidebar-width: var(--da-sidebar-width, 260px);
   --sidebar-layout-top: 0px;
   --sidebar-layout-header: 0px;
   /* Top corners round as the margin appears; bottom corners stay round above an assistant bar. */

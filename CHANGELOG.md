@@ -5,6 +5,7 @@
 New:
 
 - `SidebarLayout`: `mobileNavigationTrigger="top-bar"` puts the phone menu button in a bar across the top, at the `mobileNavigationSide` edge, with `mobileTitle` (or `title`) beside it, instead of the floating button. The floating button stays the default.
+- `SidebarLayout`: `--da-sidebar-width` sets the desktop rail's width (260px by default).
 
 ## 1.2.0
 
