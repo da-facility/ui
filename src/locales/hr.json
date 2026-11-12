@@ -18,7 +18,7 @@
     "defaultMessage": "Projekti"
   },
   "@da-facility.projectSelector.trigger": {
-    "defaultMessage": "{label}: {project}"
+    "defaultMessage": "{label}:"
   },
   "@da-facility.projectSelector.noneSelected": {
     "defaultMessage": "Odaberite projekt"

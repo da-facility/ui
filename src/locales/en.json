@@ -24,8 +24,8 @@
     "description": "Default heading of the project menu and its accessible name."
   },
   "@da-facility.projectSelector.trigger": {
-    "defaultMessage": "{label}: {project}",
-    "description": "Accessible name of the project button, such as “Projects: Web app”."
+    "defaultMessage": "{label}:",
+    "description": "Read before the selected project on the project button, such as “Projects:” before “Web app web.example.com”."
   },
   "@da-facility.projectSelector.noneSelected": {
     "defaultMessage": "Select a project",

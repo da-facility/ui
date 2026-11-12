@@ -8,6 +8,10 @@ New:
 - `SidebarLayout`: `--da-sidebar-width` sets the desktop rail's width (260px by default).
 - `MediaGrid` and `MediaTile`: `state` (`'pending'` or `'failed'`) for an item whose image isn't there yet. The tile stays a link and selectable, shows a quiet well (with a broken-image mark when failed) and says why to screen readers. `src` is optional on `MediaGridItem` for this.
 
+Other changes:
+
+- `ProjectSelector`: the button is named by what it shows, after the label ("Projects: Da Facility da-facility.app"), instead of an `aria-label` that left out the visible description and initials (WCAG 2.5.3, axe's `label-content-name-mismatch`). The project's initials are hidden from screen readers in the button and the list. The `@da-facility.projectSelector.trigger` message is now only the part read before the project, `{label}:`.
+
 ## 1.2.0
 
 New:

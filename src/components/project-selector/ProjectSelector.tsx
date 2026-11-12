@@ -164,7 +164,10 @@ export function ProjectSelector({projects, value, onChange, label: labelProp, on
       alignment="start"
       width={280}
       hasAutoFocus={false}>
-      {trigger => <button {...trigger} className="project-selector__trigger" type="button" aria-label={t('@da-facility.projectSelector.trigger', {label, project: selected?.name ?? t('@da-facility.projectSelector.noneSelected')})}>
+      {/* Named by what it shows, after the label for screen readers ("Projects: Da Facility da-facility.app"),
+          so the name and the visible text agree (WCAG 2.5.3). */}
+      {trigger => <button {...trigger} className="project-selector__trigger" type="button">
+        <span className="project-selector__visually-hidden">{t('@da-facility.projectSelector.trigger', {label})} </span>
         {selected ? <ProjectIdentity project={selected} /> : <span className="project-selector__placeholder">{t('@da-facility.projectSelector.noneSelected')}</span>}
         <Icon icon="arrowsUpDown" size="sm" color="secondary" />
       </button>}
@@ -174,7 +177,10 @@ export function ProjectSelector({projects, value, onChange, label: labelProp, on
 
 function ProjectIdentity({project}: {project: Project}) {
   return <span className="project-selector__identity">
-    <Avatar name={project.name} src={project.imageUrl} size={24} shape="rounded" tooltip={false} />
+    {/* The initials repeat the name. */}
+    <span className="project-selector__avatar" aria-hidden="true">
+      <Avatar name={project.name} src={project.imageUrl} size={24} shape="rounded" tooltip={false} />
+    </span>
     <span className="project-selector__text">
       <span>{project.name}</span>
       {project.description && <small>{project.description}</small>}

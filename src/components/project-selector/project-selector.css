@@ -32,6 +32,19 @@
   min-width: 0;
 }
 
+.project-selector__avatar {
+  display: contents;
+}
+
+.project-selector__visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .project-selector__text {
   display: grid;
   min-width: 0;
