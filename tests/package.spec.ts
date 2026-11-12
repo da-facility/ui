@@ -126,7 +126,7 @@ test.afterAll(async () => {
 test('the package ships only its own code and shares the app’s Astryx', async () => {
   const installed = join(app, 'node_modules/@da-facility/ui');
   const code = await readFile(join(installed, 'dist/index.js'), 'utf8');
-  // The package's own code is about 140 KB unminified; a bundled Astryx would add
+  // The package’s own code is about 130 KB unminified; a bundled Astryx would add
   // megabytes, and the imports below check it stays external.
   expect(code.length, 'Astryx must not be bundled').toBeLessThan(250_000);
   expect(code, 'Astryx components are re-exported from their own entry points').toMatch(/from "@astryxdesign\/core\/Table"/);

@@ -26,11 +26,6 @@ export function useMessages() {
   };
 }
 
-/** The provider's locale, for formatting numbers and dates the same way as the text. */
-export function useLocale() {
-  return use(InternationalizationContext).locale;
-}
-
 /** `hr-HR` → [`hr-HR`, `hr`], matching how Astryx resolves locales. */
 function localeChain(locale: string) {
   let canonical = locale;
@@ -50,7 +45,7 @@ function format(message: string, values: Record<string, string | number> = {}, l
 }
 
 /** Formats a count with the locale's grouping, falling back to English for unknown locales. */
-export function formatNumber(value: number, locale: string) {
+function formatNumber(value: number, locale: string) {
   try {
     return new Intl.NumberFormat(locale).format(value);
   } catch {
