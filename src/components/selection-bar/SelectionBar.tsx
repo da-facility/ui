@@ -1,6 +1,5 @@
 import {useEffect, useRef, type ReactNode} from 'react';
 import {Button} from '@astryxdesign/core/Button';
-import {useTheme} from '@astryxdesign/core/theme';
 import {useMessages} from '../../i18n';
 import './selection-bar.css';
 
@@ -14,8 +13,8 @@ export type SelectionBarProps = {
   summary?: ReactNode;
   /**
    * Buttons for the selection, after the clear button, such as an Astryx
-   * `Button` with `variant="primary"`. The bar inverts the theme, so Astryx
-   * components inside it get colours that contrast with it.
+   * `Button` with `variant="primary"`. The bar swaps the theme's colours, so
+   * Astryx components inside it contrast with it.
    */
   actions?: ReactNode;
   /** Clears the selection: the clear button and Escape. */
@@ -35,7 +34,6 @@ export type SelectionBarProps = {
  */
 export function SelectionBar({count, summary, actions, onClear, countLabel, clearLabel}: SelectionBarProps) {
   const t = useMessages();
-  const {mode} = useTheme();
   const isOpen = count > 0;
   const onClearRef = useRef(onClear);
   onClearRef.current = onClear;
@@ -56,7 +54,7 @@ export function SelectionBar({count, summary, actions, onClear, countLabel, clea
 
   // The live region stays in the document so its content is announced when it appears.
   return <div className="selection-bar" role="status" data-open={isOpen || undefined}>
-    {isOpen && <div className="selection-bar__bar" style={{colorScheme: mode === 'dark' ? 'light' : 'dark'}}>
+    {isOpen && <div className="selection-bar__bar">
       <p className="selection-bar__text">
         <strong>{countLabel ?? t('@da-facility.selectionBar.count', {count})}</strong>
         {summary != null && summary !== false && summary !== '' && <> · {summary}</>}

@@ -279,7 +279,7 @@ The whole card is one link, through Astryx's `LinkProvider`. The 16:9 cover show
 />
 ```
 
-Render it after the content it belongs to. While `count` is above zero it sticks 16px (`--da-selection-bar-offset`) above the bottom of the screen, inside the content column and never over the navigation, and at the end of the content it rests after the last row instead of covering it. The count ("3 selected"; Croatian uses the right plural, "3 odabrane") and `summary` sit on the left, the clear button and `actions` on the right. It is a `role="status"` live region that stays in the document, so screen readers announce it when it appears. Escape clears, unless an open dialog or menu took it first. The bar inverts the theme (a dark bar in light mode and a light one in dark mode) by switching the colour scheme, so Astryx buttons in `actions` contrast with it. `countLabel` and `clearLabel` replace the built-in text.
+Render it after the content it belongs to. While `count` is above zero it sticks 16px (`--da-selection-bar-offset`) above the bottom of the screen, inside the content column and never over the navigation, and at the end of the content it rests after the last row instead of covering it. The count ("3 selected"; Croatian uses the right plural, "3 odabrane") and `summary` sit on the left, the clear button and `actions` on the right. It is a `role="status"` live region that stays in the document, so screen readers announce it when it appears. Escape clears, unless an open dialog or menu took it first. The bar inverts the theme: the page's text colour is its ground and the page's background its text (`--da-selection-bar-background` and `--da-selection-bar-text` change them), and Astryx's colour tokens are swapped the same way inside it, so Astryx buttons in `actions` contrast with it and a primary button takes the page's background. `countLabel` and `clearLabel` replace the built-in text.
 
 ### ProjectSelector
 
@@ -424,19 +424,19 @@ Sonner is a dependency of the package, so apps do not install it themselves.
 
 ## Media colours
 
-Photographs read true on a dark ground, so the surfaces they sit on stay dark in light and dark mode alike: `LoginEmailCode`'s brand panel and the media viewer. They set `color-scheme: dark`, so Astryx's tokens inside them take their dark values, and they read these custom properties, each falling back to that dark token:
+Photographs read true on a dark ground, so the surfaces they sit on stay dark in light and dark mode alike: the media viewer and `LoginEmailCode`'s brand panel. Their colours are these custom properties, with a neutral dark as the fallback:
 
 | Property | What it colours | Fallback |
 | --- | --- | --- |
-| `--da-media-canvas` | The ground behind the photograph | `--color-background-body` |
-| `--da-media-surface` | Panels and buttons on the canvas | `--color-background-surface` |
-| `--da-media-text` | Text on the canvas | `--color-text-primary` |
-| `--da-media-text-secondary` | Labels and meta text on the canvas | `--color-text-secondary` |
-| `--da-media-border` | Hairlines on the canvas | `--color-border` |
-| `--da-media-accent` | The one strong action on the canvas | `--color-accent` |
-| `--da-media-on-accent` | Text on that action | `--color-on-accent` |
+| `--da-media-canvas` | The ground behind the photograph | `#121316` |
+| `--da-media-surface` | Panels and buttons on the canvas | `#1d1f23` |
+| `--da-media-text` | Text on the canvas | `#f2f2f0` |
+| `--da-media-text-secondary` | Labels and meta text on the canvas | `#a3a6ad` |
+| `--da-media-border` | Hairlines on the canvas | `rgb(255 255 255 / 0.13)` |
+| `--da-media-accent` | The one strong action on the canvas | `#f2f2f0` |
+| `--da-media-on-accent` | Text on that action | `#121316` |
 
-`--da-media-radius` (4px) rounds the photograph in the viewer and the grid's tiles. Set them on `:root` (or any ancestor) from the app's theme, for example `--da-media-canvas: #14161a`. Values are read inside the dark surface, so a `light-dark()` value resolves to its dark half there.
+Set them on `:root` (or any ancestor) from the app's theme, such as `--da-media-canvas: #14161a`. Inside these surfaces Astryx's own colour tokens (`--color-text-primary`, `--color-background-surface`, `--color-accent` and the rest) are pointed at the same colours, so Astryx components in a slot, such as the viewer's panel, come out light on dark without a second theme. `--da-media-radius` (4px) rounds the photograph in the viewer and the grid's tiles.
 
 ## Translations
 

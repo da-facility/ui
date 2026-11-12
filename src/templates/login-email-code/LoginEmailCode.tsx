@@ -2,6 +2,7 @@ import {useEffect, useId, useRef, useState, type FormEvent, type ReactNode} from
 import {Button} from '@astryxdesign/core/Button';
 import {CodeInput} from '../../components/code-input/CodeInput';
 import {useMessages} from '../../i18n';
+import '../../components/media-canvas/media-canvas.css';
 import './login-email-code.css';
 
 /**
@@ -216,7 +217,7 @@ export function LoginEmailCode({
   const isCodeStep = step === 'code';
   return <main className="login-email-code" data-panel={brandPanel != null || undefined}>
     <section className="login-email-code__card" aria-labelledby={`${id}-title`}>
-      {brandPanel != null && <div className="login-email-code__panel">{brandPanel}</div>}
+      {brandPanel != null && <div className="media-canvas login-email-code__panel">{brandPanel}</div>}
       <div className="login-email-code__body">
         {brand != null && <div className="login-email-code__brand">{brand}</div>}
         {isCodeStep

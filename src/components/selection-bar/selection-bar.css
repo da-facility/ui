@@ -1,6 +1,9 @@
 /* Sticks to the bottom of the screen within the content column; at the end of
    the content it rests after it rather than over the last row. */
 .selection-bar {
+  /* The page's colours, taken here and swapped inside the bar. */
+  --selection-bar-ink: var(--da-selection-bar-background, var(--color-text-primary));
+  --selection-bar-paper: var(--da-selection-bar-text, var(--color-background-body));
   position: sticky;
   bottom: var(--da-selection-bar-offset, 16px);
   z-index: 2;
@@ -11,10 +14,21 @@
   margin-top: 16px;
 }
 
-/* Inverted: the bar takes the other colour scheme, so the theme's own tokens
-   give it a dark ground in light mode and a light one in dark mode, and the
-   Astryx buttons inside follow. */
+/* Inverted: the page's text colour is the bar's ground and its background the
+   bar's text, so the bar is dark in light mode and light in dark mode. Astryx's
+   tokens are swapped the same way inside, so its buttons contrast with the bar:
+   the primary takes the page's background, as the bar's one strong action. */
 .selection-bar__bar {
+  --color-text-primary: var(--selection-bar-paper);
+  --color-text-secondary: color-mix(in srgb, var(--selection-bar-paper) 75%, var(--selection-bar-ink));
+  --color-icon-primary: var(--selection-bar-paper);
+  --color-background-body: var(--selection-bar-ink);
+  --color-background-surface: color-mix(in srgb, var(--selection-bar-paper) 12%, var(--selection-bar-ink));
+  --color-border: color-mix(in srgb, var(--selection-bar-paper) 30%, transparent);
+  --color-accent: var(--selection-bar-paper);
+  --color-on-accent: var(--selection-bar-ink);
+  --color-overlay-hover: color-mix(in srgb, var(--selection-bar-paper) 12%, transparent);
+  --color-overlay-pressed: color-mix(in srgb, var(--selection-bar-paper) 20%, transparent);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -22,8 +36,8 @@
   gap: 8px 10px;
   padding: 8px 8px 8px 14px;
   border-radius: var(--radius-container);
-  color: var(--color-text-primary);
-  background: var(--color-background-body);
+  color: var(--selection-bar-paper);
+  background: var(--selection-bar-ink);
   box-shadow: var(--shadow-med, none);
   font-family: var(--font-family-body);
   font-size: 13px;

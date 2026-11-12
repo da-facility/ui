@@ -30,17 +30,14 @@
   min-height: 520px;
 }
 
-/* The brand panel is on the dark media canvas in light and dark mode alike:
-   the dark colour scheme turns the theme's tokens to their dark values. */
+/* The brand panel is on the dark media canvas (media-canvas.css) in light and
+   dark mode alike. */
 .login-email-code__panel {
   position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
-  color-scheme: dark;
-  color: var(--da-media-text, var(--color-text-primary));
-  background: var(--da-media-canvas, var(--color-background-body));
 }
 
 .login-email-code__body {

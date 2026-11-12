@@ -1,0 +1,38 @@
+/* The dark ground photographs sit on, in light and dark mode alike: the media
+   viewer and the sign-in brand panel. Apps set the --da-media-* properties
+   from their theme; the fallbacks are a neutral dark.
+
+   Inside, Astryx's own tokens are pointed at the same colours, so Astryx
+   components in a slot (such as the viewer's panel) come out light on dark.
+   This doesn't rely on light-dark() and color-scheme, which bundlers that
+   lower light-dark() resolve once at the root. */
+.media-canvas {
+  --media-canvas: var(--da-media-canvas, #121316);
+  --media-surface: var(--da-media-surface, #1d1f23);
+  --media-text: var(--da-media-text, #f2f2f0);
+  --media-text-secondary: var(--da-media-text-secondary, #a3a6ad);
+  --media-border: var(--da-media-border, rgb(255 255 255 / 0.13));
+  --media-accent: var(--da-media-accent, #f2f2f0);
+  --media-on-accent: var(--da-media-on-accent, #121316);
+
+  --color-background-body: var(--media-canvas);
+  --color-background-surface: var(--media-surface);
+  --color-background-card: var(--media-surface);
+  --color-background-popover: var(--media-surface);
+  --color-background-muted: color-mix(in srgb, var(--media-text) 8%, transparent);
+  --color-text-primary: var(--media-text);
+  --color-text-secondary: var(--media-text-secondary);
+  --color-text-disabled: color-mix(in srgb, var(--media-text-secondary) 60%, transparent);
+  --color-icon-primary: var(--media-text);
+  --color-icon-secondary: var(--media-text-secondary);
+  --color-border: var(--media-border);
+  --color-border-emphasized: color-mix(in srgb, var(--media-text) 40%, transparent);
+  --color-accent: var(--media-accent);
+  --color-on-accent: var(--media-on-accent);
+  --color-accent-muted: color-mix(in srgb, var(--media-accent) 18%, transparent);
+  --color-overlay-hover: color-mix(in srgb, var(--media-text) 10%, transparent);
+  --color-overlay-pressed: color-mix(in srgb, var(--media-text) 16%, transparent);
+  color-scheme: dark;
+  color: var(--media-text);
+  background: var(--media-canvas);
+}

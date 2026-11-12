@@ -1,6 +1,7 @@
 import {useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent, type ReactNode} from 'react';
 import {Icon} from '@astryxdesign/core/Icon';
 import {useMessages} from '../../i18n';
+import '../media-canvas/media-canvas.css';
 import './media-viewer.css';
 
 export type MediaViewerItem = {
@@ -271,7 +272,7 @@ export function MediaViewer({
   const hasTitle = title != null && title !== false && title !== '';
   return <dialog
     ref={dialogRef}
-    className="media-viewer"
+    className="media-canvas media-viewer"
     aria-labelledby={hasTitle && !label ? titleId : undefined}
     aria-label={hasTitle && !label ? undefined : label ?? item.alt}
     data-panel={isPanelOpen || undefined}

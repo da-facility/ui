@@ -1,14 +1,6 @@
-/* The viewer covers the window on the dark media canvas, in light and dark
-   mode alike: the dark colour scheme turns the theme's tokens (the fallbacks
-   of the --da-media-* properties, and Astryx components in the panel) dark. */
+/* The viewer covers the window on the dark media canvas (media-canvas.css),
+   in light and dark mode alike. */
 .media-viewer {
-  --media-viewer-canvas: var(--da-media-canvas, var(--color-background-body));
-  --media-viewer-surface: var(--da-media-surface, var(--color-background-surface));
-  --media-viewer-text: var(--da-media-text, var(--color-text-primary));
-  --media-viewer-text-secondary: var(--da-media-text-secondary, var(--color-text-secondary));
-  --media-viewer-border: var(--da-media-border, var(--color-border));
-  --media-viewer-accent: var(--da-media-accent, var(--color-accent));
-  --media-viewer-on-accent: var(--da-media-on-accent, var(--color-on-accent));
   position: fixed;
   inset: 0;
   display: grid;
@@ -23,9 +15,6 @@
   box-sizing: border-box;
   border: 0;
   outline: none;
-  color-scheme: dark;
-  color: var(--media-viewer-text);
-  background: var(--media-viewer-canvas);
   font-family: var(--font-family-body);
   font-size: 13px;
   line-height: 18px;
@@ -36,7 +25,7 @@
 }
 
 .media-viewer::backdrop {
-  background: var(--da-media-canvas, #000);
+  background: var(--da-media-canvas, #121316);
 }
 
 .media-viewer *,
@@ -74,14 +63,14 @@ html:has(.media-viewer[open]) {
   min-width: 0;
   margin: 0;
   overflow: hidden;
-  color: var(--media-viewer-text-secondary);
+  color: var(--media-text-secondary);
   font-variant-numeric: tabular-nums;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .media-viewer__title {
-  color: var(--media-viewer-text);
+  color: var(--media-text);
   font-weight: 500;
 }
 
@@ -99,7 +88,7 @@ html:has(.media-viewer[open]) {
   padding: 0 10px;
   border: 0;
   border-radius: var(--radius-element);
-  color: var(--media-viewer-text);
+  color: var(--media-text);
   background: transparent;
   font: inherit;
   font-weight: 500;
@@ -110,12 +99,12 @@ html:has(.media-viewer[open]) {
 .media-viewer__button:hover,
 .media-viewer__button[aria-pressed="true"],
 .media-viewer__button[aria-expanded="true"] {
-  background: var(--media-viewer-surface);
+  background: var(--media-surface);
 }
 
 .media-viewer__button:focus-visible,
 .media-viewer__nav:focus-visible {
-  outline: 2px solid var(--media-viewer-text);
+  outline: 2px solid var(--media-text);
   outline-offset: 2px;
 }
 
@@ -195,14 +184,14 @@ html:has(.media-viewer[open]) {
   padding: 0;
   border: 0;
   border-radius: var(--radius-full, 9999px);
-  color: var(--media-viewer-text);
-  background: color-mix(in srgb, var(--media-viewer-canvas) 65%, transparent);
+  color: var(--media-text);
+  background: color-mix(in srgb, var(--media-canvas) 65%, transparent);
   translate: 0 -50%;
   cursor: pointer;
 }
 
 .media-viewer__nav:hover {
-  background: var(--media-viewer-surface);
+  background: var(--media-surface);
 }
 
 .media-viewer__nav--previous {
@@ -222,9 +211,9 @@ html:has(.media-viewer[open]) {
   padding: 16px;
   overflow: auto;
   overscroll-behavior: contain;
-  border-left: 1px solid var(--media-viewer-border);
-  color: var(--media-viewer-text);
-  background: var(--media-viewer-surface);
+  border-left: 1px solid var(--media-border);
+  color: var(--media-text);
+  background: var(--media-surface);
 }
 
 .media-viewer__panel[hidden] {
@@ -290,7 +279,7 @@ html:has(.media-viewer[open]) {
   .media-viewer__panel {
     min-height: 50%;
     overflow: visible;
-    border-top: 1px solid var(--media-viewer-border);
+    border-top: 1px solid var(--media-border);
     border-left: 0;
     border-radius: var(--radius-container) var(--radius-container) 0 0;
   }
