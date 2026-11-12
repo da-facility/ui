@@ -158,6 +158,12 @@
   "@da-facility.mediaTile.selected": {
     "defaultMessage": "odabrano"
   },
+  "@da-facility.mediaTile.pending": {
+    "defaultMessage": "u pripremi"
+  },
+  "@da-facility.mediaTile.failed": {
+    "defaultMessage": "priprema nije uspjela"
+  },
   "@da-facility.mediaGrid.label": {
     "defaultMessage": "Galerija"
   },

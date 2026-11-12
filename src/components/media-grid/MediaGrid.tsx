@@ -1,13 +1,20 @@
 import {memo, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent} from 'react';
 import {useMessages} from '../../i18n';
-import {Tile} from './MediaTile';
+import {Tile, type MediaTileState} from './MediaTile';
 import './media-grid.css';
 
 export type MediaGridItem = {
   /** Stable id, used for selection and to find the item again after a remount. */
   id: string;
   /** The small rendition shown in the tile. */
-  src: string;
+  src?: string;
+  /**
+   * Why there is no image, for an item that exists: `pending` while it is
+   * being made, `failed` when it can't be. The tile can still be opened and
+   * selected, and shows a quiet well (with a broken-image mark when failed).
+   * Ignored when `src` is set.
+   */
+  state?: MediaTileState;
   /** Text for the image, such as a headline, caption or file name. */
   alt: string;
   /** Intrinsic size of the image. */
@@ -298,6 +305,7 @@ const Chunk = memo(function Chunk({items, start, end, layout, selected, isSelect
           key={item.id}
           index={index}
           src={item.src}
+          state={item.state}
           alt={item.alt}
           width={item.width}
           height={item.height}

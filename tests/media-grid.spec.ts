@@ -169,3 +169,28 @@ test('selection rings follow the theme in dark mode', async ({page}) => {
   });
   expect(ring).toBe(accent);
 });
+
+test('tiles without an image yet (state) still open and select, and say why', async ({page}) => {
+  const errors = collectErrors(page);
+  await presetTweaks(page, 'media-grid', {missingImages: true});
+  await page.goto('/render/media-grid');
+  await expect(tile(page, 1)).toHaveAttribute('data-state', 'pending');
+  await expect(tile(page, 4)).toHaveAttribute('data-state', 'failed');
+  // Same 3:2 size as their neighbours, no image, and only the failed one has the mark.
+  const [pending, image] = await Promise.all([tile(page, 1).boundingBox(), tile(page, 0).boundingBox()]);
+  expect([pending!.width, pending!.height]).toEqual([image!.width, image!.height]);
+  await expect(tile(page, 1).locator('img')).toHaveCount(0);
+  await expect(tile(page, 1).locator('.media-tile__mark')).toHaveCount(0);
+  await expect(tile(page, 4).locator('.media-tile__mark')).toBeVisible();
+  // Links with a name that says what happened.
+  await expect(link(page, 1)).toHaveAccessibleName(/, being prepared$/);
+  await expect(link(page, 4)).toHaveAccessibleName(/, couldn’t be prepared$/);
+  // Selectable like any tile.
+  await tile(page, 4).hover();
+  await tile(page, 4).getByRole('checkbox').click();
+  await expect(tile(page, 4)).toHaveAttribute('data-selected', 'true');
+  // And they open.
+  await link(page, 1).click();
+  await expect(page).toHaveURL(/#photo-1$/);
+  expect(errors).toEqual([]);
+});

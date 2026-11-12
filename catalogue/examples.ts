@@ -114,6 +114,7 @@ export const examples: Example[] = [
       {id: 'selectable', label: 'Selection', group: 'Behaviour', default: true},
       {id: 'shortPages', label: 'Short pages', group: 'Loading'},
       {id: 'slowNetwork', label: 'Slow network', group: 'Loading'},
+      {id: 'missingImages', label: 'Images being made and failed', group: 'Loading'},
     ],
     Component: MediaGridExample,
   },

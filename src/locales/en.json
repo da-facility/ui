@@ -211,6 +211,14 @@
     "defaultMessage": "selected",
     "description": "Read after a selected image’s description."
   },
+  "@da-facility.mediaTile.pending": {
+    "defaultMessage": "being prepared",
+    "description": "Read after an image’s description when its tile has no image yet because it is still being made."
+  },
+  "@da-facility.mediaTile.failed": {
+    "defaultMessage": "couldn’t be prepared",
+    "description": "Read after an image’s description when its image couldn’t be made; the tile shows a broken-image mark."
+  },
   "@da-facility.mediaGrid.label": {
     "defaultMessage": "Gallery",
     "description": "Default accessible name of a grid of images."

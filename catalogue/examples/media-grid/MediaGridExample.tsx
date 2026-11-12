@@ -11,7 +11,7 @@ export const LARGE = 20_000;
 const TOTAL = 240;
 const PAGE = 60;
 
-type Tile = {id: string; src: string; alt: string; width: number; height: number; photo: DemoPhoto};
+type Tile = {id: string; src?: string; state?: 'pending' | 'failed'; alt: string; width: number; height: number; photo: DemoPhoto};
 const toTile = (photo: DemoPhoto): Tile => ({id: photo.id, src: photo.thumbUrl, alt: photo.alt, width: photo.width, height: photo.height, photo});
 
 /** The open photo lives in the URL's hash, as an app's route would hold it. */
@@ -46,6 +46,11 @@ export function MediaGridExample({page, tweaks}: ExampleProps) {
     if (loaded.current >= TOTAL) setDone(true);
   }, [tweaks.slowNetwork, tweaks.shortPages]);
 
+  // The second photo is still being made and the fifth failed: tiles without an image that still open.
+  const gridItems = useMemo(() => tweaks.missingImages
+    ? items.map((item, index) => index === 1 ? {...item, src: undefined, state: 'pending' as const} : index === 4 ? {...item, src: undefined, state: 'failed' as const} : item)
+    : items, [items, tweaks.missingImages]);
+
   const openIndex = openId ? items.findIndex(item => item.id === openId) : -1;
   // Moving in the viewer replaces the address, so one Back closes it.
   const showPhoto = (id: string) => {
@@ -74,7 +79,7 @@ export function MediaGridExample({page, tweaks}: ExampleProps) {
           panel={<PhotoDetails photo={items[openIndex].photo} />}
         />
       : <MediaGrid
-      items={items}
+      items={gridItems}
       getHref={getHref}
       selectedIds={selected}
       onSelectionChange={tweaks.selectable ? setSelected : undefined}

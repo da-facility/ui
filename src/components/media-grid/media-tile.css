@@ -36,6 +36,25 @@
   outline-offset: 2px;
 }
 
+/* No image yet (state): the well, with a broken-image mark when it failed. */
+.media-tile__state {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: var(--color-text-secondary);
+}
+
+.media-tile__mark {
+  width: min(24px, 30%);
+  height: auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* The selection circle: a 44px hit area around an 18px circle in the corner. */
 .media-tile__select {
   position: absolute;

@@ -17,7 +17,7 @@ export {CodeInput, type CodeInputProps} from './components/code-input/CodeInput'
 export {PageHeader, type PageHeaderBreadcrumb, type PageHeaderChip, type PageHeaderProps} from './components/page-header/PageHeader';
 export {MediaCard, type MediaCardImage, type MediaCardProps} from './components/media-card/MediaCard';
 export {MediaGrid, type MediaGridItem, type MediaGridProps} from './components/media-grid/MediaGrid';
-export {MediaTile, type MediaTileProps} from './components/media-grid/MediaTile';
+export {MediaTile, type MediaTileProps, type MediaTileState} from './components/media-grid/MediaTile';
 export {SelectionBar, type SelectionBarProps} from './components/selection-bar/SelectionBar';
 export {MediaViewer, type MediaViewerItem, type MediaViewerProps} from './components/media-viewer/MediaViewer';
 
