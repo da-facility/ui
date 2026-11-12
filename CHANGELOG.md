@@ -4,6 +4,7 @@
 
 New:
 
+- Astryx components for app screens are re-exported from the package (`Button`, `TextInput`, `Field`, `Dialog`, `AlertDialog`, `DropdownMenu`, `Breadcrumbs`, `Table`, `TabList`, `SegmentedControl`, `RadioList`, `CheckboxInput`, `Skeleton`, `EmptyState`, `Tooltip`, `Badge`, `Token`, `Avatar`, `Spinner`, the `SideNav` parts, `Theme`, `InternationalizationProvider` and more; the README lists them), so an app can import its whole UI from `@da-facility/ui`. They are the app's own Astryx components, and unused ones are left out of its bundle.
 - `LoginEmailCode`: a template beside `LoginSplit` and `LoginPocketId` for signing in with a one-time code: an email address, then the code. The app passes async handlers and returns why a code was turned down; the page shows wrong and expired codes, a resend cool-down, and a lock with a countdown after too many attempts. A brand panel sits beside the form on the dark media canvas.
 - `CodeInput`: a one-time sign-in code as a row of boxes over one real input, so paste, the browser's one-time-code autofill and screen readers work. It completes on the last digit, is read-only while checking, and shows an error above the boxes.
 

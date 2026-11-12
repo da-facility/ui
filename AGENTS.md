@@ -16,13 +16,14 @@ Shared by all coding agents (Codex reads this file; `CLAUDE.md` imports it). Wha
 
 ## Structure
 
-- `src/` is the published package. Everything public is exported from `src/index.ts`, with JSDoc on every prop.
+- `src/` is the published package: `layouts/`, `templates/` and `components/`, one folder per component with its CSS beside it, plus `astryx.ts` (the Astryx re-exports) and `locales/`. Everything public is exported from `src/index.ts`, with JSDoc on every prop.
 - `catalogue/` is the local preview app. Each example in `catalogue/examples/` is registered in `catalogue/examples.ts` and imports `@da-facility/ui` like a consuming app would. Examples receive their sub-page and tweaks as props and never import catalogue internals. `catalogue/examples/shared/` holds what several examples use, such as the drawn stand-in photographs.
 - `tests/` holds the Playwright tests. `bun run test` covers desktop, mobile, WebKit and native macOS bounce; `bun run test:headless` is the same without native bounce; `bun run test:package` packs the package and tests it in a fresh app.
 
 ## Rules
 
 - Astryx and React are peer dependencies. The library build must never bundle them; `tests/package.spec.ts` checks this.
+- Apps import their whole UI from this package. `src/astryx.ts` re-exports the Astryx components app screens use, each from its own Astryx entry point so unused ones are tree-shaken (`tests/package.spec.ts` checks this too). Keep them plain re-exports; one becomes a wrapper, keeping its Astryx name and props, only when the library needs to change its behaviour. Every re-exported name must exist in each Astryx version of the peer range.
 - Package styles are plain, unlayered CSS with BEM class names, kept next to their component and themed through Astryx tokens (`var(--color-…)`, `var(--radius-…)`).
 - `SidebarLayout` scrolling is deliberate: the document is the only content scroller, fixed navigation sits outside it, and wheel input is never intercepted. This is what gives native momentum and rubber-banding. Do not add nested scroll containers or scroll handlers, and keep `tests/sidebar-layout.spec.ts` and `tests/native-overscroll.spec.ts` passing.
 - Scrolling goes through `PageScroll` (the document) and `ScrollArea` / `scrollAreaClassName` (boxes inside fixed chrome) in `src/components/scroll/`. Their bounce and fades are CSS scroll timelines driving registered custom properties; do not add scroll listeners, and do not animate `overscroll-behavior` directly, because Safari ignores that. `tests/overscroll-switch.spec.ts` checks them in WebKit.

@@ -1,6 +1,6 @@
 # Da Facility UI
 
-Layouts, templates and components for Da Facility apps, built on [Meta Astryx](https://astryx.atmeta.com). Astryx is a peer dependency: apps use Astryx directly and this package adds the pieces we reuse across repositories.
+Layouts, templates and components for Da Facility apps, built on [Meta Astryx](https://astryx.atmeta.com). Astryx is a peer dependency. This package adds the pieces we reuse across repositories and re-exports the Astryx components app screens use, so apps import their UI from here alone (see "Astryx components").
 
 | Export | Kind | What it is |
 | --- | --- | --- |
@@ -46,6 +46,20 @@ createRoot(root).render(
 ```
 
 Import the three stylesheets in that order: each one sits in a cascade layer (`reset`, `astryx-base`, `astryx-theme`), and the first import sets the layer order. If the app needs to control where package styles land, import `@da-facility/ui/style.css` explicitly.
+
+## Astryx components
+
+Apps import from this package, not from `@astryxdesign/core`:
+
+```tsx
+import {Button, PageHeader, TextInput, Theme} from '@da-facility/ui';
+```
+
+The Astryx components a screen needs are plain re-exports from the app's own copy of Astryx: `AlertDialog`, `Avatar`, `Badge`, `Banner`, `Breadcrumbs` and `BreadcrumbItem`, `Button`, `CheckboxInput`, `Dialog` and `DialogHeader`, `DropdownMenu` with `DropdownMenuItem` and `DropdownMenuDivider`, `EmptyState`, `Field` with `FieldLabel` and `FieldStatus`, `Heading`, `Icon`, `IconButton`, `Lightbox`, `Link` and `LinkProvider`, `Pagination`, `RadioList` and `RadioListItem`, `SegmentedControl` and `SegmentedControlItem`, `Selector`, `SideNav` with `SideNavHeading`, `SideNavItem` and `SideNavSection`, `Skeleton`, `Spinner`, `Switch`, `Tab` and `TabList`, `Table` with its row, cell and header parts, `Text`, `TextArea`, `TextInput`, `Token`, `Tooltip`, `VisuallyHidden`, `Theme` and `useTheme`, and `InternationalizationProvider`, `useLocale` and `useTranslator`, each with its props type. They are the same components, so they work alongside anything still imported from Astryx, and each comes from its own Astryx entry point, so the app's bundler drops the ones it doesn't use.
+
+The rule: **apps import from this package; a re-export becomes a wrapper only when we need to change behaviour.** A wrapper keeps the Astryx name and props, so apps don't change when one appears. To add a component apps need, re-export it in `src/astryx.ts`.
+
+What an app still sets up from Astryx itself: installing `@astryxdesign/core` and `@stylexjs/stylex` (peers), its theme (`@astryxdesign/theme-neutral`, or one built with `astryx theme build`), and the stylesheets `@astryxdesign/core/reset.css`, `@astryxdesign/core/astryx.css` and the theme's CSS, as in "Set up".
 
 ## Use
 

@@ -31,12 +31,12 @@ import {createRoot} from 'react-dom/client';
 import '@astryxdesign/core/reset.css';
 import '@astryxdesign/core/astryx.css';
 import '@astryxdesign/theme-neutral/theme.css';
-import {Button} from '@astryxdesign/core/Button';
 import {InternationalizationProvider} from '@astryxdesign/core/i18n';
 import hr from '@da-facility/ui/locales/hr.json';
 import {Theme} from '@astryxdesign/core/theme';
 import {neutralTheme} from '@astryxdesign/theme-neutral/built';
-import {LoginSplit, ProjectSelector, SidebarLayout, Toaster, toast, UserMenu, type MobileNavigationSide} from '@da-facility/ui';
+// Astryx's components come through the package too, from the app's own Astryx.
+import {Button, LoginSplit, ProjectSelector, SidebarLayout, Toaster, toast, UserMenu, type MobileNavigationSide} from '@da-facility/ui';
 
 function App() {
   const [side, setSide] = useState<MobileNavigationSide>('right');
@@ -126,14 +126,33 @@ test.afterAll(async () => {
 test('the package ships only its own code and shares the app’s Astryx', async () => {
   const installed = join(app, 'node_modules/@da-facility/ui');
   const code = await readFile(join(installed, 'dist/index.js'), 'utf8');
-  // The package's own code is about 56 KB unminified; a bundled Astryx would add
-  // far more, and the imports below check it stays external.
-  expect(code.length, 'Astryx must not be bundled').toBeLessThan(100_000);
+  // The package's own code is about 140 KB unminified; a bundled Astryx would add
+  // megabytes, and the imports below check it stays external.
+  expect(code.length, 'Astryx must not be bundled').toBeLessThan(250_000);
+  expect(code, 'Astryx components are re-exported from their own entry points').toMatch(/from "@astryxdesign\/core\/Table"/);
   expect(code).toMatch(/from "@astryxdesign\/core\/SideNav"/);
   expect(code, 'Sonner is a dependency, not bundled').toMatch(/from "sonner"/);
   expect(code).not.toMatch(/data-sonner-toaster/);
   expect(existsSync(join(installed, 'node_modules')), 'no nested dependency copies').toBe(false);
   expect(existsSync(join(installed, 'dist/index.d.ts'))).toBe(true);
+  expect(existsSync(join(installed, 'CLAUDE.md')), 'agent instructions stay in the repository').toBe(false);
+  expect(existsSync(join(installed, 'AGENTS.md'))).toBe(false);
+});
+
+/** A component's `displayName` assignment, however the minifier quotes it. */
+const named = (name: string) => new RegExp(`displayName\\s*=\\s*["'\`]${name}["'\`]`);
+
+test('re-exported Astryx components the app doesn’t use are left out of its bundle', async () => {
+  const {readdir} = await import('node:fs/promises');
+  const assets = join(app, 'dist/assets');
+  const scripts = (await readdir(assets)).filter(file => file.endsWith('.js'));
+  const bundle = (await Promise.all(scripts.map(file => readFile(join(assets, file), 'utf8')))).join('\n');
+  // Astryx names its components, and the names survive minification: the
+  // Button the app uses through the package is there, unused ones are not.
+  expect(bundle, 'the Button the app imports from the package is bundled').toMatch(named('Button'));
+  for (const name of ['TableSelectionToolbar', 'Lightbox', 'Pagination']) {
+    expect(bundle, `${name} is unused and must be tree-shaken`).not.toMatch(named(name));
+  }
 });
 
 for (const [name, viewport] of Object.entries({desktop: {width: 1920, height: 1080}, mobile: {width: 390, height: 844}})) {
