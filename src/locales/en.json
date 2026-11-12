@@ -218,5 +218,13 @@
   "@da-facility.mediaGrid.selectedAll": {
     "defaultMessage": "Selected all {count} loaded.",
     "description": "Announced after Ctrl or Cmd and A selects every image loaded so far."
+  },
+  "@da-facility.selectionBar.count": {
+    "defaultMessage": "{count} selected",
+    "description": "Count in the selection bar. {count} is a number; translations may use ICU plurals."
+  },
+  "@da-facility.selectionBar.clear": {
+    "defaultMessage": "Clear selection",
+    "description": "Button in the selection bar that unselects everything."
   }
 }

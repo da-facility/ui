@@ -18,6 +18,7 @@ export {PageHeader, type PageHeaderBreadcrumb, type PageHeaderChip, type PageHea
 export {MediaCard, type MediaCardImage, type MediaCardProps} from './components/media-card/MediaCard';
 export {MediaGrid, type MediaGridItem, type MediaGridProps} from './components/media-grid/MediaGrid';
 export {MediaTile, type MediaTileProps} from './components/media-grid/MediaTile';
+export {SelectionBar, type SelectionBarProps} from './components/selection-bar/SelectionBar';
 
 // Astryx components for app screens, so apps import their UI from this package alone.
 export * from './astryx';

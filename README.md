@@ -12,6 +12,7 @@ Layouts, templates and components for Da Facility apps, built on [Meta Astryx](h
 | `MediaGrid`, `MediaTile` | Component | An even grid of 3:2 image tiles with selection, keyboard focus and paging, smooth with tens of thousands of items. |
 | `PageHeader` | Component | The top of a page: breadcrumbs, title, meta line, actions, and a row for search and filter chips. |
 | `MediaCard` | Component | Link card with a cover of up to three images, a title, meta lines and a dot for something new. |
+| `SelectionBar` | Component | Bar shown while items are selected: the count, what can be done, actions and clear. |
 | `StatusBar` | Component | Loud full-width bar that says which kind of site this is, such as staging. |
 | `Assistant` | Component | Chat bar at the bottom of the screen that opens into a chat; the layout contracts around it. |
 | `ProjectSelector` | Component | The current project, with a searchable menu for switching projects. |
@@ -238,6 +239,20 @@ Every part but the last breadcrumb is a link, through Astryx's `LinkProvider`, s
 ```
 
 The whole card is one link, through Astryx's `LinkProvider`. The 16:9 cover shows one large image on the left and two small on the right; with fewer it fills what exists, and with none it is an empty well. `meta` lines and `activity` are secondary text under the title. `isNew` puts a dot before `activity` and adds "New" for screen readers; say it in `activity` too, because colour alone doesn't. The card has a border and no shadow; hover raises the border. Lay cards out in the app's own grid.
+
+### SelectionBar
+
+```tsx
+<MediaGrid … selectedIds={selected} onSelectionChange={setSelected} />
+<SelectionBar
+  count={selected.size}
+  summary={canDownload ? 'up to 2400 px' : 'downloading isn’t allowed'}
+  onClear={() => setSelected(new Set())}
+  actions={canDownload && <Button label="Download" variant="primary" size="sm" onClick={openDownload} />}
+/>
+```
+
+Render it after the content it belongs to. While `count` is above zero it sticks 16px (`--da-selection-bar-offset`) above the bottom of the screen, inside the content column and never over the navigation, and at the end of the content it rests after the last row instead of covering it. The count ("3 selected"; Croatian uses the right plural, "3 odabrane") and `summary` sit on the left, the clear button and `actions` on the right. It is a `role="status"` live region that stays in the document, so screen readers announce it when it appears. Escape clears, unless an open dialog or menu took it first. The bar inverts the theme (a dark bar in light mode and a light one in dark mode) by switching the colour scheme, so Astryx buttons in `actions` contrast with it. `countLabel` and `clearLabel` replace the built-in text.
 
 ### ProjectSelector
 

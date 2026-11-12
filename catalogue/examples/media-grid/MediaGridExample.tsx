@@ -1,5 +1,5 @@
 import {useCallback, useMemo, useRef, useState, useSyncExternalStore} from 'react';
-import {MediaGrid, PageHeader, useLocale} from '@da-facility/ui';
+import {Button, MediaGrid, PageHeader, SelectionBar, useLocale} from '@da-facility/ui';
 import {demoPhoto, demoPhotos, type DemoPhoto} from '../shared/photos';
 import type {ExampleProps} from '../../types';
 import './media-grid-example.css';
@@ -64,5 +64,11 @@ export function MediaGridExample({page, tweaks}: ExampleProps) {
       label="Photos"
     />}
     {isDone && !isLarge && <p className="media-grid-example__end">All {count} photos are loaded.</p>}
+    {!openId && <SelectionBar
+      count={selected.size}
+      summary="up to 2400 px"
+      onClear={() => setSelected(new Set())}
+      actions={<Button label="Download" variant="primary" size="sm" />}
+    />}
   </main>;
 }

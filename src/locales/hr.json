@@ -163,5 +163,11 @@
   },
   "@da-facility.mediaGrid.selectedAll": {
     "defaultMessage": "Odabrano sve učitano: {count}."
+  },
+  "@da-facility.selectionBar.count": {
+    "defaultMessage": "{count, plural, one {# odabrana} few {# odabrane} other {# odabranih}}"
+  },
+  "@da-facility.selectionBar.clear": {
+    "defaultMessage": "Poništi odabir"
   }
 }

@@ -11,6 +11,7 @@ import {ProjectSelectorExample} from './examples/project-selector/ProjectSelecto
 import {ScrollAreaExample} from './examples/scroll-area/ScrollAreaExample';
 import {CodeInputExample} from './examples/code-input/CodeInputExample';
 import {CycleButtonExample} from './examples/cycle-button/CycleButtonExample';
+import {SelectionBarExample} from './examples/selection-bar/SelectionBarExample';
 import {ToastsExample} from './examples/toasts/ToastsExample';
 import {UserMenuExample} from './examples/user-menu/UserMenuExample';
 
@@ -152,6 +153,18 @@ export const examples: Example[] = [
       {id: 'bounce', label: 'Bounce', group: 'Scrolling', default: true},
     ],
     Component: ScrollAreaExample,
+  },
+  {
+    id: 'selection-bar',
+    name: 'Selection bar',
+    kind: 'Component',
+    description: 'Bar shown while items are selected: the count, what can be done, actions and clear. Escape clears.',
+    tweaks: [
+      {id: 'one', label: 'One selected', group: 'Count'},
+      {id: 'many', label: '1,204 selected', group: 'Count'},
+      {id: 'noDownload', label: 'Download not allowed', group: 'Actions'},
+    ],
+    Component: SelectionBarExample,
   },
   {
     id: 'toasts',
