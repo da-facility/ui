@@ -4,7 +4,7 @@ Layouts, templates and components for Da Facility apps, built on [Meta Astryx](h
 
 | Export | Kind | What it is |
 | --- | --- | --- |
-| `SidebarLayout` | Layout | App shell with a fixed navigation rail on desktop and a thumb-reachable drawer on mobile. Built on `PageScroll` and `ScrollArea`. |
+| `SidebarLayout` | Layout | App shell with a fixed navigation rail on desktop and a drawer on mobile, opened from a floating button or a top bar. Built on `PageScroll` and `ScrollArea`. |
 | `LoginSplit` | Template | Sign-in page with an email and password form beside a cover image. |
 | `LoginPocketId` | Template | Blank sign-in page with only a Pocket ID button, and an optional title for expired or failed sign-ins. |
 | `LoginEmailCode` | Template | Two-step sign-in: an email address, then a one-time code, with a resend cool-down and a lock after too many attempts. |
@@ -110,6 +110,7 @@ Every part except `navigation` and `children` is optional:
 - **Page background.** `background` sets it; the default is the theme's surface colour, so dark mode works without it. The same color fills the overscroll area unless `overscrollBackground` is set. Use `overscroll="none"` to turn off native bounce.
 - **Mobile navigation.** The menu button and drawer default to the right. `mobileNavigationSide` moves them, and passing `onMobileNavigationSideChange` adds a left-handed switch to the drawer. Persisting the choice is up to the app.
 - **Mobile placement.** `mobileNavigationOffset` lifts the menu button, and `mobileNavigationArtwork` fills the spare space above the navigation.
+- **Phone top bar.** `mobileNavigationTrigger="top-bar"` replaces the floating button with a 56px bar across the top of the screen: the menu button at the `mobileNavigationSide` edge (top left with `"left"`, where the drawer then opens), then `mobileTitle` (the current page's title, say; defaults to `title`), then `headerActions`. With a `title` or `headerActions` the bar is the page header itself, so there is never a second bar. Nothing floats over the page, and wider screens are unchanged. The default, `"floating"`, keeps the round button in the thumb zone.
 
 ### LoginSplit
 

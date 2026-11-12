@@ -215,6 +215,20 @@
   }
 }
 
+/* The phone top bar's button and title exist only on phones; with the top bar
+   and no title or header actions, wider screens have no header at all. */
+
+.sidebar-layout__mobile-title,
+.sidebar-layout__header > .mobile-navigation__bar-trigger.mobile-navigation__bar-trigger {
+  display: none;
+}
+
+@media (min-width: 769px) and (min-height: 601px) {
+  .sidebar-layout[data-mobile-trigger="top-bar"]:not([data-header]) .sidebar-layout__header {
+    display: none;
+  }
+}
+
 /* Phones: a full-width header, the floating menu button and drawer instead of the rail. */
 
 @media (max-width: 768px), (max-height: 600px) {
@@ -256,6 +270,72 @@
 
   .sidebar-layout:not([data-assistant]) .sidebar-layout__footer {
     padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  /* The top bar: the menu button at the drawer's edge, then the title, then
+     header actions. It replaces the floating button, so no room is left for
+     one below the content. */
+  .sidebar-layout[data-mobile-trigger="top-bar"] {
+    --sidebar-layout-header: calc(56px + env(safe-area-inset-top));
+  }
+
+  .sidebar-layout[data-mobile-trigger="top-bar"][data-status-bar] {
+    --sidebar-layout-header: 56px;
+  }
+
+  .sidebar-layout[data-mobile-trigger="top-bar"] .sidebar-layout__header {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 4px;
+    padding-inline: max(4px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right));
+  }
+
+  .sidebar-layout[data-mobile-trigger="top-bar"][data-side="right"] .sidebar-layout__header {
+    padding-inline: max(16px, env(safe-area-inset-left)) max(4px, env(safe-area-inset-right));
+  }
+
+  .sidebar-layout__header > .mobile-navigation__bar-trigger.mobile-navigation__bar-trigger {
+    display: inline-flex;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+  }
+
+  .sidebar-layout[data-side="right"] .sidebar-layout__header > .mobile-navigation__bar-trigger {
+    order: 1;
+  }
+
+  .sidebar-layout__header > .mobile-navigation__bar-trigger svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .sidebar-layout__mobile-title {
+    display: block;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sidebar-layout__mobile-title ~ .sidebar-layout__title {
+    display: none;
+  }
+
+  .sidebar-layout[data-mobile-trigger="top-bar"] .sidebar-layout__title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sidebar-layout[data-mobile-trigger="top-bar"] .sidebar-layout__surface {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   /* Touch-friendly form sizing, and 16px text so iOS does not zoom on focus. */

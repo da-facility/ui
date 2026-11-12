@@ -101,6 +101,8 @@ export function SidebarExample({page: pageId, onPageChange, tweaks, onTweakChang
     background={page.background}
     overscroll={tweaks.pageBounce ? 'when-scrollable' : 'none'}
     mobileNavigationSide={tweaks.leftHanded ? 'left' : 'right'}
+    mobileNavigationTrigger={tweaks.topBar ? 'top-bar' : 'floating'}
+    mobileTitle={page.label}
     onMobileNavigationSideChange={side => onTweakChange('leftHanded', side === 'left')}
     mobileNavigationOffset={112}
     mobileNavigationArtwork={<img className="sidebar-example__sky" src={clearSky} alt="" draggable={false} />}>

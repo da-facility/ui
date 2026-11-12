@@ -35,6 +35,7 @@ export const examples: Example[] = [
       {id: 'navigationFade', label: 'Sidebar edge fade', group: 'Scrolling', default: true},
       {id: 'extraNavigation', label: '100 extra navigation items', group: 'Scrolling'},
       {id: 'leftHanded', label: 'Left-handed navigation', group: 'Phone'},
+      {id: 'topBar', label: 'Menu in a top bar', group: 'Phone'},
     ],
     Component: SidebarExample,
   },

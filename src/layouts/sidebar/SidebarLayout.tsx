@@ -5,7 +5,7 @@ import {PageScroll, type PageScrollProps} from '../../components/scroll/PageScro
 import {useMessages} from '../../i18n';
 import {scrollAreaStyle} from '../../components/scroll/ScrollArea';
 import '../../components/scroll/scroll-area.css';
-import {MobileNavigation, type MobileNavigationSide} from './MobileNavigation';
+import {MobileNavigation, MobileNavigationButton, type MobileNavigationSide, type MobileNavigationTrigger} from './MobileNavigation';
 import './sidebar-layout.css';
 
 export type SidebarLayoutProps = Pick<PageScrollProps, 'background' | 'overscrollBackground' | 'overscroll'> & {
@@ -41,9 +41,23 @@ export type SidebarLayoutProps = Pick<PageScrollProps, 'background' | 'overscrol
   assistant?: ReactNode;
   /** Screen edge for the mobile menu button and drawer. */
   mobileNavigationSide?: MobileNavigationSide;
+  /**
+   * How phones open the navigation. `'floating'` (the default): a round menu
+   * button in the thumb zone, bottom corner. `'top-bar'`: a bar across the top
+   * with the menu button at the `mobileNavigationSide` edge and `mobileTitle`
+   * (or `title`) beside it; nothing floats over the page. Wider screens are
+   * unchanged either way.
+   */
+  mobileNavigationTrigger?: MobileNavigationTrigger;
+  /**
+   * Text in the phone top bar, such as the current page's title. Defaults to
+   * `title`. Only with `mobileNavigationTrigger="top-bar"`; not shown on wider
+   * screens.
+   */
+  mobileTitle?: ReactNode;
   /** Shows a left-handed toggle in the mobile drawer. The app owns persistence. */
   onMobileNavigationSideChange?: (side: MobileNavigationSide) => void;
-  /** Distance in pixels between the mobile menu button and whatever is below it. */
+  /** Distance in pixels between the floating mobile menu button and whatever is below it. */
   mobileNavigationOffset?: number;
   /** Decorative content for the spare space above the mobile navigation. */
   mobileNavigationArtwork?: ReactNode;
@@ -52,8 +66,8 @@ export type SidebarLayoutProps = Pick<PageScrollProps, 'background' | 'overscrol
 const NARROW_VIEWPORT = '(max-width: 768px), (max-height: 600px)';
 
 /**
- * Full-page app shell with a fixed navigation rail on desktop and a thumb-reachable
- * drawer on mobile. CSS picks between them, so server rendering shows the right
+ * Full-page app shell with a fixed navigation rail on desktop and a drawer on
+ * mobile, opened from a floating button in the thumb zone or a top bar. CSS picks between them, so server rendering shows the right
  * one straight away. Built on `PageScroll`: the document scrolls, so momentum
  * and overscroll are native. Mount one per document.
  */
@@ -72,6 +86,8 @@ export function SidebarLayout({
   statusBar,
   assistant,
   mobileNavigationSide = 'right',
+  mobileNavigationTrigger = 'floating',
+  mobileTitle,
   onMobileNavigationSideChange,
   mobileNavigationOffset = 20,
   mobileNavigationArtwork,
@@ -91,7 +107,10 @@ export function SidebarLayout({
   const footerRef = useRef<HTMLElement>(null);
   useFooterHeight(footerRef, Boolean(footer));
 
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const hasHeader = Boolean(title || headerActions);
+  const hasTopBar = mobileNavigationTrigger === 'top-bar';
+  const topBarTitle = mobileTitle ?? title;
   const scrollStyle = scrollAreaStyle({fade: navigationFade, bounce: navigationBounce});
   // The drawer styles text headers itself; the rail needs a wrapper.
   const railHeader = typeof navigationHeader === 'string'
@@ -105,6 +124,7 @@ export function SidebarLayout({
     overscroll={overscroll}
     data-side={mobileNavigationSide}
     data-header={hasHeader || undefined}
+    data-mobile-trigger={hasTopBar ? 'top-bar' : undefined}
     data-status-bar={statusBar ? true : undefined}
     data-assistant={assistant ? true : undefined}>
     {statusBar && <div className="sidebar-layout__status-bar">{statusBar}</div>}
@@ -114,7 +134,16 @@ export function SidebarLayout({
       </SideNav>
       {navigationFooter && <div className="sidebar-layout__rail-footer">{navigationFooter}</div>}
     </aside>
-    {hasHeader && <header className="sidebar-layout__header">
+    {(hasHeader || hasTopBar) && <header className="sidebar-layout__header">
+      {/* The phone top bar: the menu button and a title; CSS hides both on wider screens. */}
+      {hasTopBar && <MobileNavigationButton
+        ref={triggerRef}
+        appearance="bar"
+        navigationLabel={navigationLabel}
+        isOpen={isDrawerOpen}
+        onOpen={() => setDrawerOpen(true)}
+      />}
+      {hasTopBar && topBarTitle != null && topBarTitle !== '' && <span className="sidebar-layout__mobile-title">{topBarTitle}</span>}
       {title && <span id={titleId} className="sidebar-layout__title">{title}</span>}
       {headerActions}
     </header>}
@@ -131,6 +160,8 @@ export function SidebarLayout({
       scrollStyle={scrollStyle}
       side={mobileNavigationSide}
       onSideChange={onMobileNavigationSideChange}
+      trigger={mobileNavigationTrigger}
+      triggerRef={triggerRef}
       triggerOffset={mobileNavigationOffset}
       isOpen={isDrawerOpen}
       onOpenChange={setDrawerOpen}

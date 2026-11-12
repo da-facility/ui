@@ -1,4 +1,4 @@
-import {useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode} from 'react';
+import {useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject} from 'react';
 import {Button} from '@astryxdesign/core/Button';
 import {Icon} from '@astryxdesign/core/Icon';
 import {MobileNav} from '@astryxdesign/core/MobileNav';
@@ -11,6 +11,36 @@ import './mobile-navigation.css';
 /** Physical screen edge, so right-to-left text never flips a hand preference. */
 export type MobileNavigationSide = 'left' | 'right';
 
+/** How phones open the navigation: a floating round button, or a button in a top bar. */
+export type MobileNavigationTrigger = 'floating' | 'top-bar';
+
+type MobileNavigationButtonProps = {
+  ref: RefObject<HTMLButtonElement | null>;
+  navigationLabel: string;
+  isOpen: boolean;
+  onOpen: () => void;
+  /** `floating` draws the round button in the thumb zone; `bar` a plain icon button for the top bar. */
+  appearance: 'floating' | 'bar';
+  offset?: number;
+};
+
+/** The menu button that opens the drawer, floating or in the top bar. */
+export function MobileNavigationButton({ref, navigationLabel, isOpen, onOpen, appearance, offset}: MobileNavigationButtonProps) {
+  const t = useMessages();
+  return <Button
+    ref={ref}
+    className={appearance === 'floating' ? 'mobile-navigation__trigger' : 'mobile-navigation__bar-trigger'}
+    style={offset === undefined ? undefined : {'--mobile-navigation-offset': `${offset}px`} as CSSProperties}
+    label={t('@da-facility.mobileNavigation.open', {label: navigationLabel.toLowerCase()})}
+    isIconOnly
+    icon={<Icon icon="menu" />}
+    variant={appearance === 'floating' ? 'primary' : 'ghost'}
+    aria-haspopup="dialog"
+    aria-expanded={isOpen}
+    onClick={onOpen}
+  />;
+}
+
 type MobileNavigationProps = {
   navigation: ReactNode;
   navigationHeader: ReactNode;
@@ -20,12 +50,18 @@ type MobileNavigationProps = {
   scrollStyle: CSSProperties;
   side: MobileNavigationSide;
   onSideChange?: (side: MobileNavigationSide) => void;
+  /** `top-bar`: the layout renders the button in its header with `triggerRef`. */
+  trigger: MobileNavigationTrigger;
+  triggerRef: RefObject<HTMLButtonElement | null>;
   triggerOffset: number;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-/** The phone half of `SidebarLayout`: a floating menu button and a navigation drawer. CSS hides it on wider screens. */
+/**
+ * The phone half of `SidebarLayout`: the menu button (floating here, or in the
+ * layout's top bar) and the navigation drawer. CSS hides it on wider screens.
+ */
 export function MobileNavigation({
   navigation,
   navigationHeader,
@@ -35,12 +71,13 @@ export function MobileNavigation({
   scrollStyle,
   side,
   onSideChange,
+  trigger,
+  triggerRef,
   triggerOffset,
   isOpen,
   onOpenChange,
 }: MobileNavigationProps) {
   const t = useMessages();
-  const triggerRef = useRef<HTMLButtonElement>(null);
 
   // Astryx positions the drawer by logical edge; translate the physical side.
   const direction = useDirection();
@@ -58,18 +95,14 @@ export function MobileNavigation({
   }, [isOpen]);
 
   return <>
-    <Button
+    {trigger === 'floating' && <MobileNavigationButton
       ref={triggerRef}
-      className="mobile-navigation__trigger"
-      style={{'--mobile-navigation-offset': `${triggerOffset}px`} as CSSProperties}
-      label={t('@da-facility.mobileNavigation.open', {label: navigationLabel.toLowerCase()})}
-      isIconOnly
-      icon={<Icon icon="menu" />}
-      variant="primary"
-      aria-haspopup="dialog"
-      aria-expanded={isOpen}
-      onClick={() => onOpenChange(true)}
-    />
+      appearance="floating"
+      offset={triggerOffset}
+      navigationLabel={navigationLabel}
+      isOpen={isOpen}
+      onOpen={() => onOpenChange(true)}
+    />}
     <MobileNav
       className="mobile-navigation__drawer"
       isOpen={isOpen}

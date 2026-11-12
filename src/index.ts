@@ -1,5 +1,5 @@
 export {SidebarLayout, type SidebarLayoutProps} from './layouts/sidebar/SidebarLayout';
-export type {MobileNavigationSide} from './layouts/sidebar/MobileNavigation';
+export type {MobileNavigationSide, MobileNavigationTrigger} from './layouts/sidebar/MobileNavigation';
 export {LoginSplit, type LoginCredentials, type LoginSplitProps} from './templates/login-split/LoginSplit';
 export {LoginPocketId, type LoginPocketIdProps} from './templates/login-pocket-id/LoginPocketId';
 export {LoginEmailCode, type LoginEmailCodeFailure, type LoginEmailCodeProps, type LoginEmailCodeStep} from './templates/login-email-code/LoginEmailCode';
