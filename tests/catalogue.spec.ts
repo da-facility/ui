@@ -56,7 +56,7 @@ test('examples and tweaks share one card, and at most one is open', async ({page
   await expect(catalogue).toHaveCount(0);
   await expect(page.getByRole('button', {name: 'Open catalogue', exact: true})).toHaveAttribute('aria-expanded', 'false');
   await expect(tweaks.getByRole('switch', {name: 'Left-handed navigation'})).toBeVisible();
-  await expect(tweaks.getByRole('group', {name: 'Layout'}).getByRole('switch')).toHaveCount(6);
+  await expect(tweaks.getByRole('group', {name: 'Layout'}).getByRole('switch')).toHaveCount(7);
   await page.keyboard.press('Control+k');
   await expect(catalogue).toBeVisible();
   await expect(tweaks.getByRole('switch')).toHaveCount(0);

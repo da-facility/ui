@@ -12,13 +12,14 @@ export function SelectionBarExample({tweaks}: ExampleProps) {
     <p>The bar sticks to the bottom of the screen inside the content and rests after the last row. Escape clears the selection.</p>
     {count === 0 && <Button label={`Select ${initial} again`} onClick={() => setCount(initial)} />}
     <div className="selection-bar-example__rows" aria-hidden="true">
-      {Array.from({length: 24}, (_, index) => <div key={index} />)}
+      {Array.from({length: tweaks.short ? 3 : 24}, (_, index) => <div key={index} />)}
     </div>
     {message && <p role="alert">{message}</p>}
     <SelectionBar
       count={count}
       summary={tweaks.noDownload ? 'downloading isn’t allowed' : 'up to 2400 px'}
       onClear={() => setCount(0)}
+      isPinned={tweaks.pinned}
       actions={!tweaks.noDownload && <Button label="Download" variant="primary" size="sm" onClick={() => setMessage(`Downloading ${count} photos is not part of this demo.`)} />}
     />
   </main>;

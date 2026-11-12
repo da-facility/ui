@@ -1,4 +1,4 @@
-import {useEffect, useRef, type ReactNode} from 'react';
+import {useEffect, useLayoutEffect, useRef, type ReactNode} from 'react';
 import {Button} from '@astryxdesign/core/Button';
 import {useMessages} from '../../i18n';
 import './selection-bar.css';
@@ -23,16 +23,25 @@ export type SelectionBarProps = {
   countLabel?: ReactNode;
   /** Text of the clear button. Defaults to "Clear selection". */
   clearLabel?: string;
+  /**
+   * Pins the bar to the bottom of the window, inside `SidebarLayout`'s content
+   * area, even when the content is shorter than the window. It keeps its own
+   * height free after the content, so scrolled to the end it never covers the
+   * last row. Without it the bar sticks while the content is taller and
+   * otherwise rests right after the content.
+   */
+  isPinned?: boolean;
 };
 
 /**
  * The bar shown while items are selected: the count, a summary, actions and
  * clear. Render it after the content it belongs to: it sticks to the bottom of
  * the screen inside the content area, never over the navigation, and comes to
- * rest after the content instead of covering its last row. It is a live
+ * rest after the content instead of covering its last row; `isPinned` keeps it
+ * at the bottom of the window on short pages too. It is a live
  * region, so screen readers announce it, and Escape clears the selection.
  */
-export function SelectionBar({count, summary, actions, onClear, countLabel, clearLabel}: SelectionBarProps) {
+export function SelectionBar({count, summary, actions, onClear, countLabel, clearLabel, isPinned = false}: SelectionBarProps) {
   const t = useMessages();
   const isOpen = count > 0;
   const onClearRef = useRef(onClear);
@@ -52,9 +61,26 @@ export function SelectionBar({count, summary, actions, onClear, countLabel, clea
     return () => document.removeEventListener('keydown', clear);
   }, [isOpen]);
 
+  // Pinned, the bar is fixed and the region keeps its height free after the content.
+  const regionRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const region = regionRef.current;
+    const bar = barRef.current;
+    if (!isPinned || !isOpen || !region || !bar) return;
+    const measure = () => region.style.setProperty('--selection-bar-height', `${bar.offsetHeight}px`);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(bar);
+    return () => {
+      observer.disconnect();
+      region.style.removeProperty('--selection-bar-height');
+    };
+  }, [isPinned, isOpen]);
+
   // The live region stays in the document so its content is announced when it appears.
-  return <div className="selection-bar" role="status" data-open={isOpen || undefined}>
-    {isOpen && <div className="selection-bar__bar">
+  return <div ref={regionRef} className="selection-bar" role="status" data-open={isOpen || undefined} data-pinned={isPinned || undefined}>
+    {isOpen && <div ref={barRef} className="selection-bar__bar">
       <p className="selection-bar__text">
         <strong>{countLabel ?? t('@da-facility.selectionBar.count', {count})}</strong>
         {summary != null && summary !== false && summary !== '' && <> · {summary}</>}

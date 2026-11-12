@@ -14,6 +14,23 @@
   margin-top: 16px;
 }
 
+/* Pinned: fixed to the bottom of the window inside the layout's content area
+   (SidebarLayout sets --sidebar-layout-content-start; 0 without it), above
+   the layout's footer, chat bar and a floating menu button. The region keeps
+   the bar's height free after the content, so the last row can scroll clear. */
+.selection-bar[data-pinned][data-open] {
+  position: static;
+  height: var(--selection-bar-height, 0px);
+}
+
+.selection-bar[data-pinned] .selection-bar__bar {
+  position: fixed;
+  right: calc(var(--sidebar-layout-content-end, 0px) + var(--da-selection-bar-inset, 16px));
+  bottom: calc(var(--da-selection-bar-offset, 16px) + max(env(safe-area-inset-bottom), var(--sidebar-layout-chrome-bottom, 0px)) + var(--sidebar-layout-floating-trigger, 0px));
+  left: calc(var(--sidebar-layout-content-start, 0px) + var(--da-selection-bar-inset, 16px));
+  z-index: 20;
+}
+
 /* Inverted: the page's text colour is the bar's ground and its background the
    bar's text, so the bar is dark in light mode and light in dark mode. Astryx's
    tokens are swapped the same way inside, so its buttons contrast with the bar:

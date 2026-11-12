@@ -83,3 +83,59 @@ test('in the gallery it sticks to the bottom of the screen and rests after the l
   await page.keyboard.press('Escape');
   await expect(page.locator('.media-tile[data-selected]')).toHaveCount(0);
 });
+
+test.describe('isPinned', () => {
+  const bottomGap = async (page: import('@playwright/test').Page) => {
+    const box = (await page.locator('.selection-bar__bar').boundingBox())!;
+    return Math.round(page.viewportSize()!.height - (box.y + box.height));
+  };
+
+  test('on a short page the bar sits at the bottom of the window, not under the content', async ({page}) => {
+    await presetTweaks(page, 'selection-bar', {pinned: true, short: true});
+    await page.goto('/render/selection-bar');
+    await expect(page.locator('.selection-bar__bar')).toBeVisible();
+    await expect.poll(() => bottomGap(page)).toBe(16);
+    const rows = (await page.locator('.selection-bar-example__rows').boundingBox())!;
+    expect((await page.locator('.selection-bar__bar').boundingBox())!.y).toBeGreaterThan(rows.y + rows.height + 100);
+  });
+
+  test('on a long page it stays at the bottom and, at the end, leaves the last row uncovered', async ({page}) => {
+    await presetTweaks(page, 'selection-bar', {pinned: true});
+    await page.goto('/render/selection-bar');
+    await expect.poll(() => bottomGap(page)).toBe(16);
+    await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+    await expect.poll(() => bottomGap(page)).toBe(16);
+    const last = (await page.locator('.selection-bar-example__rows > div').last().boundingBox())!;
+    const bar = (await page.locator('.selection-bar__bar').boundingBox())!;
+    expect(last.y + last.height).toBeLessThanOrEqual(bar.y);
+    // Clearing gives the room back.
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.selection-bar')).toHaveCSS('height', '0px');
+  });
+
+  test('in SidebarLayout it stays inside the content area, clear of the rail and of a floating menu button', async ({page}, testInfo) => {
+    await presetTweaks(page, 'sidebar', {selectionBar: true});
+    await page.goto('/render/sidebar/profile');
+    const bar = page.locator('.selection-bar__bar');
+    await expect(bar).toBeVisible();
+    const box = (await bar.boundingBox())!;
+    if (isMobile(testInfo)) {
+      // The floating menu button keeps the thumb zone; the bar sits above it.
+      const trigger = (await page.getByRole('button', {name: 'Open settings navigation', exact: true}).boundingBox())!;
+      expect(box.y + box.height).toBeLessThanOrEqual(trigger.y);
+      expect(box.x).toBe(16);
+    } else {
+      const rail = (await page.locator('.sidebar-layout__rail').boundingBox())!;
+      expect(box.x).toBe(rail.x + rail.width + 16);
+      await expect.poll(() => bottomGap(page)).toBe(16);
+    }
+  });
+
+  test('with the phone top bar there is no floating button, so it sits at the bottom', async ({page}, testInfo) => {
+    test.skip(!isMobile(testInfo), 'Mobile only');
+    await presetTweaks(page, 'sidebar', {selectionBar: true, topBar: true});
+    await page.goto('/render/sidebar/profile');
+    await expect(page.locator('.selection-bar__bar')).toBeVisible();
+    await expect.poll(() => bottomGap(page)).toBe(16);
+  });
+});

@@ -1,4 +1,4 @@
-import {useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode, type RefObject} from 'react';
+import {useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject} from 'react';
 import {useMediaQuery} from '@astryxdesign/core/hooks';
 import {SideNav} from '@astryxdesign/core/SideNav';
 import {PageScroll, type PageScrollProps} from '../../components/scroll/PageScroll';
@@ -125,6 +125,7 @@ export function SidebarLayout({
     data-side={mobileNavigationSide}
     data-header={hasHeader || undefined}
     data-mobile-trigger={hasTopBar ? 'top-bar' : undefined}
+    style={{'--sidebar-layout-trigger-offset': `${mobileNavigationOffset}px`} as CSSProperties}
     data-status-bar={statusBar ? true : undefined}
     data-assistant={assistant ? true : undefined}>
     {statusBar && <div className="sidebar-layout__status-bar">{statusBar}</div>}

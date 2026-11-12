@@ -7,7 +7,7 @@ import {SideNavItem, SideNavSection} from '@astryxdesign/core/SideNav';
 import {VStack} from '@astryxdesign/core/VStack';
 import {DocumentTextIcon, LockClosedIcon, PaintBrushIcon, UserCircleIcon} from '@heroicons/react/24/outline';
 import * as stylex from '@stylexjs/stylex';
-import {ProjectSelector, SidebarLayout, StatusBar, UserMenu} from '@da-facility/ui';
+import {ProjectSelector, SelectionBar, SidebarLayout, StatusBar, UserMenu} from '@da-facility/ui';
 import type {ExampleProps} from '../../types';
 import {PROJECTS} from '../project-selector/projects';
 import {PAGE_GROUPS, findPage} from './pages';
@@ -115,6 +115,13 @@ export function SidebarExample({page: pageId, onPageChange, tweaks, onTweakChang
         </VStack>}
         <page.Component settings={settings} update={update} />
       </SettingsPage>
+      {tweaks.selectionBar && <SelectionBar
+        count={3}
+        summary="pinned to the bottom of the content area"
+        onClear={() => onTweakChange('selectionBar', false)}
+        actions={<Button label="Download" variant="primary" size="sm" />}
+        isPinned
+      />}
     </LayoutContent>
   </SidebarLayout>;
 }

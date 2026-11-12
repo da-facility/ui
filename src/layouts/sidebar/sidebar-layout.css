@@ -35,6 +35,9 @@
   --sidebar-layout-radius-bottom: 0px;
   /* Everything pinned below the content: the chat bar and the page footer. */
   --sidebar-layout-chrome-bottom: calc(var(--sidebar-layout-bottom) + var(--sidebar-layout-footer-height, 0px));
+  /* The content area's edges, for what is fixed inside it (a pinned SelectionBar). */
+  --sidebar-layout-content-start: calc(var(--sidebar-width) + var(--sidebar-layout-inset));
+  --sidebar-layout-content-end: var(--sidebar-layout-inset);
   min-height: 100dvh;
   color: var(--color-text-primary);
   transition:
@@ -270,6 +273,16 @@
 
   .sidebar-layout:not([data-assistant]) .sidebar-layout__footer {
     padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  .sidebar-layout {
+    --sidebar-layout-content-start: 0px;
+    --sidebar-layout-content-end: 0px;
+  }
+
+  /* Room a pinned SelectionBar leaves for the floating menu button. */
+  .sidebar-layout:not([data-mobile-trigger="top-bar"]) {
+    --sidebar-layout-floating-trigger: calc(var(--sidebar-layout-trigger-offset, 20px) + 56px);
   }
 
   /* The top bar: the menu button at the drawer's edge, then the title, then
