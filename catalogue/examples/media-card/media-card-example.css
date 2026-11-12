@@ -1,0 +1,31 @@
+.media-card-example {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 48px 32px 140px;
+}
+
+.media-card-example h1 {
+  margin: 0 0 20px;
+  font-family: var(--font-family-heading);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+.media-card-example__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .media-card-example {
+    padding: 24px 16px 120px;
+  }
+}
+
+@media (max-width: 420px) {
+  .media-card-example__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

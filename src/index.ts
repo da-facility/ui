@@ -15,6 +15,7 @@ export {Toaster, type ToastArrival, type ToasterOffset, type ToasterProps, type 
 export {toast, type ToastFrom, type ToastId, type ToastOptions, type ToastPromiseOptions} from './components/toast/toast';
 export {CodeInput, type CodeInputProps} from './components/code-input/CodeInput';
 export {PageHeader, type PageHeaderBreadcrumb, type PageHeaderChip, type PageHeaderProps} from './components/page-header/PageHeader';
+export {MediaCard, type MediaCardImage, type MediaCardProps} from './components/media-card/MediaCard';
 
 // Astryx components for app screens, so apps import their UI from this package alone.
 export * from './astryx';

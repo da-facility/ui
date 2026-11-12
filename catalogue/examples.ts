@@ -3,6 +3,7 @@ import {SidebarExample} from './examples/sidebar/SidebarExample';
 import {LoginSplitExample} from './examples/login-split/LoginSplitExample';
 import {LoginPocketIdExample} from './examples/login-pocket-id/LoginPocketIdExample';
 import {LoginEmailCodeExample} from './examples/login-email-code/LoginEmailCodeExample';
+import {MediaCardExample} from './examples/media-card/MediaCardExample';
 import {PageHeaderExample} from './examples/page-header/PageHeaderExample';
 import {PocketIdButtonExample} from './examples/pocket-id-button/PocketIdButtonExample';
 import {ProjectSelectorExample} from './examples/project-selector/ProjectSelectorExample';
@@ -89,6 +90,16 @@ export const examples: Example[] = [
       {id: 'disabled', label: 'Disabled', group: 'State'},
     ],
     Component: CycleButtonExample,
+  },
+  {
+    id: 'media-card',
+    name: 'Media card',
+    kind: 'Component',
+    description: 'Link card with a cover of up to three images, a title, meta lines and a dot for something new.',
+    tweaks: [
+      {id: 'noCovers', label: 'Without covers', group: 'Content'},
+    ],
+    Component: MediaCardExample,
   },
   {
     id: 'page-header',

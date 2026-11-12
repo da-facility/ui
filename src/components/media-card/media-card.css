@@ -1,0 +1,107 @@
+.media-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  color: var(--color-text-primary);
+  background: var(--color-background-card, var(--color-background-surface));
+  font-family: var(--font-family-body);
+  text-decoration: none;
+  transition: border-color 120ms ease;
+}
+
+.media-card:hover {
+  border-color: var(--color-border-emphasized);
+}
+
+.media-card:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* One large image on the left and two small on the right, 2px apart. */
+.media-card__cover {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--color-background-muted);
+}
+
+.media-card__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+}
+
+.media-card__image:first-child {
+  grid-row: span 2;
+}
+
+.media-card__cover[data-count="1"] .media-card__image {
+  grid-column: span 2;
+}
+
+.media-card__cover[data-count="2"] .media-card__image:nth-child(2) {
+  grid-row: span 2;
+}
+
+.media-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px 12px;
+}
+
+.media-card__title {
+  font-family: var(--font-family-heading);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.media-card__meta {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.media-card__dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: var(--color-success);
+  vertical-align: 1px;
+}
+
+.media-card__visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media-card {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .media-card__dot {
+    background: CanvasText;
+  }
+}

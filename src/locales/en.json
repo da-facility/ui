@@ -198,5 +198,9 @@
   "@da-facility.pageHeader.filters": {
     "defaultMessage": "Filters",
     "description": "Accessible name of the filter chips under a page title."
+  },
+  "@da-facility.mediaCard.new": {
+    "defaultMessage": "New",
+    "description": "Read before the latest activity of a card that has something new; the green dot shows it visually."
   }
 }

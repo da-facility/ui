@@ -10,6 +10,7 @@ Layouts, templates and components for Da Facility apps, built on [Meta Astryx](h
 | `LoginEmailCode` | Template | Two-step sign-in: an email address, then a one-time code, with a resend cool-down and a lock after too many attempts. |
 | `CodeInput` | Component | One-time sign-in code as a row of boxes over one real input, so paste and autofill work. |
 | `PageHeader` | Component | The top of a page: breadcrumbs, title, meta line, actions, and a row for search and filter chips. |
+| `MediaCard` | Component | Link card with a cover of up to three images, a title, meta lines and a dot for something new. |
 | `StatusBar` | Component | Loud full-width bar that says which kind of site this is, such as staging. |
 | `Assistant` | Component | Chat bar at the bottom of the screen that opens into a chat; the layout contracts around it. |
 | `ProjectSelector` | Component | The current project, with a searchable menu for switching projects. |
@@ -191,6 +192,24 @@ Step one asks for an email address and step two for the code sent to it, in a `C
 ```
 
 Every part but the last breadcrumb is a link, through Astryx's `LinkProvider`, so the app's router handles it; the last is the current page. The title is the page's `h1` (`headingLevel={2}` for a nested one). `meta` parts are joined with " · ", and empty ones are left out. Actions sit to the right of the title and wrap under it on phones. `search` and `chips` share the row under the title; chips are toggle buttons (`aria-pressed`) in a group named "Filters" (`chipsLabel`), and the app turns filters on and off in `onChipClick`. A slot given `false` renders nothing.
+
+### MediaCard
+
+```tsx
+<div className="cards">{/* grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)) */}
+  {projects.map(project => <MediaCard
+    key={project.id}
+    href={project.href}
+    title={project.name}
+    images={project.latest.map(photo => ({src: photo.thumbUrl}))}
+    meta={[`${project.galleries} galleries · ${formatCount(project.photos)} photos`]}
+    activity={project.isRecent ? `New photos ${relativeTime}` : `Last added ${date}`}
+    isNew={project.isRecent}
+  />)}
+</div>
+```
+
+The whole card is one link, through Astryx's `LinkProvider`. The 16:9 cover shows one large image on the left and two small on the right; with fewer it fills what exists, and with none it is an empty well. `meta` lines and `activity` are secondary text under the title. `isNew` puts a dot before `activity` and adds "New" for screen readers; say it in `activity` too, because colour alone doesn't. The card has a border and no shadow; hover raises the border. Lay cards out in the app's own grid.
 
 ### ProjectSelector
 
