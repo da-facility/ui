@@ -8,6 +8,9 @@ import {isMobile} from './helpers';
  * render in software, so absolute times vary by machine.
  */
 
+// Tracing snapshots the 20,000-tile document and would distort the timings.
+test.use({trace: 'off'});
+
 type Run = {mount: number; renderedBlocks: number; blocks: number; tiles: number; loadedImages: number; /** Before scrolling. */ relayout: number; frames: {median: number; p95: number; max: number}; longTasks: number; selectAll: number};
 
 async function measure(page: Page, windowed: boolean): Promise<Run> {
@@ -99,5 +102,6 @@ test('20,000 photos: only the blocks near the screen are laid out and painted', 
   expect(windowed.tiles).toBe(20_000);
   expect(windowed.renderedBlocks, 'only blocks near the screen are rendered').toBeLessThanOrEqual(4);
   expect(windowed.relayout, 'a relayout costs a fraction of laying out every tile').toBeLessThan(plain.relayout);
+  expect(windowed.frames.median, 'scrolling takes less time a frame than with every tile laid out').toBeLessThan(plain.frames.median);
   expect(windowed.loadedImages, 'images far off screen are not loaded').toBeLessThan(600);
 });
