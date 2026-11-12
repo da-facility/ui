@@ -26,9 +26,10 @@ export default defineConfig({
     // timing-sensitive, so these run alone once everything else has finished.
     {name: 'native-desktop', use: desktop, testMatch: 'native-overscroll.spec.ts', dependencies: ['desktop', 'mobile']},
     {name: 'native-mobile', use: mobile, testMatch: 'native-overscroll.spec.ts', dependencies: ['desktop', 'mobile']},
-    // Safari's engine, for CSS that Chromium and WebKit implement differently,
-    // and for the toasts' clip-path and Web Animations.
-    {name: 'webkit', use: {...desktop, browserName: 'webkit'}, testMatch: ['overscroll-switch.spec.ts', 'toasts.spec.ts']},
+    // Safari's engine, for CSS that Chromium and WebKit implement differently:
+    // the toasts' clip-path and Web Animations, and the media components'
+    // content-visibility, container units and native dialog.
+    {name: 'webkit', use: {...desktop, browserName: 'webkit'}, testMatch: ['overscroll-switch.spec.ts', 'toasts.spec.ts', 'code-input.spec.ts', 'media-grid.spec.ts', 'media-viewer.spec.ts', 'selection-bar.spec.ts']},
     {name: 'package', testMatch: 'package.spec.ts'},
     {name: 'screenshots', testMatch: 'screenshots.spec.ts'},
     // Records how every page looks and reads, to compare before and after a

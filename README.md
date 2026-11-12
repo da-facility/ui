@@ -10,6 +10,7 @@ Layouts, templates and components for Da Facility apps, built on [Meta Astryx](h
 | `LoginEmailCode` | Template | Two-step sign-in: an email address, then a one-time code, with a resend cool-down and a lock after too many attempts. |
 | `CodeInput` | Component | One-time sign-in code as a row of boxes over one real input, so paste and autofill work. |
 | `MediaGrid`, `MediaTile` | Component | An even grid of 3:2 image tiles with selection, keyboard focus and paging, smooth with tens of thousands of items. |
+| `MediaViewer` | Component | Full-window image viewer on a dark canvas: the image fitted, previous and next, zoom, and a side panel slot. |
 | `PageHeader` | Component | The top of a page: breadcrumbs, title, meta line, actions, and a row for search and filter chips. |
 | `MediaCard` | Component | Link card with a cover of up to three images, a title, meta lines and a dot for something new. |
 | `SelectionBar` | Component | Bar shown while items are selected: the count, what can be done, actions and clear. |
@@ -202,6 +203,32 @@ Tiles are 3:2 and crop their image to fill; the image loads lazily over an empty
 **How it stays smooth with tens of thousands of items.** Every tile is in the document, so find in page, the tab order and screen readers see them all. Tiles are grouped into blocks of whole rows, about 100 tiles each, with `content-visibility: auto`: the browser lays out and paints only the blocks near the screen. Each block has an exact `contain-intrinsic-size`, so the page has its full height from the start, the scroll bar is true, and restoring a scroll position lands exactly. The column count is read from the CSS grid by a `ResizeObserver`, and an `IntersectionObserver` near the end asks for more; nothing listens to scroll events. With 20,000 photos (`/media-grid/large` in the catalogue, measured by `tests/media-grid-performance.spec.ts`), 4 of 209 blocks render, a relayout of the page takes about 3ms instead of 150ms, and scrolling stays at a fraction of the frame time it takes with every tile laid out. A grid that rebuilt rows from scroll positions would have to listen to scroll and lose find in page; this one lets the browser skip the work.
 
 `MediaTile` is one tile on its own, with the same look: `src`, `alt`, `href`, `isSelected` and `onSelectedChange`.
+
+### MediaViewer
+
+```tsx
+// The app owns the URL: the viewer is its route, drawn over the gallery.
+<MediaViewer
+  item={{id: photo.id, thumbUrl: photo.thumbUrl, previewUrl: photo.previewUrl, fullUrl: photo.fullUrl, width: photo.width, height: photo.height, alt: photo.headline}}
+  title={photo.fileName}
+  position={index + 1}
+  total={gallery.count}
+  previous={previousPhoto && toItem(previousPhoto)}
+  next={nextPhoto && toItem(nextPhoto)}
+  onPrevious={() => navigate({to: photoRoute(previousPhoto), replace: true})}
+  onNext={() => navigate({to: photoRoute(nextPhoto), replace: true})}
+  onClose={() => router.history.back()}
+  panel={<MetadataPanel photo={photo} />}
+/>
+```
+
+A native modal `<dialog>` that covers the window: the page behind is inert and doesn't scroll, Tab stays inside, and focus goes back on close (to what had it before, or `returnFocus()`). The canvas is dark in light and dark mode alike (see "Media colours").
+
+- **Stage.** The preview is fitted inside the stage and never cropped. The thumbnail shows scaled up until the preview has loaded, so moving feels instant, and the neighbours' previews load ahead.
+- **Moving.** The arrows (hidden at the ends), Left and Right, and horizontal swipes on touch screens call `onPrevious` and `onNext`; replace the address rather than push, so one Back closes. A screen reader hears the new position.
+- **Zoom.** With a `fullUrl`, a click on the image or the + key shows the larger image at its full `width` × `height`, around the point clicked. Drag or the arrow keys pan; a click, - or Escape returns to fit. Without `fullUrl` there is no zoom.
+- **Top row.** `title` (also the dialog's name), "14 / 1,204" from `position` and `total`, then zoom, the panel toggle and Close. Escape closes, after first leaving zoom.
+- **Panel.** `panel` sits 272px wide (`--da-media-panel-width`) beside the image on desktop and is a sheet under it on phones, where the viewer scrolls to reach it. I or the Details button toggles it; `isPanelOpen`, `defaultPanelOpen` and `onPanelOpenChange` control it. Astryx components in the panel take their dark-mode colours.
 
 ### PageHeader
 
@@ -409,7 +436,7 @@ Photographs read true on a dark ground, so the surfaces they sit on stay dark in
 | `--da-media-accent` | The one strong action on the canvas | `--color-accent` |
 | `--da-media-on-accent` | Text on that action | `--color-on-accent` |
 
-Set them on `:root` (or any ancestor) from the app's theme, for example `--da-media-canvas: #14161a`. Values are read inside the dark surface, so a `light-dark()` value resolves to its dark half there.
+`--da-media-radius` (4px) rounds the photograph in the viewer and the grid's tiles. Set them on `:root` (or any ancestor) from the app's theme, for example `--da-media-canvas: #14161a`. Values are read inside the dark surface, so a `light-dark()` value resolves to its dark half there.
 
 ## Translations
 

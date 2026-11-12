@@ -1,0 +1,33 @@
+.photo-details {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.photo-details h2 {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+.photo-details p {
+  margin: 6px 0 0;
+  color: var(--da-media-text-secondary, var(--color-text-secondary));
+}
+
+.photo-details dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 5px 12px;
+  margin: 0;
+}
+
+.photo-details dt {
+  color: var(--da-media-text-secondary, var(--color-text-secondary));
+}
+
+.photo-details dd {
+  margin: 0;
+}

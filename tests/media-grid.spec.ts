@@ -116,12 +116,27 @@ test('closing the photo brings back the same tile at the same place, focused', a
   });
   const before = (await tile(page, index).boundingBox())!;
   await link(page, index).click();
-  await expect(page.getByRole('region', {name: 'Photo'})).toBeVisible();
+  await expect(page.getByRole('dialog')).toBeVisible();
   await expect(grid(page), 'the grid unmounts while the photo is open').toHaveCount(0);
-  await page.getByRole('button', {name: 'Back to the gallery'}).click();
+  await page.getByRole('button', {name: 'Close'}).click();
   await expect(link(page, index)).toBeFocused();
   const after = (await tile(page, index).boundingBox())!;
   expect(Math.abs(after.y - before.y)).toBeLessThan(1);
+});
+
+test('each block’s reserved height matches its real height, so nothing shifts as blocks render', async ({page}) => {
+  await page.goto('/render/media-grid');
+  await loadAll(page);
+  // Render every block once, then compare its laid-out height with the reserved one.
+  const blocks = await page.locator('.media-grid__chunk').evaluateAll(elements => elements.map(element => {
+    element.scrollIntoView();
+    const style = getComputedStyle(element);
+    const content = element.getBoundingClientRect().height - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+    const reserved = parseFloat((element as HTMLElement).style.containIntrinsicHeight.replace('auto', ''));
+    return {content, reserved};
+  }));
+  expect(blocks.length).toBeGreaterThan(1);
+  for (const block of blocks) expect(Math.abs(block.content - block.reserved)).toBeLessThan(0.5);
 });
 
 test('a long press selects on touch screens, and then every circle shows', async ({page, context}, testInfo) => {

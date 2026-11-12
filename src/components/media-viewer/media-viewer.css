@@ -1,0 +1,304 @@
+/* The viewer covers the window on the dark media canvas, in light and dark
+   mode alike: the dark colour scheme turns the theme's tokens (the fallbacks
+   of the --da-media-* properties, and Astryx components in the panel) dark. */
+.media-viewer {
+  --media-viewer-canvas: var(--da-media-canvas, var(--color-background-body));
+  --media-viewer-surface: var(--da-media-surface, var(--color-background-surface));
+  --media-viewer-text: var(--da-media-text, var(--color-text-primary));
+  --media-viewer-text-secondary: var(--da-media-text-secondary, var(--color-text-secondary));
+  --media-viewer-border: var(--da-media-border, var(--color-border));
+  --media-viewer-accent: var(--da-media-accent, var(--color-accent));
+  --media-viewer-on-accent: var(--da-media-on-accent, var(--color-on-accent));
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  border: 0;
+  outline: none;
+  color-scheme: dark;
+  color: var(--media-viewer-text);
+  background: var(--media-viewer-canvas);
+  font-family: var(--font-family-body);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.media-viewer:not([open]) {
+  display: none;
+}
+
+.media-viewer::backdrop {
+  background: var(--da-media-canvas, #000);
+}
+
+.media-viewer *,
+.media-viewer *::before,
+.media-viewer *::after {
+  box-sizing: border-box;
+}
+
+.media-viewer[data-panel] {
+  grid-template-columns: minmax(0, 1fr) var(--da-media-panel-width, 272px);
+}
+
+/* The page behind doesn't scroll while the viewer is open. */
+html:has(.media-viewer[open]) {
+  overflow: hidden;
+}
+
+.media-viewer__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.media-viewer__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 48px;
+  padding: 8px 8px 8px 14px;
+}
+
+.media-viewer__heading {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: var(--media-viewer-text-secondary);
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.media-viewer__title {
+  color: var(--media-viewer-text);
+  font-weight: 500;
+}
+
+.media-viewer__toolbar {
+  display: flex;
+  flex: none;
+  gap: 4px;
+}
+
+.media-viewer__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius-element);
+  color: var(--media-viewer-text);
+  background: transparent;
+  font: inherit;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.media-viewer__button:hover,
+.media-viewer__button[aria-pressed="true"],
+.media-viewer__button[aria-expanded="true"] {
+  background: var(--media-viewer-surface);
+}
+
+.media-viewer__button:focus-visible,
+.media-viewer__nav:focus-visible {
+  outline: 2px solid var(--media-viewer-text);
+  outline-offset: 2px;
+}
+
+/* The stage is a size container, so the photo can fit it exactly. */
+.media-viewer__stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: 0 14px 14px;
+  overflow: hidden;
+  container-type: size;
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
+}
+
+.media-viewer__stage[data-zoomable] .media-viewer__photo {
+  cursor: zoom-in;
+}
+
+.media-viewer__stage[data-zoomed] {
+  cursor: grab;
+  touch-action: none;
+}
+
+.media-viewer__stage[data-zoomed]:active {
+  cursor: grabbing;
+}
+
+/* Fitted, never cropped: as large as the stage allows at the image's ratio. */
+.media-viewer__photo {
+  position: absolute;
+  inset: 0;
+  width: min(100cqw, 100cqh * var(--media-viewer-ratio));
+  height: auto;
+  aspect-ratio: var(--media-viewer-ratio);
+  margin: auto;
+  overflow: hidden;
+  border-radius: var(--da-media-radius, 4px);
+}
+
+.media-viewer__image {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  -webkit-touch-callout: none;
+}
+
+/* Low-res first: the thumbnail, scaled up, until the preview has loaded. */
+.media-viewer__image--preview,
+.media-viewer__image--full {
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.media-viewer__image--preview[data-loaded],
+.media-viewer__image--full[data-loaded] {
+  opacity: 1;
+}
+
+.media-viewer__zoomed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
+.media-viewer__nav {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full, 9999px);
+  color: var(--media-viewer-text);
+  background: color-mix(in srgb, var(--media-viewer-canvas) 65%, transparent);
+  translate: 0 -50%;
+  cursor: pointer;
+}
+
+.media-viewer__nav:hover {
+  background: var(--media-viewer-surface);
+}
+
+.media-viewer__nav--previous {
+  left: 10px;
+}
+
+.media-viewer__nav--next {
+  right: 10px;
+}
+
+.media-viewer__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  min-height: 0;
+  padding: 16px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border-left: 1px solid var(--media-viewer-border);
+  color: var(--media-viewer-text);
+  background: var(--media-viewer-surface);
+}
+
+.media-viewer__panel[hidden] {
+  display: none;
+}
+
+.media-viewer__announcer {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Phones: the image fills most of the screen and the panel is a sheet under
+   it; the viewer scrolls to reach it. */
+@media (max-width: 768px) {
+  .media-viewer,
+  .media-viewer[data-panel] {
+    display: block;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .media-viewer__main {
+    height: 100%;
+  }
+
+  .media-viewer[data-panel] .media-viewer__main {
+    height: calc(100% - 56px);
+  }
+
+  .media-viewer__top {
+    padding-left: 12px;
+  }
+
+  .media-viewer__button {
+    min-width: 44px;
+    height: 44px;
+    justify-content: center;
+  }
+
+  /* Icons alone on phones; their names stay for screen readers. */
+  .media-viewer__button:has(svg) {
+    font-size: 0;
+    gap: 0;
+  }
+
+  .media-viewer__stage {
+    margin: 0 0 8px;
+  }
+
+  .media-viewer__photo {
+    border-radius: 0;
+  }
+
+  .media-viewer__nav {
+    width: 44px;
+    height: 44px;
+  }
+
+  .media-viewer__panel {
+    min-height: 50%;
+    overflow: visible;
+    border-top: 1px solid var(--media-viewer-border);
+    border-left: 0;
+    border-radius: var(--radius-container) var(--radius-container) 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media-viewer__image--preview,
+  .media-viewer__image--full {
+    transition: none;
+  }
+}

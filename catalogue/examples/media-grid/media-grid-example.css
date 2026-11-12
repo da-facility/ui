@@ -21,9 +21,3 @@
   }
 }
 
-.media-grid-example__viewer {
-  display: grid;
-  min-height: 60vh;
-  place-content: center;
-  gap: 12px;
-}

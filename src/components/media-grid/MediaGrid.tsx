@@ -113,10 +113,14 @@ export function MediaGrid<Item extends MediaGridItem>({
     const probe = probeRef.current!;
     const measure = () => {
       const style = getComputedStyle(probe);
-      const tracks = style.gridTemplateColumns.split(' ').filter(track => track.endsWith('px'));
-      if (tracks.length === 0) return;
-      const width = parseFloat(tracks[0]);
-      const next = {columns: tracks.length, tileHeight: round(width * 2 / 3), gap: parseFloat(style.columnGap) || 0};
+      const columns = style.gridTemplateColumns.split(' ').filter(track => track.endsWith('px')).length;
+      if (columns === 0) return;
+      // The track count comes from the grid; the width from the box itself,
+      // because engines round an empty grid's tracks differently.
+      const gap = parseFloat(style.columnGap) || 0;
+      const content = probe.getBoundingClientRect().width - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+      const width = (content - (columns - 1) * gap) / columns;
+      const next = {columns, tileHeight: round(width * 2 / 3), gap};
       lastLayout = next;
       setLayout(current => current && current.columns === next.columns && current.tileHeight === next.tileHeight && current.gap === next.gap ? current : next);
     };

@@ -226,5 +226,37 @@
   "@da-facility.selectionBar.clear": {
     "defaultMessage": "Clear selection",
     "description": "Button in the selection bar that unselects everything."
+  },
+  "@da-facility.mediaViewer.close": {
+    "defaultMessage": "Close",
+    "description": "Button in the image viewer’s top row that closes it."
+  },
+  "@da-facility.mediaViewer.previous": {
+    "defaultMessage": "Previous",
+    "description": "Arrow button that shows the previous image."
+  },
+  "@da-facility.mediaViewer.next": {
+    "defaultMessage": "Next",
+    "description": "Arrow button that shows the next image."
+  },
+  "@da-facility.mediaViewer.details": {
+    "defaultMessage": "Details",
+    "description": "Button that shows or hides the viewer’s side panel, and the panel’s name."
+  },
+  "@da-facility.mediaViewer.zoomIn": {
+    "defaultMessage": "Zoom in",
+    "description": "Button that shows the image at full size."
+  },
+  "@da-facility.mediaViewer.zoomOut": {
+    "defaultMessage": "Fit to screen",
+    "description": "Button that returns a zoomed image to fit the screen."
+  },
+  "@da-facility.mediaViewer.position": {
+    "defaultMessage": "{position} / {total}",
+    "description": "Position in the collection in the viewer’s top row, such as “14 / 1,204”."
+  },
+  "@da-facility.mediaViewer.positionAnnouncement": {
+    "defaultMessage": "{name}, {position} of {total}",
+    "description": "Read when the viewer moves to another image. {name} is the image’s description."
   }
 }

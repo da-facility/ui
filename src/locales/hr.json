@@ -169,5 +169,29 @@
   },
   "@da-facility.selectionBar.clear": {
     "defaultMessage": "Poništi odabir"
+  },
+  "@da-facility.mediaViewer.close": {
+    "defaultMessage": "Zatvori"
+  },
+  "@da-facility.mediaViewer.previous": {
+    "defaultMessage": "Prethodna"
+  },
+  "@da-facility.mediaViewer.next": {
+    "defaultMessage": "Sljedeća"
+  },
+  "@da-facility.mediaViewer.details": {
+    "defaultMessage": "Detalji"
+  },
+  "@da-facility.mediaViewer.zoomIn": {
+    "defaultMessage": "Povećaj"
+  },
+  "@da-facility.mediaViewer.zoomOut": {
+    "defaultMessage": "Prilagodi zaslonu"
+  },
+  "@da-facility.mediaViewer.position": {
+    "defaultMessage": "{position} / {total}"
+  },
+  "@da-facility.mediaViewer.positionAnnouncement": {
+    "defaultMessage": "{name}, {position} od {total}"
   }
 }

@@ -1,0 +1,17 @@
+.media-viewer-example {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 48px 32px;
+}
+
+.media-viewer-example h1 {
+  margin: 0 0 8px;
+  font-family: var(--font-family-heading);
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.media-viewer-example > p {
+  margin: 0 0 16px;
+  color: var(--color-text-secondary);
+}

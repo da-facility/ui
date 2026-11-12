@@ -5,6 +5,7 @@ import {LoginPocketIdExample} from './examples/login-pocket-id/LoginPocketIdExam
 import {LoginEmailCodeExample} from './examples/login-email-code/LoginEmailCodeExample';
 import {MediaCardExample} from './examples/media-card/MediaCardExample';
 import {MediaGridExample} from './examples/media-grid/MediaGridExample';
+import {MediaViewerExample} from './examples/media-viewer/MediaViewerExample';
 import {PageHeaderExample} from './examples/page-header/PageHeaderExample';
 import {PocketIdButtonExample} from './examples/pocket-id-button/PocketIdButtonExample';
 import {ProjectSelectorExample} from './examples/project-selector/ProjectSelectorExample';
@@ -114,6 +115,17 @@ export const examples: Example[] = [
       {id: 'slowNetwork', label: 'Slow network', group: 'Loading'},
     ],
     Component: MediaGridExample,
+  },
+  {
+    id: 'media-viewer',
+    name: 'Media viewer',
+    kind: 'Component',
+    description: 'Full-window image viewer on a dark canvas: fitted image, previous and next, zoom, and a side panel.',
+    tweaks: [
+      {id: 'noPanel', label: 'Without the side panel', group: 'Parts'},
+      {id: 'noZoom', label: 'No larger image to zoom into', group: 'Parts'},
+    ],
+    Component: MediaViewerExample,
   },
   {
     id: 'page-header',
