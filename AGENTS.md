@@ -1,5 +1,14 @@
 # Repository Instructions
 
+Shared by all coding agents (Codex reads this file; `CLAUDE.md` imports it). What the package offers and how to use it is in [README.md](README.md); what each release changed is in [CHANGELOG.md](CHANGELOG.md).
+
+## Keep this file current
+
+- Every commit that changes how the library works (structure, exports, rules, commands, scripts, tests, CI, release steps, conventions) updates this file in the same commit.
+- Remove or correct whatever the change makes untrue. No history here: that belongs in git and in CHANGELOG.md.
+- Keep it short and factual: what an agent needs to work here, with links to README.md and CHANGELOG.md instead of copies of them.
+- Before committing, re-read this file against the change.
+
 ## Purpose
 
 - This repository is `@da-facility/ui`: layouts, templates and components built on Meta Astryx, shared across Da Facility apps and published to npm.
