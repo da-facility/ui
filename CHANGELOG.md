@@ -10,6 +10,7 @@ New:
 
 Other changes:
 
+- `LoginEmailCode`: the email field's `autocomplete` is `email` instead of `username email`, which holds two field names where HTML allows one (axe's `autocomplete-valid`). Browsers still offer saved addresses.
 - `ProjectSelector`: the button is named by what it shows, after the label ("Projects: Da Facility da-facility.app"), instead of an `aria-label` that left out the visible description and initials (WCAG 2.5.3, axe's `label-content-name-mismatch`). The project's initials are hidden from screen readers in the button and the list. The `@da-facility.projectSelector.trigger` message is now only the part read before the project, `{label}:`.
 
 ## 1.2.0

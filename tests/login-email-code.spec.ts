@@ -16,7 +16,8 @@ test('an email, then the code: wrong, expired and right codes', async ({page}) =
   await page.goto('/render/login-email-code');
   await expect(page.getByRole('heading', {name: 'Sign in', exact: true})).toBeVisible();
   await expect(email(page)).toBeFocused();
-  await expect(email(page)).toHaveAttribute('autocomplete', 'username email');
+  // One field name, as HTML allows (axe's autocomplete-valid rejects "username email").
+  await expect(email(page)).toHaveAttribute('autocomplete', 'email');
   await toCodeStep(page);
   await expect(page.getByText('We sent a code to taylor@example.com.')).toBeVisible();
 

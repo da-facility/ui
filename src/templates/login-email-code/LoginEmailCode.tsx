@@ -270,7 +270,7 @@ export function LoginEmailCode({
                 className="login-email-code__input"
                 name="email"
                 type="email"
-                autoComplete="username email"
+                autoComplete="email"
                 inputMode="email"
                 placeholder={t('@da-facility.loginEmailCode.emailPlaceholder')}
                 defaultValue={email}
