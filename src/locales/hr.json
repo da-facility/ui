@@ -199,5 +199,14 @@
   },
   "@da-facility.mediaViewer.positionAnnouncement": {
     "defaultMessage": "{name}, {position} od {total}"
+  },
+  "@da-facility.pageTrail.label": {
+    "defaultMessage": "Putanja"
+  },
+  "@da-facility.pageTrail.more": {
+    "defaultMessage": "Prikaži razine između"
+  },
+  "@da-facility.pageTrail.allLevels": {
+    "defaultMessage": "Sve razine iznad"
   }
 }

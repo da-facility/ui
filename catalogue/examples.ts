@@ -7,6 +7,7 @@ import {MediaCardExample} from './examples/media-card/MediaCardExample';
 import {MediaGridExample} from './examples/media-grid/MediaGridExample';
 import {MediaViewerExample} from './examples/media-viewer/MediaViewerExample';
 import {PageHeaderExample} from './examples/page-header/PageHeaderExample';
+import {PageTrailExample} from './examples/page-trail/PageTrailExample';
 import {PocketIdButtonExample} from './examples/pocket-id-button/PocketIdButtonExample';
 import {ProjectSelectorExample} from './examples/project-selector/ProjectSelectorExample';
 import {ScrollAreaExample} from './examples/scroll-area/ScrollAreaExample';
@@ -144,6 +145,17 @@ export const examples: Example[] = [
       {id: 'longTitle', label: 'Long title', group: 'Content'},
     ],
     Component: PageHeaderExample,
+  },
+  {
+    id: 'page-trail',
+    name: 'Page trail',
+    kind: 'Component',
+    description: 'Breadcrumbs on one line: the levels that don\'t fit go into a menu; on phones a back link and a list of every level above.',
+    tweaks: [
+      {id: 'textLevel', label: 'A level without a page', group: 'Content'},
+      {id: 'shallow', label: 'One level above', group: 'Content'},
+    ],
+    Component: PageTrailExample,
   },
   {
     id: 'pocket-id-button',

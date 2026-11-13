@@ -4,6 +4,7 @@
 
 New:
 
+- `PageTrail`: breadcrumbs that keep to one line, beside `PageHeader`'s. Every level above the page is a link, or plain text without `href`. On desktop, when the line doesn't fit, the first level and the page stay whole, the levels nearest the page follow as far as there is room, and the rest go into a "…" menu; the trail measures itself again when its room or fonts change. On phones it is a back link to the parent and a "…" menu of every level above, both 44px tall. Its text is in `@da-facility.pageTrail.*`.
 - `MediaCard`: `isFullHeight` fills the grid cell (also through a list item), with the meta lines and activity at the bottom edge, so the cards in a row are one height and their meta lines line up.
 - `UserMenu`: `hasHeading={false}` leaves out the heading that repeats the person; `menuWidth` sets the menu's width, or `'trigger'` for at least the trigger's width; `label` names the trigger ("User menu: Alex Johnson alex@example.com"). The defaults are unchanged: the heading, 260px.
 

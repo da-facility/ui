@@ -266,5 +266,17 @@
   "@da-facility.mediaViewer.positionAnnouncement": {
     "defaultMessage": "{name}, {position} of {total}",
     "description": "Read when the viewer moves to another image. {name} is the image’s description."
+  },
+  "@da-facility.pageTrail.label": {
+    "defaultMessage": "Breadcrumb",
+    "description": "Accessible name of the page trail's navigation landmark."
+  },
+  "@da-facility.pageTrail.more": {
+    "defaultMessage": "Show the levels in between",
+    "description": "Accessible name of the “…” button that lists the levels a trail too long for its line leaves out."
+  },
+  "@da-facility.pageTrail.allLevels": {
+    "defaultMessage": "All levels above",
+    "description": "Accessible name of the “…” button beside the back link on phones, listing every level above the page."
   }
 }

@@ -13,7 +13,7 @@ import {presetTweaks} from './helpers';
  * names and text a screen reader gets). States cover every example and
  * sidebar page in light and dark, each example tweak switched from its
  * default, Croatian, and the interactive states: open menus, the phone
- * drawer, the chat, form errors, toasts and replaced toasts, the code
+ * drawer, the page trail's menu, the chat, form errors, toasts and replaced toasts, the code
  * input's error, the email code step, a selected media grid and a zoomed
  * media viewer.
  *
@@ -165,6 +165,16 @@ test.describe('interactions', () => {
       await page.getByRole('button', {name: 'Account menu for Alex Johnson'}).first().click();
       await expect(page.getByRole('menuitem', {name: 'Profile', exact: true})).toBeVisible();
       await record(page, `user-menu-open--${theme}`, {fullPage: false});
+    });
+
+    test(`page trail menu open ${theme}`, async ({page}, testInfo) => {
+      await open(page, 'page-trail', 'page-trail', {}, {darkMode});
+      // Desktop: the levels a narrow trail leaves out; phones: every level above.
+      const phone = testInfo.project.name.endsWith('mobile');
+      const nav = page.getByRole('navigation', {name: phone ? 'Breadcrumb, Full width' : 'Breadcrumb, 480 px', exact: true});
+      await nav.getByRole('button', {name: phone ? 'All levels above' : 'Show the levels in between'}).click();
+      await expect(page.getByRole('menuitem').first()).toBeVisible();
+      await record(page, `page-trail-open--${theme}`, {fullPage: false});
     });
 
     test(`project selector open and searched ${theme}`, async ({page}) => {

@@ -12,6 +12,7 @@ Layouts, templates and components for Da Facility apps, built on [Meta Astryx](h
 | `MediaGrid`, `MediaTile` | Component | An even grid of 3:2 image tiles with selection, keyboard focus and paging, smooth with tens of thousands of items. |
 | `MediaViewer` | Component | Full-window image viewer on a dark canvas: the image fitted, previous and next, zoom, and a side panel slot. |
 | `PageHeader` | Component | The top of a page: breadcrumbs, title, meta line, actions, and a row for search and filter chips. |
+| `PageTrail` | Component | Breadcrumbs on one line: the levels that don't fit go into a menu; on phones a back link and a list of every level above. |
 | `MediaCard` | Component | Link card with a cover of up to three images, a title, meta lines and a dot for something new. |
 | `SelectionBar` | Component | Bar shown while items are selected: the count, what can be done, actions and clear. |
 | `StatusBar` | Component | Loud full-width bar that says which kind of site this is, such as staging. |
@@ -251,6 +252,20 @@ A native modal `<dialog>` that covers the window: the page behind is inert and d
 ```
 
 Every part but the last breadcrumb is a link, through Astryx's `LinkProvider`, so the app's router handles it; the last is the current page. The title is the page's `h1` (`headingLevel={2}` for a nested one). `meta` parts are joined with " · ", and empty ones are left out. Actions sit to the right of the title and wrap under it on phones. `search` and `chips` share the row under the title; chips are toggle buttons (`aria-pressed`) in a group named "Filters" (`chipsLabel`), and the app turns filters on and off in `onChipClick`. A slot given `false` renders nothing.
+
+### PageTrail
+
+```tsx
+<PageTrail levels={[
+  {label: client.name, href: clientHref},
+  {label: project.name}, // a level without a page of its own: plain text
+  {label: gallery.name, href: galleryHref},
+  {label: photo.title}, // the page itself, last
+]} />
+<PageHeader title={photo.title} />
+```
+
+Breadcrumbs for deep paths with long names, above a `PageHeader` without `breadcrumbs`. Every level above the page is a link (through Astryx's `LinkProvider`) unless it has no `href`, and the line never wraps. On desktop, when it doesn't fit, the first level and the page stay whole, the levels nearest the page follow as far as there is room, and the rest go into a "…" menu after the first level; long names are cut with the full name as a tooltip. The trail measures itself with a `ResizeObserver`, so it follows the window, the layout around it and fonts that arrive late. On phones (768px and narrower, by media query) it is a back link to the parent and, with more levels above, a "…" menu of all of them, both 44px tall. It renders nothing for fewer than two levels. `label` names the navigation landmark ("Breadcrumb"), and `className` places it. `PageHeader`'s own `breadcrumbs` are unchanged: Astryx's breadcrumbs, wrapping when long.
 
 ### MediaCard
 
