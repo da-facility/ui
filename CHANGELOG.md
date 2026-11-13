@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+Other changes:
+
+- `SelectionBar`: the clear button has Astryx's default button size instead of `sm`, so it is as tall as a `Button` passed in `actions` at its default size and sits on the same line; the actions are centred on the row whatever their size.
+
 ## 1.3.0
 
 New:

@@ -139,3 +139,18 @@ test.describe('isPinned', () => {
     await expect.poll(() => bottomGap(page)).toBe(16);
   });
 });
+
+// The clear button has Astryx's default size, like an app's Button passed as an action.
+test('the clear button and an action are one height on one line', async ({page}) => {
+  for (const croatian of [false, true]) {
+    await presetTweaks(page, 'selection-bar', {}, {croatian});
+    await page.goto('/render/selection-bar');
+    const bar = page.locator('.selection-bar__bar');
+    // Measured once it has slid in.
+    await bar.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
+    const clear = (await bar.getByRole('button', {name: croatian ? 'Poništi odabir' : 'Clear selection'}).boundingBox())!;
+    const action = (await bar.getByRole('button', {name: 'Download'}).boundingBox())!;
+    expect(clear.height).toBe(action.height);
+    expect(clear.y).toBe(action.y);
+  }
+});

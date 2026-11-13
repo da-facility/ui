@@ -13,8 +13,10 @@ export type SelectionBarProps = {
   summary?: ReactNode;
   /**
    * Buttons for the selection, after the clear button, such as an Astryx
-   * `Button` with `variant="primary"`. The bar swaps the theme's colours, so
-   * Astryx components inside it contrast with it.
+   * `Button` with `variant="primary"`. The clear button has Astryx's default
+   * size, so buttons at their default size line up with it; the row centres
+   * them either way. The bar swaps the theme's colours, so Astryx components
+   * inside it contrast with it.
    */
   actions?: ReactNode;
   /** Clears the selection: the clear button and Escape. */
@@ -86,7 +88,7 @@ export function SelectionBar({count, summary, actions, onClear, countLabel, clea
         {summary != null && summary !== false && summary !== '' && <> · {summary}</>}
       </p>
       <div className="selection-bar__actions">
-        <Button label={clearLabel ?? t('@da-facility.selectionBar.clear')} variant="ghost" size="sm" onClick={() => onClearRef.current()} />
+        <Button label={clearLabel ?? t('@da-facility.selectionBar.clear')} variant="ghost" onClick={() => onClearRef.current()} />
         {actions}
       </div>
     </div>}

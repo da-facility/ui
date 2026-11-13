@@ -20,7 +20,7 @@ export function SelectionBarExample({tweaks}: ExampleProps) {
       summary={tweaks.noDownload ? 'downloading isn’t allowed' : 'up to 2400 px'}
       onClear={() => setCount(0)}
       isPinned={tweaks.pinned}
-      actions={!tweaks.noDownload && <Button label="Download" variant="primary" size="sm" onClick={() => setMessage(`Downloading ${count} photos is not part of this demo.`)} />}
+      actions={!tweaks.noDownload && <Button label="Download" variant="primary" onClick={() => setMessage(`Downloading ${count} photos is not part of this demo.`)} />}
     />
   </main>;
 }
