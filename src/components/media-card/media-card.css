@@ -13,6 +13,19 @@
   transition: border-color 120ms ease;
 }
 
+/* Fills its cell; the body takes the room left, and the title pushes the meta lines to the bottom. */
+.media-card--full-height {
+  height: 100%;
+}
+
+.media-card--full-height .media-card__body {
+  flex: 1;
+}
+
+.media-card--full-height .media-card__title {
+  margin-bottom: auto;
+}
+
 .media-card:hover {
   border-color: var(--color-border-emphasized);
 }

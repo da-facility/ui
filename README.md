@@ -268,7 +268,7 @@ Every part but the last breadcrumb is a link, through Astryx's `LinkProvider`, s
 </div>
 ```
 
-The whole card is one link, through Astryx's `LinkProvider`. The 16:9 cover shows one large image on the left and two small on the right; with fewer it fills what exists, and with none it is an empty well, or says `emptyLabel` ("No photos yet") so an empty project doesn't look like a cover that failed to load; screen readers hear it after the title, so don't repeat it in `meta`. `meta` lines and `activity` are secondary text under the title. `isNew` puts a dot before `activity` and adds "New" for screen readers; say it in `activity` too, because colour alone doesn't. The card has a border and no shadow; hover raises the border. Lay cards out in the app's own grid.
+The whole card is one link, through Astryx's `LinkProvider`. The 16:9 cover shows one large image on the left and two small on the right; with fewer it fills what exists, and with none it is an empty well, or says `emptyLabel` ("No photos yet") so an empty project doesn't look like a cover that failed to load; screen readers hear it after the title, so don't repeat it in `meta`. `meta` lines and `activity` are secondary text under the title. `isNew` puts a dot before `activity` and adds "New" for screen readers; say it in `activity` too, because colour alone doesn't. The card has a border and no shadow; hover raises the border. Lay cards out in the app's own grid. By default a card is as tall as its content; `isFullHeight` makes it fill its grid cell, also when it sits in a list item the grid stretches, with the meta lines and activity at the bottom edge, so the cards in a row are one height and their meta lines line up.
 
 ### SelectionBar
 

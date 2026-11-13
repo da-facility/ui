@@ -36,17 +36,23 @@ export type MediaCardProps = {
    * Without it the cover is a plain well.
    */
   emptyLabel?: ReactNode;
+  /**
+   * Fill the height of the cell the card sits in, with the meta lines and
+   * activity at the bottom edge, so cards in one grid row are one height and
+   * their meta lines line up. Defaults to false: the card is as tall as its content.
+   */
+  isFullHeight?: boolean;
   onClick?: (event: MouseEvent<HTMLAnchorElement>) => void;
 };
 
 /** A link card with a cover of up to three images, a title and meta lines. */
-export function MediaCard({href, title, images = [], meta = [], activity, isNew = false, emptyLabel, onClick}: MediaCardProps) {
+export function MediaCard({href, title, images = [], meta = [], activity, isNew = false, emptyLabel, isFullHeight = false, onClick}: MediaCardProps) {
   const t = useMessages();
   const Link = useLinkComponent();
   const cover = images.slice(0, 3);
   const showEmpty = cover.length === 0 && emptyLabel != null && emptyLabel !== '';
   const lines = meta.filter(line => line != null && line !== false && line !== '');
-  return <Link className="media-card" href={href} onClick={onClick}>
+  return <Link className={isFullHeight ? 'media-card media-card--full-height' : 'media-card'} href={href} onClick={onClick}>
     <span className="media-card__cover" data-count={cover.length}>
       {/* Shown in the cover, read after the title (below), so the link's name starts with the title. */}
       {showEmpty && <span className="media-card__empty" aria-hidden="true">{emptyLabel}</span>}

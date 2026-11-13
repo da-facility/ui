@@ -104,6 +104,7 @@ export const examples: Example[] = [
     tweaks: [
       {id: 'noCovers', label: 'Without covers', group: 'Content'},
       {id: 'emptyLabel', label: 'Empty cover says so', group: 'Content'},
+      {id: 'fullHeight', label: 'Fill the grid cell', group: 'Layout'},
     ],
     Component: MediaCardExample,
   },

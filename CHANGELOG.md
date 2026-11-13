@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+New:
+
+- `MediaCard`: `isFullHeight` fills the grid cell (also through a list item), with the meta lines and activity at the bottom edge, so the cards in a row are one height and their meta lines line up.
+
 ## 1.3.1
 
 Other changes:

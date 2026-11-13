@@ -61,3 +61,46 @@ test('an empty cover can say so instead of looking like an image that failed', a
   // Cards with images never show it.
   await expect(page.locator('.media-card__empty')).toHaveCount(1);
 });
+
+test('by default a card is as tall as its content; filling the cell, a row is one height with the meta lines at the bottom', async ({page}, testInfo) => {
+  test.skip(isMobile(testInfo), 'one card per row on phones');
+  await page.goto('/render/media-card');
+  const heights = () => page.locator('.media-card').evaluateAll(cards => cards.map(card => {
+    const title = card.querySelector('.media-card__title')!.getBoundingClientRect();
+    const body = card.querySelector('.media-card__body')!.getBoundingClientRect();
+    return {height: card.getBoundingClientRect().height, gapUnderTitle: body.bottom - title.bottom, content: body.height};
+  }));
+  // The catalogue's grid stretches its items, so heights already match; the body did not.
+  const before = await heights();
+  const regular = before[1]!;
+
+  await presetTweaks(page, 'media-card', {fullHeight: true});
+  await page.reload();
+  const after = await heights();
+  expect(new Set(after.map(card => Math.round(card.height))).size).toBe(1);
+  // Meta lines sit on the bottom edge: the distance from each card's last meta line to its bottom is the same.
+  const bottoms = await page.locator('.media-card').evaluateAll(cards => cards.map(card => {
+    const lines = card.querySelectorAll('.media-card__meta');
+    return Math.round(card.getBoundingClientRect().bottom - lines[lines.length - 1]!.getBoundingClientRect().bottom);
+  }));
+  expect(new Set(bottoms).size).toBe(1);
+  expect(after[1]!.gapUnderTitle).toBeGreaterThan(regular.gapUnderTitle);
+});
+
+test('filling the cell works when the card sits inside a list item', async ({page}) => {
+  await presetTweaks(page, 'media-card', {fullHeight: true});
+  await page.goto('/render/media-card');
+  // Apps put cards in <li>s of a grid list; the card fills the item the grid stretched.
+  const heights = await page.locator('.media-card-example__grid').evaluate(grid => {
+    for (const card of [...grid.children]) {
+      const item = document.createElement('div');
+      grid.replaceChild(item, card);
+      item.append(card);
+    }
+    return [...grid.querySelectorAll('.media-card')].map(card => Math.round(card.getBoundingClientRect().height));
+  });
+  const rows = new Map<number, number[]>();
+  const tops = await page.locator('.media-card').evaluateAll(cards => cards.map(card => Math.round(card.getBoundingClientRect().top)));
+  tops.forEach((top, index) => rows.set(top, [...rows.get(top) ?? [], heights[index]!]));
+  for (const row of rows.values()) expect(new Set(row).size).toBe(1);
+});
