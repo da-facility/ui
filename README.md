@@ -368,7 +368,15 @@ How the "only while it overflows" part works: an element's CSS scroll timeline i
 />
 ```
 
-Items take the same shape as items in Astryx's `DropdownMenu`. Pass `compact` to show only the avatar, for narrow headers, or `isFullWidth` to fill a sidebar footer.
+Items take the same shape as items in Astryx's `DropdownMenu`. Pass `compact` to show only the avatar in a 44px target, for narrow headers such as the phone top bar, or `isFullWidth` to fill a sidebar footer.
+
+The menu repeats the person as its heading and is 260px wide. `hasHeading={false}` leaves the heading out when the trigger already shows who is signed in, and `menuWidth` sets another width, or `'trigger'` for at least the trigger's width, so a full-width row and its menu line up:
+
+```tsx
+<UserMenu user={user} items={items} isFullWidth placement="above" alignment="start" hasHeading={false} menuWidth="trigger" label="User menu" />
+```
+
+The trigger's accessible name contains what it shows, so screen readers and voice control agree with the screen (WCAG 2.5.3): "Account menu for Alex Johnson alex@example.com", or with `label`, that label, a colon and what it shows ("User menu: Alex Johnson alex@example.com"). Compact, it is the name alone.
 
 ### PocketIdButton
 

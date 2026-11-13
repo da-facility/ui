@@ -33,7 +33,8 @@ test('the menu switches examples and keeps the URL and history in sync', async (
 });
 
 test('examples and tweaks share one card, and at most one is open', async ({page}, testInfo) => {
-  await page.goto('/user-menu');
+  // An example with only the global tweaks.
+  await page.goto('/pocket-id-button');
   const tweaks = page.getByRole('region', {name: 'Tweaks'});
   const tweaksToggle = tweaks.getByRole('button', {name: /Tweaks/});
   const catalogue = page.getByRole('region', {name: 'Catalogue'});

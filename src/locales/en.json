@@ -17,7 +17,7 @@
   },
   "@da-facility.userMenu.label": {
     "defaultMessage": "Account menu for {name}",
-    "description": "Accessible name of the account button. {name} is the person’s name."
+    "description": "Accessible name of the account button. {name} is what the button shows: the person’s name, and their description unless the button is compact."
   },
   "@da-facility.projectSelector.label": {
     "defaultMessage": "Projects",

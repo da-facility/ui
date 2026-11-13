@@ -1,11 +1,12 @@
 import {useState} from 'react';
 import {ArrowRightStartOnRectangleIcon, Cog6ToothIcon, UserCircleIcon} from '@heroicons/react/24/outline';
 import {UserMenu, type UserMenuItem} from '@da-facility/ui';
+import type {ExampleProps} from '../../types';
 import './user-menu-example.css';
 
 const AVATAR = 'https://github.com/ghost.png';
 
-export function UserMenuExample() {
+export function UserMenuExample({tweaks}: ExampleProps) {
   const [status, setStatus] = useState('Choose an account action to try the menu.');
   const items: UserMenuItem[] = [
     {id: 'profile', label: 'Profile', icon: UserCircleIcon, onClick: () => setStatus('Profile selected.')},
@@ -13,21 +14,27 @@ export function UserMenuExample() {
     {type: 'divider'},
     {id: 'sign-out', label: 'Sign out', icon: ArrowRightStartOnRectangleIcon, onClick: () => setStatus('Sign out selected. This demo does not end a session.')},
   ];
+  // A row fills its section and its menu is as wide; without the heading the row alone says who is signed in.
+  const options = {
+    hasHeading: !tweaks.noHeading,
+    label: tweaks.ownLabel ? 'Your account' : undefined,
+  };
+  const row = tweaks.row ? {isFullWidth: true, menuWidth: 'trigger'} as const : {};
 
   return <main className="user-menu-example">
     <h1>User menu</h1>
     <div className="user-menu-example__variants">
       <section>
         <h2>Picture and name</h2>
-        <UserMenu user={{name: 'Alex Johnson', description: 'alex@example.com', imageUrl: AVATAR}} items={items} alignment="start" />
+        <UserMenu user={{name: 'Alex Johnson', description: 'alex@example.com', imageUrl: AVATAR}} items={items} alignment="start" {...row} {...options} />
       </section>
       <section>
         <h2>Initials</h2>
-        <UserMenu user={{name: 'Sam Rivera', description: 'Workspace admin'}} items={items} alignment="start" />
+        <UserMenu user={{name: 'Sam Rivera', description: 'Workspace admin'}} items={items} alignment="start" {...row} {...options} />
       </section>
       <section>
         <h2>Compact</h2>
-        <UserMenu user={{name: 'Alex Johnson', imageUrl: AVATAR}} items={items} compact alignment="start" />
+        <UserMenu user={{name: 'Alex Johnson', imageUrl: AVATAR}} items={items} compact alignment="start" {...options} />
       </section>
     </div>
     <p role="status">{status}</p>

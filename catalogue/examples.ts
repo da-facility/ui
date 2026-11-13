@@ -205,6 +205,11 @@ export const examples: Example[] = [
     name: 'User menu',
     kind: 'Component',
     description: 'Account avatar and name with a menu of account actions.',
+    tweaks: [
+      {id: 'row', label: 'Full-width rows, menu as wide', group: 'Layout'},
+      {id: 'noHeading', label: 'Without the menu heading', group: 'Content'},
+      {id: 'ownLabel', label: 'Own trigger label', group: 'Content'},
+    ],
     Component: UserMenuExample,
   },
 ];

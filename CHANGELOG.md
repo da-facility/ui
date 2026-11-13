@@ -5,6 +5,11 @@
 New:
 
 - `MediaCard`: `isFullHeight` fills the grid cell (also through a list item), with the meta lines and activity at the bottom edge, so the cards in a row are one height and their meta lines line up.
+- `UserMenu`: `hasHeading={false}` leaves out the heading that repeats the person; `menuWidth` sets the menu's width, or `'trigger'` for at least the trigger's width; `label` names the trigger ("User menu: Alex Johnson alex@example.com"). The defaults are unchanged: the heading, 260px.
+
+Other changes:
+
+- `UserMenu`: the trigger's accessible name contains what it shows ("Account menu for Alex Johnson alex@example.com"), instead of the name alone, which left out the visible description (WCAG 2.5.3, axe's `label-content-name-mismatch`). Compact triggers keep "Account menu for Alex Johnson". The avatar is drawn over the trigger from outside the button, with clicks passing through, so its initials are no longer visible text the name leaves out; the trigger looks and behaves as before. In `@da-facility.userMenu.label`, `{name}` is now what the trigger shows.
 
 ## 1.3.1
 
