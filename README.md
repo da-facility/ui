@@ -156,6 +156,25 @@ The page is plain HTML and CSS with no effects, so it also renders on the server
 
 Six boxes (`length` changes that) drawn over one real `<input inputmode="numeric" autocomplete="one-time-code">`, so typing moves forward, Backspace moves back, and a pasted code or the browser's autofill from a message fills every box. Spaces, dashes and letters are dropped. `onComplete` runs on the last digit; there is no submit button. `isChecking` makes the boxes read-only, and `error` shows above them in red and selects the digits so the next ones typed start over. Pass `value` and `onChange` to control it, `isDisabled` to turn it off, and `label` to change its accessible name ("One-time code").
 
+### DateField
+
+```tsx
+const [until, setUntil] = useState<string | undefined>('2026-11-20');
+
+<DateField label="Valid until" value={until} onChange={setUntil} min="2026-11-16" max="2027-11-16" />
+<DateField label="Valid until" value={untilWithTime} onChange={setUntilWithTime} hasTime />
+```
+
+A date (`YYYY-MM-DD`), or with `hasTime` a date and time (`YYYY-MM-DDTHH:mm`), as a wall-clock value with no time zone: the app decides which zone it means. Built on Astryx's `DateInput` and `DateTimeInput`, set up the same way in every app:
+
+- **Typing.** Dates are read in the locale's order: "3. 12. 2026.", "3.12.2026" and "3. prosinca 2026." in Croatian, "12/3/2026" and "Dec 3, 2026" in US English. Enter or leaving the field commits; a date that doesn't exist or lies outside the limits isn't taken. The chosen date shows in full ("3. prosinca 2026.").
+- **The calendar.** The button beside the field, or ArrowDown in it, opens a month calendar: arrow keys move by day, Page Up and Page Down by month (with Shift, by year), Enter chooses, Escape closes and returns to the field. The week starts on the locale's first day (Monday in Croatian, Sunday in US English; `weekStartsOn` changes it), and times use the locale's clock (24 hours in Croatian).
+- **Touch.** A finger opens the same month calendar in a bottom sheet, swiped month to month, with Save; `touchPicker="native"` hands it to the phone's own picker instead, which ignores `weekStartsOn` and may not grey out `isDateDisabled` days. With Astryx 0.5, which can't choose, touch always gets the phone's picker.
+- **Limits.** `min` and `max` bound what can be chosen or typed; `isDateDisabled` turns off single days (`date => isWeekend(date)`).
+- **Clearing and states.** A clear button empties the field (`hasClear={false}` removes it). `isDisabled` with `disabledMessage` keeps the field focusable and shows why it is off; `status` shows an error, warning or success; `description`, `isRequired`, `isOptional`, `size` and `width` work as on Astryx's inputs.
+
+Its own text is in `@da-facility.dateField.*`. `locales/hr.json` also translates the Astryx strings it shows (`@astryx.dateInput.*`, `@astryx.dateTimeInput.*`, `@astryx.timeInput.*`, `@astryx.calendar.*`), since Astryx has no Croatian. Until Astryx does these itself, `DateField` names the calendar's weekdays in the locale's words where Astryx falls back to English, reads typed dates as above, and moves Page Up and Page Down by month; each of these steps aside once Astryx gets it right.
+
 ### LoginEmailCode
 
 ```tsx

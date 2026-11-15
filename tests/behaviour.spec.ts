@@ -224,6 +224,14 @@ test.describe('interactions', () => {
       await record(page, `code-input-error--${theme}`, {fullPage: false});
     });
 
+    test(`date field calendar open ${theme}`, async ({page}, testInfo) => {
+      await open(page, 'date-field', 'date-field', {limits: true}, {darkMode, croatian: true});
+      if (testInfo.project.name.endsWith('mobile')) await page.getByRole('combobox', {name: 'Valid until'}).tap();
+      else await page.getByRole('button', {name: 'Otvori kalendar'}).click();
+      await expect(page.getByRole('dialog', {name: 'Odabir datuma'})).toBeVisible();
+      await record(page, `date-field-open--${theme}`, {fullPage: false});
+    });
+
     test(`login email code step ${theme}`, async ({page}) => {
       await open(page, 'login-email-code', 'login-email-code', {}, {darkMode});
       await page.getByRole('textbox', {name: 'Email', exact: true}).fill('taylor@example.com');

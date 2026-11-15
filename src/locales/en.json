@@ -278,5 +278,17 @@
   "@da-facility.pageTrail.allLevels": {
     "defaultMessage": "All levels above",
     "description": "Accessible name of the “…” button beside the back link on phones, listing every level above the page."
+  },
+  "@da-facility.dateField.placeholder": {
+    "defaultMessage": "Choose or type a date",
+    "description": "Placeholder of an empty date field. The person can type a date or pick one from the calendar."
+  },
+  "@da-facility.dateField.timePlaceholder": {
+    "defaultMessage": "Time",
+    "description": "Placeholder of the empty time part of a date field with a time."
+  },
+  "@da-facility.dateField.timeLabel": {
+    "defaultMessage": "{label}, time",
+    "description": "Accessible name of the time part of a date field. {label} is the field's label."
   }
 }

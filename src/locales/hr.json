@@ -208,5 +208,149 @@
   },
   "@da-facility.pageTrail.allLevels": {
     "defaultMessage": "Sve razine iznad"
+  },
+  "@da-facility.dateField.placeholder": {
+    "defaultMessage": "Odaberite ili upišite datum"
+  },
+  "@da-facility.dateField.timePlaceholder": {
+    "defaultMessage": "Vrijeme"
+  },
+  "@da-facility.dateField.timeLabel": {
+    "defaultMessage": "{label}, vrijeme"
+  },
+  "@astryx.calendar.previousMonth": {
+    "defaultMessage": "Prethodni mjesec"
+  },
+  "@astryx.calendar.nextMonth": {
+    "defaultMessage": "Sljedeći mjesec"
+  },
+  "@astryx.calendar.daySelected": {
+    "defaultMessage": "{date}, odabrano"
+  },
+  "@astryx.calendar.dayRangeStart": {
+    "defaultMessage": "{date}, početak razdoblja"
+  },
+  "@astryx.calendar.dayRangeEnd": {
+    "defaultMessage": "{date}, kraj razdoblja"
+  },
+  "@astryx.calendar.dayRangeStartAndEnd": {
+    "defaultMessage": "{date}, početak i kraj razdoblja"
+  },
+  "@astryx.calendar.dayInRange": {
+    "defaultMessage": "{date}, u razdoblju"
+  },
+  "@astryx.calendar.rangeStartAnnounce": {
+    "defaultMessage": "Početak {date}. Odaberite kraj."
+  },
+  "@astryx.calendar.rangeCompleteAnnounce": {
+    "defaultMessage": "Odabrano razdoblje od {start} do {end}."
+  },
+  "@astryx.calendar.rangeClearedAnnounce": {
+    "defaultMessage": "Početak {date} je uklonjen. Odaberite početak."
+  },
+  "@astryx.dateInput.placeholder": {
+    "defaultMessage": "Odaberite datum"
+  },
+  "@astryx.dateInput.dialogLabel": {
+    "defaultMessage": "Odabir datuma"
+  },
+  "@astryx.dateInput.closeCalendar": {
+    "defaultMessage": "Zatvori kalendar"
+  },
+  "@astryx.dateInput.openCalendar": {
+    "defaultMessage": "Otvori kalendar"
+  },
+  "@astryx.dateInput.toggleCalendarClose": {
+    "defaultMessage": "Zatvori kalendar"
+  },
+  "@astryx.dateInput.clear": {
+    "defaultMessage": "Očisti: {label}"
+  },
+  "@astryx.dateInput.invalidDate": {
+    "defaultMessage": "Datum nije valjan"
+  },
+  "@astryx.dateInput.resetPicking": {
+    "defaultMessage": "Poništi"
+  },
+  "@astryx.dateInput.savePicking": {
+    "defaultMessage": "Spremi"
+  },
+  "@astryx.dateInput.doneChoosingMonth": {
+    "defaultMessage": "Gotovo"
+  },
+  "@astryx.dateInput.chooseMonthYear": {
+    "defaultMessage": "{monthYear}, odaberite mjesec i godinu"
+  },
+  "@astryx.dateInput.monthWheel": {
+    "defaultMessage": "Mjesec"
+  },
+  "@astryx.dateInput.yearWheel": {
+    "defaultMessage": "Godina"
+  },
+  "@astryx.dateTimeInput.placeholder": {
+    "defaultMessage": "Odaberite datum"
+  },
+  "@astryx.dateTimeInput.timePlaceholder": {
+    "defaultMessage": "Odaberite vrijeme"
+  },
+  "@astryx.dateTimeInput.timeHint12h": {
+    "defaultMessage": "npr. 2:30 PM"
+  },
+  "@astryx.dateTimeInput.timeHint24h": {
+    "defaultMessage": "npr. 14:30"
+  },
+  "@astryx.dateTimeInput.timeSuffix": {
+    "defaultMessage": "{label}, vrijeme"
+  },
+  "@astryx.dateTimeInput.timeOptionsLabel": {
+    "defaultMessage": "{label}, ponuđena vremena"
+  },
+  "@astryx.dateTimeInput.dialogLabel": {
+    "defaultMessage": "Odabir datuma i vremena"
+  },
+  "@astryx.dateTimeInput.pickerMode": {
+    "defaultMessage": "Datum ili vrijeme"
+  },
+  "@astryx.dateTimeInput.dateTab": {
+    "defaultMessage": "Datum"
+  },
+  "@astryx.dateTimeInput.timeTab": {
+    "defaultMessage": "Vrijeme"
+  },
+  "@astryx.dateTimeInput.openTimePicker": {
+    "defaultMessage": "Otvori: {label}"
+  },
+  "@astryx.dateTimeInput.saveDatePicking": {
+    "defaultMessage": "Spremi datum"
+  },
+  "@astryx.dateTimeInput.hourWheel": {
+    "defaultMessage": "Sat"
+  },
+  "@astryx.dateTimeInput.minuteWheel": {
+    "defaultMessage": "Minuta"
+  },
+  "@astryx.dateTimeInput.secondWheel": {
+    "defaultMessage": "Sekunda"
+  },
+  "@astryx.dateTimeInput.meridiemWheel": {
+    "defaultMessage": "AM/PM"
+  },
+  "@astryx.dateTimeInput.meridiemAM": {
+    "defaultMessage": "AM"
+  },
+  "@astryx.dateTimeInput.meridiemPM": {
+    "defaultMessage": "PM"
+  },
+  "@astryx.timeInput.placeholder": {
+    "defaultMessage": "Odaberite vrijeme"
+  },
+  "@astryx.timeInput.invalidTime": {
+    "defaultMessage": "Vrijeme nije valjano"
+  },
+  "@astryx.timeInput.openPicker": {
+    "defaultMessage": "Otvori: {label}"
+  },
+  "@astryx.timeInput.clearLabel": {
+    "defaultMessage": "Očisti: {label}"
   }
 }

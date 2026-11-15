@@ -12,6 +12,7 @@ import {PocketIdButtonExample} from './examples/pocket-id-button/PocketIdButtonE
 import {ProjectSelectorExample} from './examples/project-selector/ProjectSelectorExample';
 import {ScrollAreaExample} from './examples/scroll-area/ScrollAreaExample';
 import {CodeInputExample} from './examples/code-input/CodeInputExample';
+import {DateFieldExample} from './examples/date-field/DateFieldExample';
 import {CycleButtonExample} from './examples/cycle-button/CycleButtonExample';
 import {SelectionBarExample} from './examples/selection-bar/SelectionBarExample';
 import {ToastsExample} from './examples/toasts/ToastsExample';
@@ -84,6 +85,21 @@ export const examples: Example[] = [
       {id: 'fourDigits', label: 'Four digits', group: 'Length'},
     ],
     Component: CodeInputExample,
+  },
+  {
+    id: 'date-field',
+    name: 'Date field',
+    kind: 'Component',
+    description: 'A date, and optionally a time, typed in the locale’s order or picked from a month calendar, with limits, disabled days and a clear button.',
+    tweaks: [
+      {id: 'withTime', label: 'With a time', group: 'Value'},
+      {id: 'empty', label: 'Empty', group: 'Value'},
+      {id: 'limits', label: 'Next 30 days, weekdays only', group: 'Limits'},
+      {id: 'error', label: 'Error', group: 'State'},
+      {id: 'disabled', label: 'Disabled', group: 'State'},
+      {id: 'nativeTouch', label: 'Phone’s own picker on touch', group: 'Touch'},
+    ],
+    Component: DateFieldExample,
   },
   {
     id: 'cycle-button',

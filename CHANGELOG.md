@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+New:
+
+- `DateField`: a date, or with `hasTime` a date and time, typed in the locale's order ("3. 12. 2026." in Croatian) or picked from a month calendar, built on Astryx's `DateInput` and `DateTimeInput`. The week starts on the locale's first day (Monday in Croatian), times follow the locale's clock, `min`, `max` and `isDateDisabled` limit the choice, a clear button empties it, and a finger gets the calendar in a bottom sheet (`touchPicker="native"` for the phone's own picker). In the calendar, Page Up and Page Down move by month and, with Shift, by year. Its text is in `@da-facility.dateField.*`, and `locales/hr.json` now also translates the Astryx date, time and calendar strings it shows.
+
 ## 1.4.0
 
 New:

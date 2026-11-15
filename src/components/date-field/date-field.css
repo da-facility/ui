@@ -1,0 +1,4 @@
+/* The wrapper only listens; the Astryx field inside it is what takes room in the layout. */
+.date-field {
+  display: contents;
+}
