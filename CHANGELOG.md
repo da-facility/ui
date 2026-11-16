@@ -10,6 +10,7 @@ New:
 
 Other changes:
 
+- `MediaGrid` rows: a jump into what isn't loaded yet (with the scroll bar, or a restored position) stays where it was put while pages arrive above it; the grey stand-ins take no part in the browser's scroll anchoring.
 - Numbers in translated strings get the locale's grouping, as untranslated English already did: `MediaViewer`'s position reads "5.001 / 10.000" in Croatian, not "5001 / 10000". Numbers a plural or select needs stay numbers.
 - `MediaViewer` on phones: the position ("5,001 / 10,000") is on its own line above the title, so a long file name no longer cuts it off.
 

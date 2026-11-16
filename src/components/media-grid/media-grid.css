@@ -91,6 +91,14 @@
   position: relative;
 }
 
+/* The stand-ins move down as pages arrive above them: the browser must never
+   hold the window to one (scroll anchoring would carry it along), so a jump
+   into what isn't loaded yet stays where the person put it. */
+.media-grid__placeholders,
+.media-grid__placeholders * {
+  overflow-anchor: none;
+}
+
 .media-grid[data-layout="rows"] .media-tile {
   position: absolute;
   aspect-ratio: auto;

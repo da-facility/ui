@@ -199,3 +199,15 @@ test('an image that doesn’t load: the tile says so and still opens; the viewer
   await expect(alert).toHaveCount(0);
   await expect(page.locator('.media-viewer__image--preview')).toHaveAttribute('data-loaded', 'true');
 });
+
+test('a jump into what isn’t loaded yet stays where the person put it while the pages arrive', async ({page}) => {
+  await presetTweaks(page, 'media-grid', {rows: true, reserve: true});
+  await page.goto('/render/media-grid');
+  await expect(page.locator('.media-tile[data-index="0"]:not([data-loading])')).toBeVisible();
+  const target = await page.evaluate(() => Math.round(document.documentElement.scrollHeight * 0.6));
+  await page.evaluate(y => scrollTo(0, y), target);
+  // Every page arrives above the window (240 photos, 60 a page).
+  await expect(page.getByText('All 240 photos are loaded.')).toBeAttached({timeout: 20_000});
+  const y = await page.evaluate(() => scrollY);
+  expect(Math.abs(y - target)).toBeLessThan(800);
+});
