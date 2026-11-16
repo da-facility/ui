@@ -10,6 +10,7 @@ New:
 
 Other changes:
 
+- Numbers in translated strings get the locale's grouping, as untranslated English already did: `MediaViewer`'s position reads "5.001 / 10.000" in Croatian, not "5001 / 10000". Numbers a plural or select needs stay numbers.
 - `MediaViewer` on phones: the position ("5,001 / 10,000") is on its own line above the title, so a long file name no longer cuts it off.
 
 - `useMessages()` gives the same function for as long as the locale and messages stay the same, and parses each locale once. Components that pass it on (`MediaGrid`'s keyboard handler among them) no longer make memoized children redraw on every render: with 10,000 photos, every page that arrived redrew every block of the grid.

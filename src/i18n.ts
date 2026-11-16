@@ -24,10 +24,14 @@ export function useMessages() {
   return useMemo(() => {
     const chain = localeChain(locale);
     return (key: MessageKey, values?: Record<string, string | number>) => {
-      const isTranslated = chain.some(tag => overrides?.[tag]?.[key] != null || messages[tag]?.[key]?.defaultMessage != null);
-      return isTranslated
-        ? translate(key, values)
-        : format(en[key].defaultMessage, values, locale);
+      const tag = chain.find(tag => overrides?.[tag]?.[key] != null || messages[tag]?.[key]?.defaultMessage != null);
+      if (tag === undefined) return format(en[key].defaultMessage, values, locale);
+      // Numbers get the locale's grouping ("10.000"), except those a plural or select needs as numbers.
+      const override = overrides?.[tag]?.[key] as unknown;
+      const text = typeof override === 'string' ? override : messages[tag]?.[key]?.defaultMessage ?? '';
+      const grouped = values && Object.fromEntries(Object.entries(values).map(([name, value]) =>
+        [name, typeof value === 'number' && !new RegExp(`\\{\\s*${name}\\s*,`).test(text) ? formatNumber(value, locale) : value]));
+      return translate(key, grouped);
     };
   }, [locale, messages, overrides, translate]);
 }

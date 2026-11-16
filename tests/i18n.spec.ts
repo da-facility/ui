@@ -34,3 +34,9 @@ test('built-in strings follow the provider’s locale', async ({page}, testInfo)
   await expect(page.getByRole('button', {name: 'Prijava', exact: true})).toBeVisible();
   await expect(drawerTrigger(page)).toHaveCount(0);
 });
+
+test('numbers in translated strings get the locale’s grouping: the viewer’s position in Croatian', async ({page}) => {
+  await presetTweaks(page, 'media-grid', {}, {croatian: true});
+  await page.goto('/render/media-grid/large#photo-5000');
+  await expect(page.locator('.media-viewer__position')).toHaveText(/5\.001 \/ 20\.000$/);
+});
