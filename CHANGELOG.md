@@ -6,6 +6,10 @@ New:
 
 - `TimeField`: a time of day on its own (`HH:mm`), for a time beside a `DateField` that may stay empty, built on Astryx's `TimeInput`. Empty is a value of its own (`undefined`), reached with the clear button or by deleting the text, and `placeholder` says what it means ("end of day"). Times follow the locale's clock (24 hours in Croatian); "17", "1700", "17:00" and "17.00" are all 17:00. `min`, `max` and `minuteStep` limit and step it, `isDisabled` with `disabledMessage` explains why it is off, and a finger gets the phone's own time picker. Its text is in `@da-facility.timeField.*`.
 
+Other changes:
+
+- `SidebarLayout` (and `Assistant`) keep the desktop rail in a window 600px tall: the phone layout (top bar or floating button, and the drawer) starts below 600px instead of at it, so a laptop window of 1280 × 600 is no longer laid out as a phone.
+
 ## 1.5.0
 
 New:

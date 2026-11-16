@@ -21,7 +21,7 @@
   height: 24px;
 }
 
-@media (min-width: 769px) and (min-height: 601px) {
+@media (min-width: 769px) and (min-height: 600px) {
   .mobile-navigation__trigger.mobile-navigation__trigger {
     display: none;
   }

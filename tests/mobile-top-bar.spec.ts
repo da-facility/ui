@@ -114,3 +114,17 @@ test.describe('wider screens', () => {
     expect((await page.getByRole('main').boundingBox())!.y).toBe(0);
   });
 });
+
+test.describe('a low window', () => {
+  test.use({viewport: {width: 1280, height: 600}, hasTouch: false});
+
+  test('600px tall keeps the rail; below that, the top bar and the drawer', async ({page}) => {
+    await presetTweaks(page, 'sidebar', {topBar: true, header: false});
+    await page.goto('/render/sidebar/long-table');
+    await expect(page.locator('.sidebar-layout__rail')).toBeVisible();
+    await expect(drawerTrigger(page)).toBeHidden();
+    await page.setViewportSize({width: 1280, height: 599});
+    await expect(page.locator('.sidebar-layout__rail')).toBeHidden();
+    await expect(drawerTrigger(page)).toBeVisible();
+  });
+});

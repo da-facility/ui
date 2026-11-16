@@ -211,7 +211,7 @@
   --sidebar-layout-radius-bottom: 12px;
 }
 
-@media (min-width: 769px) and (min-height: 601px) {
+@media (min-width: 769px) and (min-height: 600px) {
   .sidebar-layout:has(.sidebar-layout__assistant .assistant[data-open]) {
     --sidebar-layout-bottom: min(440px, 55dvh);
     --sidebar-layout-inset: 8px;
@@ -227,7 +227,7 @@
   display: none;
 }
 
-@media (min-width: 769px) and (min-height: 601px) {
+@media (min-width: 769px) and (min-height: 600px) {
   .sidebar-layout[data-mobile-trigger="top-bar"]:not([data-header]) .sidebar-layout__header {
     display: none;
   }
@@ -235,7 +235,7 @@
 
 /* Phones: a full-width header, the floating menu button and drawer instead of the rail. */
 
-@media (max-width: 768px), (max-height: 600px) {
+@media (max-width: 768px), (max-height: 599.98px) {
   .sidebar-layout__rail {
     display: none;
   }

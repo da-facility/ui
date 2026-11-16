@@ -306,7 +306,7 @@
   }
 }
 
-@media (max-width: 768px), (max-height: 600px) {
+@media (max-width: 768px), (max-height: 599.98px) {
   .assistant[data-open] {
     height: calc(var(--assistant-bar-height) + env(safe-area-inset-bottom));
   }

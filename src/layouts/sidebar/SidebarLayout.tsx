@@ -74,7 +74,7 @@ export type SidebarLayoutProps = Pick<PageScrollProps, 'background' | 'overscrol
   mobileNavigationArtwork?: ReactNode;
 };
 
-const NARROW_VIEWPORT = '(max-width: 768px), (max-height: 600px)';
+const NARROW_VIEWPORT = '(max-width: 768px), (max-height: 599.98px)';
 
 /**
  * Full-page app shell with a fixed navigation rail on desktop and a drawer on

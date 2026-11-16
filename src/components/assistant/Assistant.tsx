@@ -27,7 +27,7 @@ export type AssistantProps = {
   onOpenChange?: (open: boolean) => void;
 };
 
-const NARROW_VIEWPORT = '(max-width: 768px), (max-height: 600px)';
+const NARROW_VIEWPORT = '(max-width: 768px), (max-height: 599.98px)';
 
 /**
  * A chat bar that stays out of the way at the bottom of the screen. Opening it
