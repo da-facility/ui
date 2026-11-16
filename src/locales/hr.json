@@ -164,6 +164,9 @@
   "@da-facility.mediaTile.failed": {
     "defaultMessage": "priprema nije uspjela"
   },
+  "@da-facility.mediaTile.notLoaded": {
+    "defaultMessage": "nije se učitala"
+  },
   "@da-facility.mediaGrid.label": {
     "defaultMessage": "Galerija"
   },
@@ -199,6 +202,12 @@
   },
   "@da-facility.mediaViewer.positionAnnouncement": {
     "defaultMessage": "{name}, {position} od {total}"
+  },
+  "@da-facility.mediaViewer.notLoaded": {
+    "defaultMessage": "Slika se nije učitala."
+  },
+  "@da-facility.mediaViewer.retry": {
+    "defaultMessage": "Pokušaj ponovno"
   },
   "@da-facility.pageTrail.label": {
     "defaultMessage": "Putanja"

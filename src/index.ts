@@ -19,8 +19,8 @@ export {TimeField, type TimeFieldProps} from './components/time-field/TimeField'
 export {PageTrail, type PageTrailLevel, type PageTrailProps} from './components/page-trail/PageTrail';
 export {PageHeader, type PageHeaderBreadcrumb, type PageHeaderChip, type PageHeaderProps} from './components/page-header/PageHeader';
 export {MediaCard, type MediaCardImage, type MediaCardProps} from './components/media-card/MediaCard';
-export {MediaGrid, type MediaGridItem, type MediaGridProps} from './components/media-grid/MediaGrid';
-export {MediaTile, type MediaTileProps, type MediaTileState} from './components/media-grid/MediaTile';
+export {MediaGrid, type MediaGridItem, type MediaGridProps, type MediaGridSection} from './components/media-grid/MediaGrid';
+export {MediaTile, type MediaTileCaption, type MediaTileProps, type MediaTileState} from './components/media-grid/MediaTile';
 export {SelectionBar, type SelectionBarProps} from './components/selection-bar/SelectionBar';
 export {MediaViewer, type MediaViewerItem, type MediaViewerProps} from './components/media-viewer/MediaViewer';
 

@@ -66,3 +66,97 @@
     gap: var(--da-media-gap-phone, 3px);
   }
 }
+
+/* layout="rows": whole images in rows of one height. The probe hands the
+   values to the layout: its height is the row height, its column gap the
+   gap, its top padding a section heading's height (with the space under it)
+   and its top margin the space above a section. Phones get lower rows. */
+.media-grid[data-layout="rows"] {
+  --media-grid-row-height: var(--da-media-row-height, 180px);
+}
+
+.media-grid__rows-probe {
+  position: absolute;
+  width: 0;
+  height: var(--da-media-row-height, 180px);
+  box-sizing: content-box;
+  margin-top: var(--da-media-section-gap, 20px);
+  padding-top: var(--da-media-section-height, 40px);
+  column-gap: var(--da-media-gap, 6px);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.media-grid__block {
+  position: relative;
+}
+
+.media-grid[data-layout="rows"] .media-tile {
+  position: absolute;
+  aspect-ratio: auto;
+}
+
+/* Before the grid is measured (and on the server): the first tiles in plain wrapping rows. */
+.media-grid__first {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--da-media-gap, 6px);
+}
+
+.media-grid__first .media-tile {
+  position: relative;
+  height: var(--media-grid-row-height);
+}
+
+.media-grid__heading {
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding-bottom: 6px;
+  background: var(--da-media-section-background, var(--color-background-body, transparent));
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.media-grid__heading-title {
+  overflow: hidden;
+  margin: 0;
+  color: var(--color-text-primary);
+  font: inherit;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.media-grid__heading-meta {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.media-grid__heading-meta::before {
+  content: "· ";
+}
+
+.media-grid[data-sticky] .media-grid__heading {
+  position: sticky;
+  z-index: 1;
+  top: var(--da-media-section-sticky-top, var(--sidebar-layout-header, 0px));
+}
+
+@media (max-width: 768px) {
+  .media-grid[data-layout="rows"] {
+    --media-grid-row-height: var(--da-media-row-height-phone, 110px);
+  }
+
+  .media-grid__rows-probe {
+    height: var(--da-media-row-height-phone, 110px);
+    column-gap: var(--da-media-gap-phone, 3px);
+  }
+
+  .media-grid__first {
+    gap: var(--da-media-gap-phone, 3px);
+  }
+}

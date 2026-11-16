@@ -1,6 +1,8 @@
 import {memo, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent} from 'react';
 import {useMessages} from '../../i18n';
-import {Tile, type MediaTileState} from './MediaTile';
+import {Tile, type MediaTileCaption, type MediaTileState} from './MediaTile';
+import {RowsGrid} from './RowsGrid';
+import {currentPath, opened} from './restore';
 import './media-grid.css';
 
 export type MediaGridItem = {
@@ -17,9 +19,23 @@ export type MediaGridItem = {
   state?: MediaTileState;
   /** Text for the image, such as a headline, caption or file name. */
   alt: string;
-  /** Intrinsic size of the image. */
+  /**
+   * Intrinsic size of the image. In `layout="rows"` it decides the tile's
+   * shape; without it the tile is 3:2 and stays so when the image arrives.
+   */
   width?: number;
   height?: number;
+  /** Two lines shown over the tile on hover and keyboard focus (or always, `captions="always"`); `layout="rows"` only. */
+  caption?: MediaTileCaption;
+};
+
+/** A section of a grid of rows: its heading, and the meta beside it (such as how many photos it holds). */
+export type MediaGridSection = {
+  /** Items with the same key in a row form one section. */
+  key: string;
+  title: string;
+  /** Text beside the title, such as a count. */
+  meta?: string;
 };
 
 export type MediaGridProps<Item extends MediaGridItem> = {
@@ -56,10 +72,52 @@ export type MediaGridProps<Item extends MediaGridItem> = {
    * opened, at the same place on screen, when it remounts after opening it.
    */
   focusId?: string;
+  /**
+   * `layout="rows"`: where on screen (pixels from the window's top) to put
+   * `focusId`'s tile, such as where it was before a reload; without it the
+   * tile stays where it is if it is in view, else comes to the middle. The
+   * grid waits for the item's page (load until it arrives).
+   */
+  focusOffset?: number;
   /** Accessible name of the grid. Defaults to "Gallery". */
   label?: string;
   /** Key under which the opened tile is remembered for returning to it. Defaults to the page's path and query. */
   restoreKey?: string;
+  /**
+   * `grid` (the default): even 3:2 tiles, cropped, every tile in the document.
+   * `rows`: every image whole at its own shape (`width`, `height`), in rows of
+   * equal height that fill the width (lower on phones), with optional sections
+   * and captions; only the rows near the window are in the document, so
+   * 10,000 items cost about what 200 do. Find in page doesn't reach the rows
+   * that aren't drawn.
+   */
+  layout?: 'grid' | 'rows';
+  /**
+   * `layout="rows"`: how many items there will be once everything is loaded,
+   * exact or estimated. The height of those not loaded yet is reserved for
+   * them (grey tiles in the loaded items' shapes, repeated), so the scrollbar
+   * covers the whole collection from the start and keeps its size as pages
+   * arrive.
+   */
+  total?: number;
+  /** `total` is exact: screen readers then hear each item's place in it ("5,001 of 10,000"). */
+  isTotalExact?: boolean;
+  /**
+   * `layout="rows"`: the section an item belongs to; consecutive items with
+   * the same key share one, under a heading. Keep the function stable.
+   */
+  sectionOf?: (item: Item, index: number) => MediaGridSection;
+  /** `layout="rows"`: section headings stay at the top of the window while their section scrolls under them. */
+  stickySections?: boolean;
+  /** Heading level of the sections' titles. Defaults to 2. */
+  sectionHeadingLevel?: 2 | 3 | 4;
+  /** `layout="rows"`: captions on hover and keyboard focus (`hover`, the default), or always, as for touch screens. */
+  captions?: 'hover' | 'always';
+  /**
+   * `layout="rows"`: ask for the next page while the end of what is loaded is
+   * this many screens below the window or nearer. Defaults to 3.
+   */
+  loadAhead?: number;
 };
 
 type Layout = {columns: number; tileHeight: number; gap: number};
@@ -70,12 +128,13 @@ const CHUNK_TILES = 96;
 const FIRST_TILES = 240;
 /** The last measured layout, so a remounted grid starts with the right blocks and height. */
 let lastLayout: Layout | null = null;
-/** Tiles opened from a grid, by page, to return to when the grid comes back. */
-const opened = new Map<string, {id: string; top: number; at: number}>();
 
 /**
- * Images as an even grid of 3:2 tiles that loads more as the person scrolls.
+ * Images as an even grid of 3:2 tiles that loads more as the person scrolls,
+ * or (`layout="rows"`) whole images in rows of equal height, in sections,
+ * with only the rows near the window in the document.
  *
+ * The even grid:
  * It stays smooth with tens of thousands of items without scroll listeners:
  * every tile is in the document, so find in page, tab order and screen readers
  * work, but tiles are grouped into blocks of whole rows with
@@ -84,7 +143,12 @@ const opened = new Map<string, {id: string; top: number; at: number}>();
  * count comes from the CSS grid itself (a `ResizeObserver` reads it), and an
  * `IntersectionObserver` asks for more.
  */
-export function MediaGrid<Item extends MediaGridItem>({
+export function MediaGrid<Item extends MediaGridItem>(props: MediaGridProps<Item>) {
+  return props.layout === 'rows' ? <RowsGrid {...props} /> : <EvenGrid {...props} />;
+}
+
+/** `layout="grid"`: the even grid of 3:2 tiles. */
+function EvenGrid<Item extends MediaGridItem>({
   items,
   getHref,
   selectedIds,
@@ -345,8 +409,4 @@ const EMPTY: ReadonlySet<string> = new Set();
 
 function round(value: number) {
   return Math.round(value * 100) / 100;
-}
-
-function currentPath() {
-  return typeof location === 'undefined' ? '' : location.pathname + location.search;
 }

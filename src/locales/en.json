@@ -219,6 +219,10 @@
     "defaultMessage": "couldn’t be prepared",
     "description": "Read after an image’s description when its image couldn’t be made; the tile shows a broken-image mark."
   },
+  "@da-facility.mediaTile.notLoaded": {
+    "defaultMessage": "couldn’t be loaded",
+    "description": "Read after an image’s description when its image exists but didn’t load (the network, an expired address); the tile shows a broken-image mark."
+  },
   "@da-facility.mediaGrid.label": {
     "defaultMessage": "Gallery",
     "description": "Default accessible name of a grid of images."
@@ -266,6 +270,14 @@
   "@da-facility.mediaViewer.positionAnnouncement": {
     "defaultMessage": "{name}, {position} of {total}",
     "description": "Read when the viewer moves to another image. {name} is the image’s description."
+  },
+  "@da-facility.mediaViewer.notLoaded": {
+    "defaultMessage": "The image couldn’t be loaded.",
+    "description": "Over the viewer’s canvas when the image didn’t load; a button to try again follows."
+  },
+  "@da-facility.mediaViewer.retry": {
+    "defaultMessage": "Try again",
+    "description": "Loads the image that didn’t load again."
   },
   "@da-facility.pageTrail.label": {
     "defaultMessage": "Breadcrumb",

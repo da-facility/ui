@@ -11,7 +11,7 @@ Layouts, templates and components for Da Facility apps, built on [Meta Astryx](h
 | `CodeInput` | Component | One-time sign-in code as a row of boxes over one real input, so paste and autofill work. |
 | `DateField` | Component | A date, and optionally a time, typed in the locale's order or picked from a month calendar. |
 | `TimeField` | Component | A time of day on its own, beside a `DateField`, that may stay empty. |
-| `MediaGrid`, `MediaTile` | Component | An even grid of 3:2 image tiles with selection, keyboard focus and paging, smooth with tens of thousands of items. |
+| `MediaGrid`, `MediaTile` | Component | An even grid of 3:2 image tiles, or whole images in rows of equal height with sections and captions, with selection, keyboard focus and paging, smooth with tens of thousands of items. |
 | `MediaViewer` | Component | Full-window image viewer on a dark canvas: the image fitted, previous and next, zoom, and a side panel slot. |
 | `PageHeader` | Component | The top of a page: breadcrumbs, title, meta line, actions, and a row for search and filter chips. |
 | `PageTrail` | Component | Breadcrumbs on one line: the levels that don't fit go into a menu; on phones a back link and a list of every level above. |
@@ -244,6 +244,32 @@ Tiles are 3:2 and crop their image to fill; the image loads lazily over an empty
 - **Layout** comes from CSS: columns at least `--da-media-grid-min` (118px) wide, `--da-media-gap` (6px) apart; on phones `--da-media-grid-phone-columns` (3) columns `--da-media-gap-phone` (3px) apart. `--da-media-radius` (4px) rounds the tiles and `--da-media-selection` (the accent) colours the selection ring.
 
 **How it stays smooth with tens of thousands of items.** Every tile is in the document, so find in page, the tab order and screen readers see them all. Tiles are grouped into blocks of whole rows, about 100 tiles each, with `content-visibility: auto`: the browser lays out and paints only the blocks near the screen. Each block has an exact `contain-intrinsic-size`, so the page has its full height from the start, the scroll bar is true, and restoring a scroll position lands exactly. The column count is read from the CSS grid by a `ResizeObserver`, and an `IntersectionObserver` near the end asks for more; nothing listens to scroll events. With 20,000 photos (`/media-grid/large` in the catalogue, measured by `tests/media-grid-performance.spec.ts` in headless Chromium at 1920×1080), 4 of 209 blocks render; the grid mounts in about 1.0s instead of 3.1s, a relayout of the page takes about 3.5ms instead of 135ms, scrolling 30,000px runs at a median 16.7ms a frame instead of 167ms, and selecting all 20,000 takes about 0.5s instead of 2.1s. A grid that rebuilt rows from scroll positions would have to listen to scroll and lose find in page; this one lets the browser skip the work.
+
+#### Whole images in rows: `layout="rows"`
+
+```tsx
+<MediaGrid
+  layout="rows"
+  items={photos.map(photo => ({id: photo.id, src: photo.thumbUrl, alt: photo.name, width: photo.width, height: photo.height,
+    caption: {title: photo.name, text: [photo.headline, photo.author].filter(Boolean).join(' · ')}}))}
+  total={gallery.photoCount}
+  isTotalExact
+  sectionOf={byDay}               // (item, index) => ({key: '2026-06-18', title: 'Thursday 18 June 2026', meta: '6,412 photos'}), stable
+  stickySections
+  getHref={photo => `/g/${gallery}/p/${photo.id}`}
+  onLoadMore={loadMore}
+  isDone={isDone}
+  label="Photos"
+/>
+```
+
+Every image is shown whole, at its own shape from `width` and `height`: portraits narrower, landscapes wider, in rows of one height that fill the width, the last row of a section not stretched. An item without a size is 3:2 and stays so when its image arrives, so rows never jump. Rows aim at `--da-media-row-height` (180px), on phones `--da-media-row-height-phone` (110px).
+
+- **Only the rows near the window are in the document.** The grid computes every tile's place in JS (`rows.ts`), groups rows into blocks of about six, and draws a block's tiles only while it is within a screen of the window; the others are empty boxes of their exact height. An `IntersectionObserver` on the blocks says when the window crossed one; nothing listens to scroll events. With 10,000 photos in the catalogue (`/media-grid/rows-large`, measured by `tests/media-grid-performance.spec.ts` in headless Chromium) the document holds at most 3,334 nodes at 1920×1080 and 3,028 at 390×844 wherever the window is, and scrolling to the end a screen a frame runs at a median 16.7 ms a frame with no task over 50 ms. The tile with the grid's tab stop stays drawn, and keys, Ctrl/Cmd+A, Shift ranges and returning from the viewer reach tiles that aren't drawn: their block is drawn first. **Find in page doesn't reach tiles that aren't drawn**; offer the app's own search for that.
+- **What isn't loaded yet has its room from the start.** `total` says how many items there will be (exact or estimated); the rest are grey tiles in the loaded items' shapes, repeated, so the scroll bar covers the whole collection and keeps its size as pages arrive. With `isTotalExact`, screen readers hear each tile's place in it ("5,001 of 10,000"): tiles are list items with `aria-posinset` and `aria-setsize`.
+- **Loading runs ahead.** `onLoadMore` is called while the grey tiles (or the end) are within `loadAhead` screens below the window (3 by default), and again after every page while they still are, also when the person jumps into them with the scroll bar.
+- **Sections.** `sectionOf` gives each item's section: consecutive items with the same `key` share one, under a heading (`title`, and `meta` beside it, such as a count; `sectionHeadingLevel`, 2 by default). Each section starts its own rows. `stickySections` keeps the heading at the top of the window while its section scrolls under it, under `SidebarLayout`'s header (`--da-media-section-sticky-top` for another fixed header). The heading is `--da-media-section-height` (40px) tall with the space under it, sections are `--da-media-section-gap` (20px) apart, and its ground is `--da-media-section-background` (the page's).
+- **Captions.** An item's `caption` (`title` and `text`, one line each) shows over the bottom of its tile on hover and keyboard focus, or always with `captions="always"`, as touch screens need. Its shade is `--da-media-caption-shade`, its text `--da-media-caption-text`. Tiles under 96px wide leave it out.
 
 `MediaTile` is one tile on its own, with the same look: `src`, `alt`, `href`, `isSelected` and `onSelectedChange`.
 

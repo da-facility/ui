@@ -100,6 +100,9 @@ export function MediaViewer({
   const isPanelOpen = panel != null && (isPanelOpenProp ?? ownPanelOpen);
   const [zoom, setZoomState] = useState<Zoom | null>(null);
   const [loaded, setLoaded] = useState<{preview: string | null; full: string | null}>({preview: null, full: null});
+  // The preview that didn't load, and how often it was asked for again (a new image element each time).
+  const [failedPreview, setFailedPreview] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
   const [announcement, setAnnouncement] = useState('');
   const gesture = useRef<{x: number; y: number; left: number; top: number; moved: boolean; pointerType: string} | null>(null);
   const callbacks = useRef({onClose, onPrevious, onNext, returnFocus, onZoomChange});
@@ -342,7 +345,15 @@ export function MediaViewer({
                   if (image?.complete && image.naturalWidth > 0 && loaded.preview !== item.previewUrl) setLoaded(current => ({...current, preview: item.previewUrl}));
                 }}
                 onLoad={() => setLoaded(current => ({...current, preview: item.previewUrl}))}
+                onError={() => setFailedPreview(item.previewUrl)}
+                key={attempt}
               />
+              {failedPreview === item.previewUrl && !isPreviewLoaded && <div className="media-viewer__failed" role="alert">
+                <span>{t('@da-facility.mediaViewer.notLoaded')}</span>
+                <button type="button" className="media-viewer__button" onClick={() => { setFailedPreview(null); setAttempt(n => n + 1); }}>
+                  {t('@da-facility.mediaViewer.retry')}
+                </button>
+              </div>}
             </div>}
         {!zoom && canPrevious && <button type="button" className="media-viewer__nav media-viewer__nav--previous" aria-label={t('@da-facility.mediaViewer.previous')} aria-keyshortcuts="ArrowLeft" onClick={() => callbacks.current.onPrevious?.()}>
           <Icon icon="chevronLeft" color="inherit" />

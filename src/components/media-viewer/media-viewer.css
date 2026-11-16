@@ -251,6 +251,34 @@ html:has(.media-viewer[open]) {
     padding-left: 12px;
   }
 
+  /* The position on its own line, never cut, and the title under it. */
+  .media-viewer__heading {
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    white-space: normal;
+  }
+
+  .media-viewer__position {
+    order: -1;
+    color: var(--media-text);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .media-viewer__position > [aria-hidden] {
+    display: none;
+  }
+
+  .media-viewer__title {
+    overflow: hidden;
+    color: var(--media-text-secondary);
+    font-size: 13px;
+    font-weight: 400;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .media-viewer__button {
     min-width: 44px;
     height: 44px;
@@ -290,4 +318,21 @@ html:has(.media-viewer[open]) {
   .media-viewer__image--full {
     transition: none;
   }
+}
+
+/* The image didn't load: said over the canvas, with a way to load it again. */
+.media-viewer__failed {
+  position: absolute;
+  inset: auto 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-inline: auto;
+  padding: 6px 6px 6px 14px;
+  width: fit-content;
+  max-width: calc(100% - 32px);
+  border-radius: var(--radius-container, 14px);
+  background: var(--media-surface);
+  color: var(--media-text);
 }

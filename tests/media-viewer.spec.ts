@@ -188,14 +188,18 @@ test('a swipe moves on touch screens', async ({page, context}, testInfo) => {
   await expect(page.locator('.media-viewer__position')).toHaveText(' · 14 / 1,204');
 });
 
-test('the canvas is dark in light mode and dark mode alike, and the page behind stays put', async ({page}) => {
+test('the canvas is dark in light mode and dark mode alike, and the page behind stays put', async ({page}, testInfo) => {
   for (const darkMode of [false, true]) {
     await presetTweaks(page, 'media-viewer', {}, {darkMode});
     await page.goto('/render/media-viewer');
     const background = await viewer(page).evaluate(element => getComputedStyle(element).backgroundColor);
     expect(luminance(background)).toBeLessThan(50);
-    const text = await page.locator('.media-viewer__title').evaluate(element => getComputedStyle(element).color);
+    // The heading's first line in the canvas's text colour: the title on desktop, the position on phones (the title is under it, secondary).
+    const first = isMobile(testInfo) ? '.media-viewer__position' : '.media-viewer__title';
+    const text = await page.locator(first).evaluate(element => getComputedStyle(element).color);
     expect(luminance(text)).toBeGreaterThan(200);
+    const title = await page.locator('.media-viewer__title').evaluate(element => getComputedStyle(element).color);
+    expect(luminance(title)).toBeGreaterThan(150);
     await expect(page.locator('html')).toHaveCSS('overflow', 'hidden');
   }
 });

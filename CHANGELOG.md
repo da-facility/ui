@@ -2,7 +2,15 @@
 
 ## Unreleased
 
+New:
+
+- `MediaGrid`: `layout="rows"` shows every image whole, at its own shape (`width`, `height`), in rows of equal height that fill the width, lower on phones (`--da-media-row-height`, `--da-media-row-height-phone`); an item without a size stays 3:2, so rows never jump. Only the rows near the window are in the document: 10,000 photos cost about what 200 do (under 5,000 document nodes). Find in page no longer reaches the rows that aren't drawn; keys, selection, Ctrl/Cmd+A and returning from the viewer still do. `total` (with `isTotalExact`) reserves the room of what isn't loaded yet as grey tiles, so the scroll bar keeps its size, and screen readers hear each tile's place ("5,001 of 10,000"). `sectionOf` puts items into sections under a heading with a count (`stickySections`, `sectionHeadingLevel`); an item's `caption` shows two lines on hover and keyboard focus, or always (`captions="always"`); `loadAhead` asks for the next page while the end is that many screens away (3). The default, `layout="grid"`, is unchanged.
+
+- An image that doesn't load says so: a `MediaGrid` or `MediaTile` tile shows the broken-image mark and screen readers hear "couldn't be loaded" (`@da-facility.mediaTile.notLoaded`), until its `src` changes; `MediaViewer` says "The image couldn't be loaded." over the canvas with "Try again", which loads it anew (`@da-facility.mediaViewer.notLoaded`, `retry`).
+
 Other changes:
+
+- `MediaViewer` on phones: the position ("5,001 / 10,000") is on its own line above the title, so a long file name no longer cuts it off.
 
 - `useMessages()` gives the same function for as long as the locale and messages stay the same, and parses each locale once. Components that pass it on (`MediaGrid`'s keyboard handler among them) no longer make memoized children redraw on every render: with 10,000 photos, every page that arrived redrew every block of the grid.
 

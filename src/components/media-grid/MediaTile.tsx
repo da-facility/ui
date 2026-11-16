@@ -1,10 +1,18 @@
-import {memo, useRef, type KeyboardEvent, type MouseEvent, type PointerEvent} from 'react';
+import {memo, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent} from 'react';
 import {useLinkComponent} from '@astryxdesign/core/Link';
 import {useMessages} from '../../i18n';
 import './media-tile.css';
 
 /** An image that isn't there: being made, or failed. */
 export type MediaTileState = 'pending' | 'failed';
+
+/** Two short lines over the bottom of a tile, such as the file name and a headline with its author. */
+export type MediaTileCaption = {
+  /** The first line, such as the file name. */
+  title: string;
+  /** The second line, such as the headline or description and the author. */
+  text?: string;
+};
 
 export type MediaTileProps = {
   /**
@@ -69,6 +77,12 @@ export function MediaTile({src, state, alt, width, height, href, isSelected = fa
 
 type TileProps = Omit<MediaTileProps, 'onSelectedChange' | 'onClick'> & {
   index: number;
+  /** Its place in a grid of rows (absolute, in pixels); without it the tile is a 3:2 cell. */
+  place?: CSSProperties;
+  caption?: MediaTileCaption;
+  /** Its position in the whole set, from 1, and the set's size (-1: unknown), for screen readers. */
+  position?: number;
+  setSize?: number;
   isSelectable: boolean;
   onToggle?: (index: number, isRange: boolean) => void;
   onOpen?: (index: number, event: MouseEvent<HTMLAnchorElement>) => void;
@@ -82,13 +96,17 @@ const LONG_PRESS = 500;
  * tile's index, so a grid passes the same functions to every tile and only
  * tiles whose own props change re-render.
  */
-export const Tile = memo(function Tile({src, state, alt, width, height, href, index, isSelected, isSelectable, isSelecting, tabIndex, onToggle, onOpen, onKeyDown}: TileProps) {
+export const Tile = memo(function Tile({src, state, alt, width, height, href, index, place, caption, position, setSize, isSelected, isSelectable, isSelecting, tabIndex, onToggle, onOpen, onKeyDown}: TileProps) {
   const t = useMessages();
   const Link = useLinkComponent();
   const press = useRef<{timer: number; x: number; y: number; fired: boolean} | null>(null);
+  // An image that exists but didn't load: the broken mark until another address comes.
+  const [brokenSrc, setBrokenSrc] = useState<string | null>(null);
 
-  if (!src && !state) return <div className="media-tile" data-index={index} data-loading="true" aria-hidden="true" />;
-  const missing = src ? undefined : state;
+  if (!src && !state) return <div className="media-tile" data-index={index} data-loading="true" aria-hidden="true" style={place} />;
+  const listItem = position === undefined ? undefined : {role: 'listitem', 'aria-posinset': position, 'aria-setsize': setSize ?? -1};
+  const notLoaded = Boolean(src) && brokenSrc === src;
+  const missing = notLoaded ? 'failed' : src ? undefined : state;
 
   // A long press on a touch screen selects instead of opening.
   function pointerDown(event: PointerEvent<HTMLAnchorElement>) {
@@ -125,7 +143,7 @@ export const Tile = memo(function Tile({src, state, alt, width, height, href, in
     onOpen?.(index, event);
   }
 
-  return <div className="media-tile" data-index={index} data-selected={isSelected || undefined} data-selecting={isSelecting || undefined} data-state={missing}>
+  return <div className="media-tile" data-index={index} data-selected={isSelected || undefined} data-selecting={isSelecting || undefined} data-state={missing} data-narrow={typeof place?.width === 'number' && place.width < 96 ? true : undefined} style={place} {...listItem}>
     <Link
       className="media-tile__link"
       href={href}
@@ -146,9 +164,13 @@ export const Tile = memo(function Tile({src, state, alt, width, height, href, in
               <path d="m4 15 4-4 3 3M14 14l2-2 4 4" />
               <path d="M3 3l18 18" />
             </svg>}
-            <span className="media-tile__visually-hidden">{alt}, {t(missing === 'failed' ? '@da-facility.mediaTile.failed' : '@da-facility.mediaTile.pending')}</span>
+            <span className="media-tile__visually-hidden">{alt}, {t(notLoaded ? '@da-facility.mediaTile.notLoaded' : missing === 'failed' ? '@da-facility.mediaTile.failed' : '@da-facility.mediaTile.pending')}</span>
           </span>
-        : <img className="media-tile__image" src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async" draggable={false} />}
+        : <img className="media-tile__image" src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async" draggable={false} onError={() => setBrokenSrc(src ?? null)} />}
+      {caption && <span className="media-tile__caption" aria-hidden="true">
+        <span className="media-tile__caption-title">{caption.title}</span>
+        {caption.text && <span className="media-tile__caption-text">{caption.text}</span>}
+      </span>}
       {isSelected && <span className="media-tile__visually-hidden">, {t('@da-facility.mediaTile.selected')}</span>}
     </Link>
     {isSelectable && <label className="media-tile__select">

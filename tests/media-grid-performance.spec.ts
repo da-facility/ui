@@ -105,3 +105,39 @@ test('20,000 photos: only the blocks near the screen are laid out and painted', 
   expect(windowed.frames.median, 'scrolling takes less time a frame than with every tile laid out').toBeLessThan(plain.frames.median);
   expect(windowed.loadedImages, 'images far off screen are not loaded').toBeLessThan(600);
 });
+
+test('10,000 photos in rows: a few thousand document nodes, no long task while scrolling to the end', async ({browser}, testInfo) => {
+  test.setTimeout(120_000);
+  const page = await browser.newPage({viewport: isMobile(testInfo) ? {width: 390, height: 844} : {width: 1920, height: 1080}, deviceScaleFactor: 1});
+  await page.addInitScript(() => {
+    (window as unknown as {longTasks: number[]}).longTasks = [];
+    new PerformanceObserver(list => { for (const entry of list.getEntries()) (window as unknown as {longTasks: number[]}).longTasks.push(entry.duration); }).observe({type: 'longtask', buffered: true});
+  });
+  await page.goto('/render/media-grid/rows-large');
+  await page.locator('.media-tile[data-index="0"] img').waitFor();
+  await page.evaluate(() => { (window as unknown as {longTasks: number[]}).longTasks = []; });
+  // To the end in screen-high steps, one a frame: far faster than a person scrolls.
+  const result = await page.evaluate(() => new Promise<{frames: number[]; nodesMax: number}>(resolve => {
+    const frames: number[] = [];
+    let nodesMax = 0;
+    let last = performance.now();
+    const tick = (now: number) => {
+      frames.push(now - last);
+      last = now;
+      nodesMax = Math.max(nodesMax, document.getElementsByTagName('*').length);
+      if (scrollY + innerHeight >= document.documentElement.scrollHeight - 1) return resolve({frames: frames.slice(1), nodesMax});
+      scrollBy(0, innerHeight);
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }));
+  await page.locator('.media-tile[data-index="9999"]').waitFor();
+  const longTasks = await page.evaluate(() => (window as unknown as {longTasks: number[]}).longTasks);
+  const sorted = [...result.frames].sort((a, b) => a - b);
+  const numbers = {steps: result.frames.length, nodesMax: result.nodesMax, frameMedian: Math.round(sorted[sorted.length >> 1] * 10) / 10, frameMax: Math.round(sorted.at(-1)! * 10) / 10, longTasks: longTasks.length, longestTask: Math.round(Math.max(0, ...longTasks))};
+  console.log(`MediaGrid rows with 10,000 photos (${testInfo.project.name}): ${JSON.stringify(numbers)}`);
+  await testInfo.attach('media-grid-rows-10000.json', {body: JSON.stringify(numbers, null, 2), contentType: 'application/json'});
+  expect(result.nodesMax, 'document nodes at any point').toBeLessThan(5000);
+  expect(numbers.longestTask, 'no long task over 200 ms').toBeLessThan(200);
+  await page.close();
+});
