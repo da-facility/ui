@@ -9,6 +9,8 @@ Layouts, templates and components for Da Facility apps, built on [Meta Astryx](h
 | `LoginPocketId` | Template | Blank sign-in page with only a Pocket ID button, and an optional title for expired or failed sign-ins. |
 | `LoginEmailCode` | Template | Two-step sign-in: an email address, then a one-time code, with a resend cool-down and a lock after too many attempts. |
 | `CodeInput` | Component | One-time sign-in code as a row of boxes over one real input, so paste and autofill work. |
+| `DateField` | Component | A date, and optionally a time, typed in the locale's order or picked from a month calendar. |
+| `TimeField` | Component | A time of day on its own, beside a `DateField`, that may stay empty. |
 | `MediaGrid`, `MediaTile` | Component | An even grid of 3:2 image tiles with selection, keyboard focus and paging, smooth with tens of thousands of items. |
 | `MediaViewer` | Component | Full-window image viewer on a dark canvas: the image fitted, previous and next, zoom, and a side panel slot. |
 | `PageHeader` | Component | The top of a page: breadcrumbs, title, meta line, actions, and a row for search and filter chips. |
@@ -174,6 +176,24 @@ A date (`YYYY-MM-DD`), or with `hasTime` a date and time (`YYYY-MM-DDTHH:mm`), a
 - **Clearing and states.** A clear button empties the field (`hasClear={false}` removes it). `isDisabled` with `disabledMessage` keeps the field focusable and shows why it is off; `status` shows an error, warning or success; `description`, `isRequired`, `isOptional`, `size` and `width` work as on Astryx's inputs.
 
 Its own text is in `@da-facility.dateField.*`. `locales/hr.json` also translates the Astryx strings it shows (`@astryx.dateInput.*`, `@astryx.dateTimeInput.*`, `@astryx.timeInput.*`, `@astryx.calendar.*`), since Astryx has no Croatian. Until Astryx does these itself, `DateField` names the calendar's weekdays in the locale's words where Astryx falls back to English, reads typed dates as above, and moves Page Up and Page Down by month; each of these steps aside once Astryx gets it right.
+
+### TimeField
+
+```tsx
+const [endTime, setEndTime] = useState<string | undefined>();
+
+<DateField label="Valid until" isLabelHidden value={endDate} onChange={setEndDate} />
+<TimeField label="Valid until, time" isLabelHidden value={endTime} onChange={setEndTime} placeholder="end of day" />
+```
+
+A time of day (`HH:mm`, on 24 hours whatever the locale shows) with no date or time zone, for a time that may stay empty beside a `DateField`: the app decides what empty means, such as the start or the end of the day, and says so in `placeholder` (which otherwise reads "Time"). Built on Astryx's `TimeInput`:
+
+- **Typing.** Times follow the locale's clock ("17:00" in Croatian, "5:00 PM" in US English). "17", "1700", "17:00" and "17.00" are all 17:00, and "5:30 pm" is 17:30. A valid time is taken as it is typed; Enter or leaving the field commits the rest, and leaving it shows the time in the locale's form. A time that doesn't exist or lies outside `min` and `max` (`HH:mm`) isn't taken. ArrowUp and ArrowDown step the minutes, by `minuteStep` when it is set.
+- **Empty.** `value={undefined}` is empty, and `onChange` gets `undefined` when the field is emptied: with the clear button (`hasClear={false}` removes it) or by deleting the text and pressing Enter or leaving the field. The placeholder shows while it is empty; while it has focus, a hint shows how to write a time ("npr. 14:30").
+- **Touch.** A finger gets the phone's own time picker, with the value or the placeholder shown over it. With a `minuteStep` other than 1 the typed field stays, because the phone's picker can't step by it.
+- **States.** `isDisabled` with `disabledMessage` keeps the field focusable and shows why it is off; `status` shows an error, warning or success; `description`, `isRequired`, `isOptional`, `size` and `width` work as on Astryx's inputs.
+
+Its own text is in `@da-facility.timeField.*`; `locales/hr.json` translates the Astryx strings it shows (`@astryx.timeInput.*`). Until Astryx does these itself, `TimeField` reads times written with a dot and says the focused field's format hint in the locale's words; both step aside once Astryx gets them right.
 
 ### LoginEmailCode
 

@@ -7,6 +7,7 @@ import type {InputStatus} from '@astryxdesign/core/Field';
 import {useLocale, useTranslator} from '@astryxdesign/core/i18n';
 import {useMessages} from '../../i18n';
 import {pageMonths, watchWeekdays} from './calendarFixes';
+import {hourCycle} from './hourCycle';
 import {readTypedDate} from './typedDate';
 import './date-field.css';
 
@@ -218,14 +219,5 @@ function weekStart(locale: string): 0 | 1 | 2 | 3 | 4 | 5 | 6 {
     return ['US', 'CA', 'JP', 'IL', 'BR', 'MX', 'PH', 'KR', 'TW', 'IN'].includes(maximized.region ?? '') ? 0 : 1;
   } catch {
     return 1;
-  }
-}
-
-function hourCycle(locale: string): '12h' | '24h' {
-  try {
-    const cycle = new Intl.DateTimeFormat(locale, {hour: 'numeric'}).resolvedOptions().hourCycle;
-    return cycle === 'h11' || cycle === 'h12' ? '12h' : '24h';
-  } catch {
-    return '24h';
   }
 }

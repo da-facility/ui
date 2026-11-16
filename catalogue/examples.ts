@@ -13,6 +13,7 @@ import {ProjectSelectorExample} from './examples/project-selector/ProjectSelecto
 import {ScrollAreaExample} from './examples/scroll-area/ScrollAreaExample';
 import {CodeInputExample} from './examples/code-input/CodeInputExample';
 import {DateFieldExample} from './examples/date-field/DateFieldExample';
+import {TimeFieldExample} from './examples/time-field/TimeFieldExample';
 import {CycleButtonExample} from './examples/cycle-button/CycleButtonExample';
 import {SelectionBarExample} from './examples/selection-bar/SelectionBarExample';
 import {ToastsExample} from './examples/toasts/ToastsExample';
@@ -100,6 +101,20 @@ export const examples: Example[] = [
       {id: 'nativeTouch', label: 'Phone’s own picker on touch', group: 'Touch'},
     ],
     Component: DateFieldExample,
+  },
+  {
+    id: 'time-field',
+    name: 'Time field',
+    kind: 'Component',
+    description: 'A time of day on its own, beside a date field, that may stay empty: typed on the locale’s clock, with a placeholder saying what empty means and a clear button.',
+    tweaks: [
+      {id: 'empty', label: 'Both times empty', group: 'Value'},
+      {id: 'limits', label: 'End between 08:00 and 20:00', group: 'Limits'},
+      {id: 'quarterHours', label: 'Arrow keys by 15 minutes', group: 'Limits'},
+      {id: 'error', label: 'Error', group: 'State'},
+      {id: 'disabled', label: 'Start disabled', group: 'State'},
+    ],
+    Component: TimeFieldExample,
   },
   {
     id: 'cycle-button',

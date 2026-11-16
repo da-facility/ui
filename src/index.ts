@@ -15,6 +15,7 @@ export {Toaster, type ToastArrival, type ToasterOffset, type ToasterProps, type 
 export {toast, type ToastFrom, type ToastId, type ToastOptions, type ToastPromiseOptions} from './components/toast/toast';
 export {CodeInput, type CodeInputProps} from './components/code-input/CodeInput';
 export {DateField, type DateFieldProps, type DateFieldTouchPicker} from './components/date-field/DateField';
+export {TimeField, type TimeFieldProps} from './components/time-field/TimeField';
 export {PageTrail, type PageTrailLevel, type PageTrailProps} from './components/page-trail/PageTrail';
 export {PageHeader, type PageHeaderBreadcrumb, type PageHeaderChip, type PageHeaderProps} from './components/page-header/PageHeader';
 export {MediaCard, type MediaCardImage, type MediaCardProps} from './components/media-card/MediaCard';

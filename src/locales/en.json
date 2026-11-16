@@ -290,5 +290,13 @@
   "@da-facility.dateField.timeLabel": {
     "defaultMessage": "{label}, time",
     "description": "Accessible name of the time part of a date field. {label} is the field's label."
+  },
+  "@da-facility.timeField.placeholder": {
+    "defaultMessage": "Time",
+    "description": "Placeholder of an empty time field. Apps usually pass their own, saying what an empty time means, such as \"end of day\"."
+  },
+  "@da-facility.timeField.formatHint": {
+    "defaultMessage": "e.g., {example}",
+    "description": "Placeholder of a focused, empty time field, showing how to write a time. {example} is a time in the locale's clock, such as 14:30."
   }
 }

@@ -218,6 +218,12 @@
   "@da-facility.dateField.timeLabel": {
     "defaultMessage": "{label}, vrijeme"
   },
+  "@da-facility.timeField.placeholder": {
+    "defaultMessage": "Vrijeme"
+  },
+  "@da-facility.timeField.formatHint": {
+    "defaultMessage": "npr. {example}"
+  },
   "@astryx.calendar.previousMonth": {
     "defaultMessage": "Prethodni mjesec"
   },

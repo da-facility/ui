@@ -1,0 +1,59 @@
+.time-field-example {
+  display: grid;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  place-items: center;
+  padding: 24px;
+}
+
+.time-field-example__card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(100%, 520px);
+  box-sizing: border-box;
+  padding: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  background: var(--color-background-card, var(--color-background-surface));
+}
+
+.time-field-example h1 {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 26px;
+}
+
+.time-field-example p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.time-field-example .time-field-example__value {
+  font-variant-numeric: tabular-nums;
+}
+
+.time-field-example__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.time-field-example__fields {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.time-field-example__label {
+  flex: none;
+  width: 48px;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  line-height: var(--size-element-md, 32px);
+}
