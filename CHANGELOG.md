@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+Other changes:
+
+- `useMessages()` gives the same function for as long as the locale and messages stay the same, and parses each locale once. Components that pass it on (`MediaGrid`'s keyboard handler among them) no longer make memoized children redraw on every render: with 10,000 photos, every page that arrived redrew every block of the grid.
+
 ## 1.6.0
 
 New:
