@@ -40,6 +40,7 @@ export const examples: Example[] = [
       {id: 'extraNavigation', label: '100 extra navigation items', group: 'Scrolling'},
       {id: 'leftHanded', label: 'Left-handed navigation', group: 'Phone'},
       {id: 'topBar', label: 'Menu in a top bar', group: 'Phone'},
+      {id: 'drawerByWidth', label: 'Drawer by width only', group: 'Phone'},
     ],
     Component: SidebarExample,
   },

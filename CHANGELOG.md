@@ -4,8 +4,9 @@
 
 New:
 
-- `MediaViewer` on phones: the panel's sheet always shows its top line whole under the image, with a handle; a tap on it brings the sheet up and puts it back (dragging still works). `sheetAction` puts a control at the end of that line, within the thumb's reach, such as Download; `sheetTitle` is what the line says (the panel's label by default). The Details button gives way to the sheet on phones.
+- `MediaViewer` on phones: the panel's sheet always shows its top line whole under the image, with a handle and room under it above the screen's edge (the device's safe area included); a tap on it brings the sheet up and puts it back (dragging still works), and its chevron points the way the sheet will move (`aria-expanded`). `sheetAction` puts a control at the end of that line, within the thumb's reach, such as Download; `sheetTitle` is what the line says (the panel's label by default). The Details button gives way to the sheet on phones.
 - `MediaGrid` rows: `--da-media-row-min-tile` and `--da-media-row-min-tile-phone`, the narrowest a tile should be; a photo that would be narrower goes to the next row.
+- `SidebarLayout`: `drawerBy="width"` chooses the phone layout (top bar or floating button, and the drawer) by the window's width only, so a wide, low window keeps the rail. The default, `"width-and-height"`, is unchanged (under 600px tall is a phone's layout too).
 - `MediaViewer`: `reserveZoom` (on by default) keeps zoom's place in the header while the item has no `fullUrl`, so the header doesn't move when the larger image's address arrives.
 
 Other changes:
@@ -14,7 +15,7 @@ Other changes:
 - `MediaGrid` rows: a tile is between 1:2 and 3:1 (it was 1:4 and 5:1), and a photo beyond that is shown whole inside it (`data-fit="contain"`) instead of cropped: a panorama keeps the row's height instead of taking the row.
 - The tile's selection mark is a 22px white ring with a tick on a soft scrim in the corner (it was an 18px dot), so it reads on bright photos; the tick shows faintly before the tile is chosen.
 - `MediaViewer`'s header: zoom, Details and Close look alike (an icon and its name; the icon alone on phones, each still named), and none is drawn as a pill while open. The title comes first and the position after it on phones too, on its own line with its room kept.
-- `PageTrail` on phones: the levels above the parent are behind a "…" button with an outline before the back link, where they stand, so the line reads from the top down; its menu lists the levels above the parent (the parent is the back link).
+- `PageTrail` on phones: the levels above the parent are behind a "…" button with an outline before the back link (the back link's chevron the only sign between them), where they stand, so the line reads from the top down; its menu lists the levels above the parent (the parent is the back link).
 - `MediaViewer`: "Try again" over an image that didn't load is a button with an outline, and while the thumbnail shows the line says the larger image didn't load and a smaller one is shown (`@da-facility.mediaViewer.notLoadedLarger`).
 
 ## 1.7.0

@@ -50,6 +50,14 @@ export type SidebarLayoutProps = Pick<PageScrollProps, 'background' | 'overscrol
    */
   mobileNavigationTrigger?: MobileNavigationTrigger;
   /**
+   * What makes the layout a phone's (the top bar or floating button and the
+   * drawer instead of the rail): a narrow window (768px and less) or a low
+   * one (under 600px tall), the default, or a narrow window only (`"width"`),
+   * for apps people use in wide, low windows, such as a laptop's browser
+   * beside other windows.
+   */
+  drawerBy?: 'width-and-height' | 'width';
+  /**
    * Text in the phone top bar, such as the current page's title. Defaults to
    * `title`. Only with `mobileNavigationTrigger="top-bar"`; not shown on wider
    * screens.
@@ -75,6 +83,7 @@ export type SidebarLayoutProps = Pick<PageScrollProps, 'background' | 'overscrol
 };
 
 const NARROW_VIEWPORT = '(max-width: 768px), (max-height: 599.98px)';
+const NARROW_WIDTH = '(max-width: 768px)';
 
 /**
  * Full-page app shell with a fixed navigation rail on desktop and a drawer on
@@ -98,6 +107,7 @@ export function SidebarLayout({
   assistant,
   mobileNavigationSide = 'right',
   mobileNavigationTrigger = 'floating',
+  drawerBy = 'width-and-height',
   mobileTitle,
   mobileTopBarEnd,
   mobileNavigationFooter,
@@ -114,7 +124,7 @@ export function SidebarLayout({
   const titleId = useId();
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   // Only closes the drawer when the screen widens; the layout itself is CSS.
-  const isNarrow = useMediaQuery(NARROW_VIEWPORT);
+  const isNarrow = useMediaQuery(drawerBy === 'width' ? NARROW_WIDTH : NARROW_VIEWPORT);
   useEffect(() => setDrawerOpen(false), [navigationKey, isNarrow]);
 
   const footerRef = useRef<HTMLElement>(null);
@@ -136,6 +146,7 @@ export function SidebarLayout({
     overscrollBackground={overscrollBackground}
     overscroll={overscroll}
     data-side={mobileNavigationSide}
+    data-drawer={drawerBy === 'width' ? 'width' : undefined}
     data-header={hasHeader || undefined}
     data-mobile-trigger={hasTopBar ? 'top-bar' : undefined}
     style={{'--sidebar-layout-trigger-offset': `${mobileNavigationOffset}px`} as CSSProperties}

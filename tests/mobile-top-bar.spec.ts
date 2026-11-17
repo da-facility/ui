@@ -127,4 +127,18 @@ test.describe('a low window', () => {
     await expect(page.locator('.sidebar-layout__rail')).toBeHidden();
     await expect(drawerTrigger(page)).toBeVisible();
   });
+
+  test('drawerBy="width": a wide window keeps the rail at any height', async ({page}) => {
+    await presetTweaks(page, 'sidebar', {topBar: true, header: false, drawerByWidth: true});
+    await page.setViewportSize({width: 1280, height: 570});
+    await page.goto('/render/sidebar/long-table');
+    await expect(page.locator('.sidebar-layout__rail')).toBeVisible();
+    await expect(drawerTrigger(page)).toBeHidden();
+    await expect(page.locator('.sidebar-layout__header')).toBeHidden();
+    expect((await page.getByRole('main').boundingBox())!.x).toBeGreaterThan(200);
+    // Narrow, it is a phone's layout as always.
+    await page.setViewportSize({width: 700, height: 570});
+    await expect(page.locator('.sidebar-layout__rail')).toBeHidden();
+    await expect(drawerTrigger(page)).toBeVisible();
+  });
 });

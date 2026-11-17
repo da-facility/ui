@@ -127,3 +127,11 @@
   width: 44px;
   height: 44px;
 }
+
+/* A window under 600px tall: the phone layout, unless the layout is told to
+   choose by width only (drawer="width"), which keeps the rail there. The
+   blocks above again, their selectors scoped to that choice. */
+@media (min-width: 769px) and (max-height: 599.98px) {.sidebar-layout[data-drawer="width"] .mobile-navigation__trigger.mobile-navigation__trigger {
+    display: none;
+  }
+}

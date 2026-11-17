@@ -81,6 +81,7 @@ export function SidebarExample({page: pageId, onPageChange, tweaks, onTweakChang
   const project = PROJECTS.find(item => item.id === projectId)!;
 
   return <SidebarLayout
+    drawerBy={tweaks.drawerByWidth ? 'width' : undefined}
     title={tweaks.header ? project.name : undefined}
     footer={tweaks.footer && <>
       <Text type="supporting" color="secondary">Changes save automatically.</Text>
