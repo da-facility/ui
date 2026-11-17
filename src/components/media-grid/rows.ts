@@ -5,9 +5,14 @@
  * the whole layout of 10,000 photos is known (and tested) without the DOM.
  */
 
-/** Shapes outside this range (panoramas, slivers) are drawn at its edge, cropped a little. */
-export const MIN_ASPECT = 0.25;
-export const MAX_ASPECT = 5;
+/**
+ * A tile's shape stays within this range: a panorama wider than 3:1 gets a
+ * 3:1 tile and a sliver taller than 1:2 a 1:2 one, with the whole photo shown
+ * inside it (never cropped). So one panorama can't take a row's width from
+ * its neighbours, and a row keeps its height.
+ */
+export const MIN_ASPECT = 0.5;
+export const MAX_ASPECT = 3;
 /** The shape of an item whose size isn't known: it never changes when the image arrives. */
 export const DEFAULT_ASPECT = 3 / 2;
 /** About this many rows share one block, the unit that is drawn or left empty. */
@@ -24,6 +29,12 @@ export type RowMetrics = {
   headingHeight: number;
   /** Space above every section but the first. */
   sectionGap: number;
+  /**
+   * The narrowest a tile should be: a row that would make a tile narrower
+   * goes to its next height instead (a photo moves to the next row). 0: no
+   * smallest width.
+   */
+  minTileWidth?: number;
 };
 
 /** One tile's place inside its block. */
@@ -76,44 +87,81 @@ export function aspectOf(width?: number, height?: number) {
   return Math.min(MAX_ASPECT, Math.max(MIN_ASPECT, width / height));
 }
 
+/** How many items ahead a row's break looks. A row depends on these only, so rows already laid out never change when later items arrive. */
+export const LOOKAHEAD = 48;
+/** A row is never more than this many times its target height off (above it, or below its inverse). */
+const MAX_STRETCH = 2.5;
+
 /**
- * Breaks one section's shapes into rows. A row takes items until it is as
- * wide as the grid at the target height, then is scaled to fill the width
- * exactly; it ends before or after the item that crosses the edge, whichever
- * keeps its height closer to the target. The last row keeps the target height
- * and is narrower than the grid; when more items of the section arrive, it
- * takes them in.
+ * Breaks one section's shapes into rows that fill the width, each as close
+ * to the target height as the shapes allow. Every row is chosen as the first
+ * row of the best breaking of the next `LOOKAHEAD` items (the least sum of
+ * squared relative distances from the target, a tile under `minTileWidth`
+ * counting as far off as twice the target), so a hard shape is balanced
+ * over the rows around it instead of the row it lands in, and a row depends
+ * on nothing after that window. The last row keeps the target height and is
+ * narrower than the grid; when more items of the section arrive, it takes
+ * them in.
  */
-export function justify(aspects: ArrayLike<number>, from: number, to: number, metrics: Pick<RowMetrics, 'width' | 'rowHeight' | 'gap'>) {
+export function justify(aspects: ArrayLike<number>, from: number, to: number, metrics: Pick<RowMetrics, 'width' | 'rowHeight' | 'gap' | 'minTileWidth'>) {
   const {width, rowHeight, gap} = metrics;
+  const minTile = metrics.minTileWidth ?? 0;
   const rows: {first: number; count: number; height: number}[] = [];
+  const window = LOOKAHEAD + 1;
+  const best = new Float64Array(window + 1);
+  const cut = new Int32Array(window + 1);
+  const short = new Uint8Array(window + 1);
   let first = from;
-  let sum = 0;
-  for (let index = from; index < to; index++) {
-    sum += aspects[index];
-    const count = index - first + 1;
-    const widthAtTarget = sum * rowHeight + (count - 1) * gap;
-    if (widthAtTarget < width) continue;
-    // Too wide with this item: end the row here, or just before it.
-    const withIt = (width - (count - 1) * gap) / sum;
-    const without = count > 1 ? (width - (count - 2) * gap) / (sum - aspects[index]) : Infinity;
-    if (count > 1 && Math.abs(without - rowHeight) < Math.abs(withIt - rowHeight)) {
-      rows.push({first, count: count - 1, height: without});
-      first = index;
-      sum = aspects[index];
-      // The item starts the next row; it may already fill it on its own.
-      if (sum * rowHeight >= width) {
-        rows.push({first, count: 1, height: width / sum});
-        first = index + 1;
-        sum = 0;
+  while (first < to) {
+    const end = Math.min(to, first + LOOKAHEAD);
+    const length = end - first;
+    best.fill(Infinity, 0, length + 1);
+    best[0] = 0;
+    for (let a = 0; a < length; a++) {
+      if (best[a] === Infinity) continue;
+      let sum = 0;
+      let narrowest = Infinity;
+      for (let b = a + 1; b <= length; b++) {
+        const aspect = aspects[first + b - 1];
+        sum += aspect;
+        narrowest = Math.min(narrowest, aspect);
+        const count = b - a;
+        const widthAtTarget = sum * rowHeight + (count - 1) * gap;
+        // The window's end: a row that doesn't reach the width waits for more items, at the target height.
+        if (b === length && widthAtTarget <= width) {
+          if (best[a] < best[b]) {
+            best[b] = best[a];
+            cut[b] = a;
+            short[b] = 1;
+          }
+          continue;
+        }
+        const height = (width - (count - 1) * gap) / sum;
+        // Lower rows only get lower with more items.
+        if (height * MAX_STRETCH < rowHeight && count > 1) break;
+        if (height > rowHeight * MAX_STRETCH && b < length) continue;
+        const off = (height - rowHeight) / rowHeight;
+        let cost = off * off;
+        if (narrowest * height < minTile) cost += 0.5 * (1 + (minTile - narrowest * height) / minTile);
+        if (best[a] + cost < best[b]) {
+          best[b] = best[a] + cost;
+          cut[b] = a;
+          short[b] = 0;
+        }
       }
-    } else {
-      rows.push({first, count, height: withIt});
-      first = index + 1;
-      sum = 0;
     }
+    // The first row of the best breaking.
+    let b = length;
+    while (cut[b] !== 0) b = cut[b];
+    if (short[b] && b === length && end === to) {
+      rows.push({first, count: b, height: rowHeight});
+    } else {
+      let sum = 0;
+      for (let index = first; index < first + b; index++) sum += aspects[index];
+      rows.push({first, count: b, height: (width - (b - 1) * gap) / sum});
+    }
+    first += b;
   }
-  if (first < to) rows.push({first, count: to - first, height: rowHeight});
   return rows;
 }
 

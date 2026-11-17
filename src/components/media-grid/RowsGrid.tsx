@@ -77,6 +77,7 @@ export function RowsGrid<Item extends MediaGridItem>({
         gap: parseFloat(style.columnGap) || 0,
         headingHeight: parseFloat(style.paddingTop) || 0,
         sectionGap: parseFloat(style.marginTop) || 0,
+        minTileWidth: parseFloat(style.minWidth) || 0,
       };
       lastMetrics = next;
       setMetrics(current => current && sameMetrics(current, next) ? current : next);
@@ -451,7 +452,7 @@ function sameTiles(a: Block, b: Block) {
 }
 
 function sameMetrics(a: RowMetrics, b: RowMetrics) {
-  return a.width === b.width && a.rowHeight === b.rowHeight && a.gap === b.gap && a.headingHeight === b.headingHeight && a.sectionGap === b.sectionGap;
+  return a.width === b.width && a.rowHeight === b.rowHeight && a.gap === b.gap && a.headingHeight === b.headingHeight && a.sectionGap === b.sectionGap && a.minTileWidth === b.minTileWidth;
 }
 
 function sameKeys(a: ReadonlySet<string>, b: ReadonlySet<string>) {

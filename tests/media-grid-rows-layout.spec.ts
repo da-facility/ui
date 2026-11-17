@@ -1,5 +1,5 @@
 import {expect, test} from '@playwright/test';
-import {aspectOf, DEFAULT_ASPECT, justify, layoutRows, nearestInRow, ROWS_PER_BLOCK, type RowMetrics} from '../src/components/media-grid/rows';
+import {aspectOf, DEFAULT_ASPECT, justify, layoutRows, LOOKAHEAD, nearestInRow, ROWS_PER_BLOCK, type RowMetrics} from '../src/components/media-grid/rows';
 
 // Pure functions: no page needed, so they run once, in the desktop project.
 test.beforeEach(({}, testInfo) => test.skip(testInfo.project.name !== 'desktop', 'runs once'));
@@ -67,8 +67,9 @@ test('unknown and extreme sizes', () => {
   expect(aspectOf()).toBe(DEFAULT_ASPECT);
   expect(aspectOf(0, 100)).toBe(DEFAULT_ASPECT);
   expect(aspectOf(6000, 4000)).toBe(1.5);
-  expect(aspectOf(20_000, 1000)).toBe(5);
-  expect(aspectOf(100, 1000)).toBe(0.25);
+  // A panorama gets a 3:1 tile and a sliver a 1:2 one; the tile shows the whole photo inside (data-fit).
+  expect(aspectOf(20_000, 1000)).toBe(3);
+  expect(aspectOf(100, 1000)).toBe(0.5);
 });
 
 test('up and down go to the nearest tile of the next row', () => {
@@ -88,4 +89,67 @@ test('10,000 photos are laid out in milliseconds', () => {
   const layout = layoutRows({aspects, sections, placeholders: 5000, metrics});
   expect(performance.now() - start).toBeLessThan(100);
   expect(layout.blockOf.length).toBe(10_000);
+});
+
+/** A gallery's mix as a photographer shoots it: mostly landscapes, a portrait in four, now and then a square or a panorama. */
+function shotMix(length: number, seed = 7) {
+  let state = seed;
+  const random = () => (state = (state * 1103515245 + 12345) % 2147483648) / 2147483648;
+  return Array.from({length}, () => {
+    const r = random();
+    return r < 0.6 ? landscape : r < 0.88 ? portrait : r < 0.96 ? 1 : aspectOf(4000 + random() * 8000, 1000);
+  });
+}
+
+const heightsOf = (rows: {height: number}[]) => rows.slice(0, -1).map(row => row.height);
+const share = (values: number[], test: (v: number) => boolean) => values.filter(test).length / values.length;
+
+test('rows stay close to the target height, on a computer and on a phone', () => {
+  const computer: RowMetrics = {width: 1120, rowHeight: 160, gap: 6, headingHeight: 40, sectionGap: 20, minTileWidth: 80};
+  const phone: RowMetrics = {width: 374, rowHeight: 120, gap: 3, headingHeight: 40, sectionGap: 20, minTileWidth: 64};
+  const quantile = (values: number[], q: number) => [...values].sort((a, b) => a - b)[Math.floor(q * (values.length - 1))];
+  const offs = (m: RowMetrics) => {
+    const aspects = shotMix(2000);
+    return heightsOf(justify(aspects, 0, aspects.length, m)).map(h => Math.abs(h - m.rowHeight) / m.rowHeight);
+  };
+  // A computer's row holds about seven landscapes' worth: nine rows in ten within a tenth, all within a fifth.
+  const wide = offs(computer);
+  expect(share(wide, off => off <= 0.1)).toBeGreaterThan(0.9);
+  expect(Math.max(...wide)).toBeLessThan(0.2);
+  // A phone's holds about three and the photos keep their order: half within 5 %, two in three within a
+  // tenth, nine in ten within a sixth. (The greedy breaking before: 72 to 116 px rows for 100 px.)
+  const narrow = offs(phone);
+  expect(quantile(narrow, 0.5)).toBeLessThan(0.05);
+  expect(share(narrow, off => off <= 0.1)).toBeGreaterThan(0.65);
+  expect(quantile(narrow, 0.9)).toBeLessThan(0.17);
+  expect(Math.max(...narrow)).toBeLessThan(0.35);
+});
+
+test('a tile is never narrower than the smallest width while the photo can go to the next row', () => {
+  const phone: RowMetrics = {width: 374, rowHeight: 120, gap: 3, headingHeight: 40, sectionGap: 20, minTileWidth: 64};
+  const aspects = shotMix(1000, 11);
+  const layout = layoutRows({aspects, sections: [], placeholders: 0, metrics: phone});
+  for (let index = 0; index < aspects.length; index++) expect(layout.place(index).width).toBeGreaterThanOrEqual(phone.minTileWidth! - 1);
+});
+
+test('a panorama keeps the row’s height: it gets a 3:1 tile, not the row', () => {
+  const m: RowMetrics = {width: 374, rowHeight: 120, gap: 3, headingHeight: 40, sectionGap: 20, minTileWidth: 72};
+  const aspects = [landscape, portrait, aspectOf(12_000, 1000), landscape, landscape, portrait, portrait, landscape, landscape];
+  const layout = layoutRows({aspects, sections: [], placeholders: 0, metrics: m});
+  const panorama = layout.place(2);
+  expect(panorama.width / panorama.height).toBeCloseTo(3, 1);
+  expect(Math.abs(panorama.height - m.rowHeight) / m.rowHeight).toBeLessThan(0.15);
+});
+
+test('rows already laid out stay as they were when more items arrive', () => {
+  const all = shotMix(600, 3);
+  const m: RowMetrics = {width: 1120, rowHeight: 160, gap: 6, headingHeight: 40, sectionGap: 20, minTileWidth: 80};
+  const whole = justify(all, 0, all.length, m);
+  for (const loaded of [100, 232, 401]) {
+    const part = justify(all, 0, loaded, m);
+    // Every row that ends a window's length before what is loaded is final.
+    const settled = part.filter(row => row.first + row.count + LOOKAHEAD <= loaded);
+    expect(settled.length).toBeGreaterThan(0);
+    expect(settled).toEqual(whole.slice(0, settled.length));
+  }
 });
