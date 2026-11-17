@@ -97,7 +97,7 @@ a.page-trail__level:focus-visible,
   white-space: nowrap;
 }
 
-/* Phones: the parent as a back link, and beside it the list of every level above. */
+/* Phones: the levels above the parent behind "…", then the parent as a back link. */
 @media (max-width: 768px) {
   .page-trail__line {
     display: none;
@@ -125,9 +125,16 @@ a.page-trail__level:focus-visible,
     line-height: 1;
   }
 
+  /* A control, outlined as every secondary button, 44px to press. */
   .page-trail__all.page-trail__all {
     flex: none;
     min-width: 44px;
     min-height: 44px;
+    border: 1px solid var(--color-border);
+  }
+
+  .page-trail__separator {
+    flex: none;
+    color: var(--color-text-secondary);
   }
 }

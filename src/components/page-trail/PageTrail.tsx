@@ -35,7 +35,7 @@ export type PageTrailProps = {
  *   late fonts. Only when even the first level, "…" and the page don't fit is
  *   the first level cut. Long names are cut, with the full name as a tooltip.
  * - Phones: a back link to the parent and, when there are levels above the
- *   parent, a "…" menu beside it listing all of them.
+ *   parent, a "…" button before it, where those levels stand, listing them.
  *
  * A CSS media query picks between the two, so server-rendered pages start right.
  * `PageHeader`'s `breadcrumbs` stay as they are; use this above a
@@ -106,22 +106,23 @@ export function PageTrail({levels, label, className}: PageTrailProps) {
       </li>)}
       <li className="page-trail__more-item"><Button {...more} /></li>
     </ol>}
-    {/* Phones */}
+    {/* Phones: the levels above the parent folded into "…" where they stand, first; then the parent as the way back. */}
     <div className="page-trail__phone">
+      {ancestors.length > 1 && <DropdownMenu
+        button={{label: t('@da-facility.pageTrail.allLevels'), children: '…', variant: 'secondary', className: 'page-trail__all'}}
+        hasChevron={false}
+        placement="below"
+        alignment="start"
+        menuWidth={280}
+        items={menuItems(ancestors.slice(0, -1))}
+      />}
+      {ancestors.length > 1 && <span className="page-trail__separator" aria-hidden="true">/</span>}
       {parent.href
         ? <Link className="page-trail__back" href={parent.href}>
           <span className="page-trail__back-sign" aria-hidden="true">‹</span>
           <span className="page-trail__back-label">{parent.label}</span>
         </Link>
         : <span className="page-trail__back-label">{parent.label}</span>}
-      {ancestors.length > 1 && <DropdownMenu
-        button={{label: t('@da-facility.pageTrail.allLevels'), children: '…', variant: 'ghost', className: 'page-trail__all'}}
-        hasChevron={false}
-        placement="below"
-        alignment="start"
-        menuWidth={280}
-        items={menuItems(ancestors)}
-      />}
     </div>
   </nav>;
 }

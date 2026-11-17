@@ -100,7 +100,7 @@ test.describe('desktop', () => {
 test.describe('phones', () => {
   test.beforeEach(({}, testInfo) => test.skip(!isMobile(testInfo), 'the desktop form is tested above'));
 
-  test('a back link to the parent, and a list of every level above two taps away', async ({page}) => {
+  test('the levels above the parent folded into a "…" control before it, then the parent as a back link', async ({page}) => {
     const errors = collectErrors(page);
     await page.goto('/render/page-trail');
     const nav = trail(page, 'Full width');
@@ -111,9 +111,14 @@ test.describe('phones', () => {
     const all = nav.getByRole('button', {name: 'All levels above'});
     const box = (await all.boundingBox())!;
     expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(44);
+    // Where the folded levels stand: before the parent, so the line reads from the top down.
+    expect(box.x).toBeLessThan((await back.boundingBox())!.x);
+    // It looks like a control: an outline.
+    expect(await all.evaluate(element => parseFloat(getComputedStyle(element).borderTopWidth))).toBeGreaterThan(0);
     await all.click();
     const menu = page.getByRole('menu');
-    await expect(menu.getByRole('menuitem')).toHaveText(levels);
+    // The levels above the parent: the parent itself is the back link.
+    await expect(menu.getByRole('menuitem')).toHaveText(levels.slice(0, -1));
     await menu.getByRole('menuitem', {name: levels[0]}).click();
     await expect(page).toHaveURL(/#club$/);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
