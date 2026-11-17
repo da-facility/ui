@@ -206,6 +206,9 @@
   "@da-facility.mediaViewer.notLoaded": {
     "defaultMessage": "Slika se nije učitala."
   },
+  "@da-facility.mediaViewer.notLoadedLarger": {
+    "defaultMessage": "Veća slika se nije učitala. Prikazana je manja."
+  },
   "@da-facility.mediaViewer.retry": {
     "defaultMessage": "Pokušaj ponovno"
   },

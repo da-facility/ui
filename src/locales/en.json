@@ -275,6 +275,10 @@
     "defaultMessage": "The image couldn’t be loaded.",
     "description": "Over the viewer’s canvas when the image didn’t load; a button to try again follows."
   },
+  "@da-facility.mediaViewer.notLoadedLarger": {
+    "defaultMessage": "The larger image couldn’t be loaded. A smaller one is shown.",
+    "description": "Over a photo whose thumbnail shows but whose preview didn't load."
+  },
   "@da-facility.mediaViewer.retry": {
     "defaultMessage": "Try again",
     "description": "Loads the image that didn’t load again."

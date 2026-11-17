@@ -96,10 +96,28 @@ html:has(.media-viewer[open]) {
   cursor: pointer;
 }
 
-.media-viewer__button:hover,
-.media-viewer__button[aria-pressed="true"],
-.media-viewer__button[aria-expanded="true"] {
+.media-viewer__button:hover {
   background: var(--media-surface);
+}
+
+/* Zoom's place, kept while there is nothing larger to show yet. */
+.media-viewer__button[data-reserved] {
+  visibility: hidden;
+}
+
+.media-viewer__button[hidden] {
+  display: none;
+}
+
+.media-viewer__icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .media-viewer__button:focus-visible,
@@ -220,6 +238,11 @@ html:has(.media-viewer[open]) {
   display: none;
 }
 
+/* The sheet's top line is the phone's; beside the image the panel needs none. */
+.media-viewer__sheet-head {
+  display: none;
+}
+
 .media-viewer__announcer {
   position: absolute;
   width: 1px;
@@ -243,26 +266,31 @@ html:has(.media-viewer[open]) {
     height: 100%;
   }
 
-  .media-viewer[data-panel] .media-viewer__main {
-    height: calc(100% - 56px);
+  /* The sheet's top line (56px: the handle and one whole line) always shows under the image. */
+  .media-viewer:has(> .media-viewer__panel) .media-viewer__main {
+    height: calc(100% - var(--media-viewer-peek));
+  }
+
+  .media-viewer {
+    --media-viewer-peek: 56px;
   }
 
   .media-viewer__top {
     padding-left: 12px;
   }
 
-  /* The position on its own line, never cut, and the title under it. */
+  /* The name, then the position on its own line, never cut; both lines'
+     room is kept, so a position that comes late moves nothing. */
   .media-viewer__heading {
     display: flex;
     flex-direction: column;
+    min-height: 36px;
     overflow: visible;
     white-space: normal;
   }
 
   .media-viewer__position {
-    order: -1;
-    color: var(--media-text);
-    font-weight: 600;
+    color: var(--media-text-secondary);
     white-space: nowrap;
   }
 
@@ -272,9 +300,6 @@ html:has(.media-viewer[open]) {
 
   .media-viewer__title {
     overflow: hidden;
-    color: var(--media-text-secondary);
-    font-size: 13px;
-    font-weight: 400;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -286,9 +311,23 @@ html:has(.media-viewer[open]) {
   }
 
   /* Icons alone on phones; their names stay for screen readers. */
-  .media-viewer__button:has(svg) {
-    font-size: 0;
+  .media-viewer__button-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .media-viewer__button {
     gap: 0;
+    padding: 0;
+  }
+
+  /* The sheet replaces the details button: it is always there, under the image. */
+  .media-viewer__button--panel {
+    display: none;
   }
 
   .media-viewer__stage {
@@ -304,12 +343,79 @@ html:has(.media-viewer[open]) {
     height: 44px;
   }
 
-  .media-viewer__panel {
+  .media-viewer__panel,
+  .media-viewer__panel[hidden] {
+    display: flex;
     min-height: 50%;
+    padding-top: 0;
     overflow: visible;
     border-top: 1px solid var(--media-border);
     border-left: 0;
     border-radius: var(--radius-container) var(--radius-container) 0 0;
+  }
+
+  .media-viewer__sheet-head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: calc(var(--media-viewer-peek) - 1px);
+    margin: 0 -8px -6px;
+    padding-top: 10px;
+    flex: none;
+  }
+
+  /* The handle says the sheet can be pulled up; the whole line is the button that does it. */
+  .media-viewer__handle {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    width: 36px;
+    height: 4px;
+    border-radius: var(--radius-full, 9999px);
+    background: var(--media-text-secondary);
+    translate: -50% 0;
+  }
+
+  .media-viewer__sheet-toggle {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    height: 44px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: var(--radius-element);
+    color: var(--media-text);
+    background: transparent;
+    font: inherit;
+    font-weight: 500;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .media-viewer__sheet-toggle:focus-visible {
+    outline: 2px solid var(--media-text);
+    outline-offset: -2px;
+  }
+
+  .media-viewer__sheet-toggle > svg {
+    rotate: 180deg;
+  }
+
+  .media-viewer__sheet-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .media-viewer__sheet-action {
+    display: flex;
+    flex: none;
+    align-items: center;
+    padding-right: 8px;
   }
 }
 
@@ -332,7 +438,39 @@ html:has(.media-viewer[open]) {
   padding: 6px 6px 6px 14px;
   width: fit-content;
   max-width: calc(100% - 32px);
+  border: 1px solid var(--media-border);
   border-radius: var(--radius-container, 14px);
   background: var(--media-surface);
   color: var(--media-text);
+}
+
+/* Retry is a button like every other: an outlined control on the canvas. */
+.media-viewer__retry {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--media-text-secondary);
+  border-radius: var(--radius-element);
+  color: var(--media-text);
+  background: transparent;
+  font: inherit;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.media-viewer__retry:hover {
+  background: color-mix(in srgb, var(--media-text) 10%, transparent);
+}
+
+.media-viewer__retry:focus-visible {
+  outline: 2px solid var(--media-text);
+  outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .media-viewer__retry {
+    height: 44px;
+  }
 }

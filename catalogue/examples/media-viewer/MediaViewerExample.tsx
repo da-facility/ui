@@ -38,6 +38,7 @@ export function MediaViewerExample({tweaks}: ExampleProps) {
       onNext={() => setIndex(index + 1)}
       onClose={() => setIndex(null)}
       panel={tweaks.noPanel ? undefined : <PhotoDetails photo={demoPhoto(index)} />}
+      sheetAction={<button type="button" className="media-viewer-example__download">Download</button>}
     />}
   </main>;
 }

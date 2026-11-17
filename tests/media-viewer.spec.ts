@@ -137,25 +137,78 @@ test('without a larger image there is no zoom', async ({page}) => {
 });
 
 test('the panel is 272px beside the image on desktop and a sheet under it on phones; I toggles it', async ({page}, testInfo) => {
+  test.skip(isMobile(testInfo), 'phones: the sheet, below');
   await page.goto('/render/media-viewer');
   const panel = page.getByRole('complementary', {name: 'Details'});
   await expect(panel).toBeVisible();
   const box = (await panel.boundingBox())!;
   const stage = (await page.locator('.media-viewer__stage').boundingBox())!;
-  if (isMobile(testInfo)) {
-    expect(box.y).toBeGreaterThan(stage.y + stage.height - 1);
-    expect(box.width).toBe(390);
-  } else {
-    expect(box.width).toBe(272);
-    expect(box.x).toBeGreaterThan(stage.x + stage.width);
-  }
+  expect(box.width).toBe(272);
+  expect(box.x).toBeGreaterThan(stage.x + stage.width);
   await page.keyboard.press('i');
   await expect(panel).toBeHidden();
   await expect(page.getByRole('button', {name: 'Details'})).toHaveAttribute('aria-expanded', 'false');
   const wider = (await page.locator('.media-viewer__stage').boundingBox())!;
-  if (!isMobile(testInfo)) expect(wider.width).toBeGreaterThan(stage.width);
+  expect(wider.width).toBeGreaterThan(stage.width);
   await page.keyboard.press('I');
   await expect(panel).toBeVisible();
+});
+
+test('phones: the sheet’s top line shows whole under the image, with a handle, its action in reach, and a tap brings it up', async ({page}, testInfo) => {
+  test.skip(!isMobile(testInfo), 'phones');
+  await page.goto('/render/media-viewer');
+  const viewport = page.viewportSize()!;
+  const panel = page.getByRole('complementary', {name: 'Details'});
+  const stage = (await page.locator('.media-viewer__stage').boundingBox())!;
+  const sheet = (await panel.boundingBox())!;
+  expect(sheet.y).toBeGreaterThan(stage.y + stage.height - 1);
+  expect(sheet.width).toBe(viewport.width);
+  // The line is whole on screen: the handle, the label and the action, nothing cut by the screen's edge.
+  const toggle = page.locator('.media-viewer__sheet-toggle');
+  const line = (await toggle.boundingBox())!;
+  expect(line.y + line.height).toBeLessThanOrEqual(viewport.height);
+  expect(line.height).toBeGreaterThanOrEqual(44);
+  await expect(page.locator('.media-viewer__handle')).toBeVisible();
+  const action = (await page.getByRole('dialog').getByRole('button', {name: 'Download'}).boundingBox())!;
+  expect(action.y + action.height).toBeLessThanOrEqual(viewport.height);
+  expect(action.y).toBeGreaterThan(viewport.height / 2);
+  // The details button is the sheet's line on phones.
+  await expect(page.locator('.media-viewer__button--panel')).toBeHidden();
+  await toggle.click();
+  await expect.poll(() => page.locator('dialog').evaluate(dialog => dialog.scrollTop)).toBeGreaterThan(viewport.height / 3);
+  await toggle.click();
+  await expect.poll(() => page.locator('dialog').evaluate(dialog => dialog.scrollTop)).toBe(0);
+});
+
+test('the header’s buttons look alike: icon and name on a computer, the icon alone on a phone, each named', async ({page}, testInfo) => {
+  await page.goto('/render/media-viewer');
+  const toolbar = page.locator('.media-viewer__toolbar');
+  const names = isMobile(testInfo) ? ['Zoom in', 'Close'] : ['Zoom in', 'Details', 'Close'];
+  for (const name of names) {
+    const button = toolbar.getByRole('button', {name, exact: true});
+    await expect(button).toBeVisible();
+    await expect(button.locator('svg')).toHaveCount(1);
+    const label = button.locator('.media-viewer__button-label');
+    const box = (await label.boundingBox())!;
+    if (isMobile(testInfo)) expect(box.width).toBeLessThanOrEqual(1);
+    else expect(box.width).toBeGreaterThan(10);
+    if (isMobile(testInfo)) expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  }
+  // No button is drawn as a pill while the others are bare.
+  const backgrounds = await toolbar.locator('.media-viewer__button:visible').evaluateAll(buttons => buttons.map(b => getComputedStyle(b).backgroundColor));
+  expect(new Set(backgrounds).size).toBe(1);
+});
+
+test('a larger image that arrives later moves nothing in the header', async ({page}) => {
+  await presetTweaks(page, 'media-viewer', {noZoom: true});
+  await page.goto('/render/media-viewer');
+  const close = (await page.getByRole('button', {name: 'Close'}).boundingBox())!;
+  const reserved = page.locator('.media-viewer__button[data-reserved]');
+  await expect(reserved).toHaveCount(1);
+  await expect(reserved).toHaveCSS('visibility', 'hidden');
+  const room = (await reserved.boundingBox())!;
+  expect(room.width).toBeGreaterThan(30);
+  expect(room.x + room.width).toBeLessThanOrEqual(close.x);
 });
 
 test('Tab stays inside the viewer', async ({page}) => {
@@ -194,12 +247,11 @@ test('the canvas is dark in light mode and dark mode alike, and the page behind 
     await page.goto('/render/media-viewer');
     const background = await viewer(page).evaluate(element => getComputedStyle(element).backgroundColor);
     expect(luminance(background)).toBeLessThan(50);
-    // The heading's first line in the canvas's text colour: the title on desktop, the position on phones (the title is under it, secondary).
-    const first = isMobile(testInfo) ? '.media-viewer__position' : '.media-viewer__title';
-    const text = await page.locator(first).evaluate(element => getComputedStyle(element).color);
+    // The name first, in the canvas's text colour, then the position, secondary: the same on phones.
+    const text = await page.locator('.media-viewer__title').evaluate(element => getComputedStyle(element).color);
     expect(luminance(text)).toBeGreaterThan(200);
-    const title = await page.locator('.media-viewer__title').evaluate(element => getComputedStyle(element).color);
-    expect(luminance(title)).toBeGreaterThan(150);
+    const position = await page.locator('.media-viewer__position').evaluate(element => getComputedStyle(element).color);
+    expect(luminance(position)).toBeGreaterThan(120);
     await expect(page.locator('html')).toHaveCSS('overflow', 'hidden');
   }
 });

@@ -15,3 +15,15 @@
   margin: 0 0 16px;
   color: var(--color-text-secondary);
 }
+
+/* The sheet's action on phones: a primary button on the canvas. */
+.media-viewer-example__download {
+  height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius-element);
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  font: inherit;
+  font-weight: 600;
+}

@@ -51,6 +51,18 @@ export type MediaViewerProps = {
   /** Whether the panel starts open. Defaults to true. */
   defaultPanelOpen?: boolean;
   onPanelOpenChange?: (isOpen: boolean) => void;
+  /**
+   * Phones: the panel is a sheet whose top line always shows under the image,
+   * with a handle; a tap on it (or a drag) brings the sheet up. This is what
+   * that line says. Defaults to `panelLabel`.
+   */
+  sheetTitle?: ReactNode;
+  /**
+   * Phones: a control at the end of the sheet's top line, within the thumb's
+   * reach without opening the sheet, such as Download. Not shown on larger
+   * screens, where the panel is beside the image.
+   */
+  sheetAction?: ReactNode;
   /** Called when the image zooms in or back to fit. */
   onZoomChange?: (isZoomed: boolean) => void;
   /** Accessible name of the viewer when `title` isn't text. Defaults to the item's `alt`. */
@@ -60,7 +72,22 @@ export type MediaViewerProps = {
    * opened, if it is still in the page; a grid that remounted focuses its own tile.
    */
   returnFocus?: () => HTMLElement | null | undefined;
+  /**
+   * Keep the zoom button's place while the item has no `fullUrl`, so the
+   * header doesn't move when the larger image's address arrives. Defaults to
+   * true; turn it off where zoom is never offered.
+   */
+  reserveZoom?: boolean;
 };
+
+/** A magnifier with a plus (zoom in) or a minus (back to fit), drawn in the current colour. */
+function ZoomIcon({isOut}: {isOut: boolean}) {
+  return <svg className="media-viewer__icon" viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-4-4M8 11h6" />
+    {!isOut && <path d="M11 8v6" />}
+  </svg>;
+}
 
 type Zoom = {left: number; top: number};
 
@@ -88,18 +115,22 @@ export function MediaViewer({
   isPanelOpen: isPanelOpenProp,
   defaultPanelOpen = true,
   onPanelOpenChange,
+  sheetTitle,
+  sheetAction,
   onZoomChange,
   label,
   returnFocus,
+  reserveZoom = true,
 }: MediaViewerProps) {
   const t = useMessages();
   const id = useId();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
   const [ownPanelOpen, setOwnPanelOpen] = useState(defaultPanelOpen);
   const isPanelOpen = panel != null && (isPanelOpenProp ?? ownPanelOpen);
   const [zoom, setZoomState] = useState<Zoom | null>(null);
-  const [loaded, setLoaded] = useState<{preview: string | null; full: string | null}>({preview: null, full: null});
+  const [loaded, setLoaded] = useState<{preview: string | null; full: string | null; thumb?: string | null}>({preview: null, full: null});
   // The preview that didn't load, and how often it was asked for again (a new image element each time).
   const [failedPreview, setFailedPreview] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -178,6 +209,16 @@ export function MediaViewer({
     const u = Math.min(1, Math.max(0, (x - fittedLeft) / fitted.width));
     const v = Math.min(1, Math.max(0, (y - fittedTop) / fitted.height));
     setZoom(clamp(x - u * item.width, y - v * item.height));
+  }
+
+  /** Phones: brings the sheet up, or back down to its top line when it is up. */
+  function toggleSheet() {
+    const dialog = dialogRef.current!;
+    const panelTop = panelRef.current!.offsetTop;
+    // Up as far as it goes: the sheet may be shorter than the screen, so the viewer stops before the panel's top.
+    const isUp = dialog.scrollTop > 8;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    dialog.scrollTo({top: isUp ? 0 : panelTop, behavior: reduce ? 'auto' : 'smooth'});
   }
 
   function pan(dx: number, dy: number) {
@@ -290,6 +331,7 @@ export function MediaViewer({
   >
     <div className="media-viewer__main">
       <div className="media-viewer__top">
+        {/* The name, then the position: the same order everywhere, and a position that comes late pushes nothing. */}
         <p className="media-viewer__heading">
           {hasTitle && <span className="media-viewer__title" id={titleId}>{title}</span>}
           {position != null && total != null && <span className="media-viewer__position">
@@ -297,17 +339,30 @@ export function MediaViewer({
             {t('@da-facility.mediaViewer.position', {position, total})}
           </span>}
         </p>
+        {/* One style for every button: icon and name on larger screens, the icon alone on phones (the name stays for screen readers). */}
         <div className="media-viewer__toolbar">
-          {isZoomable && <button type="button" className="media-viewer__button" aria-pressed={zoom != null} onClick={() => zoom ? setZoom(null) : zoomAt()}>
-            {zoom ? t('@da-facility.mediaViewer.zoomOut') : t('@da-facility.mediaViewer.zoomIn')}
-          </button>}
-          {panel != null && <button type="button" className="media-viewer__button" aria-expanded={isPanelOpen} aria-controls={`${id}-panel`} aria-keyshortcuts="I" onClick={() => setPanelOpen(!isPanelOpen)}>
+          {/* Zoom keeps its place while it isn't available yet (the larger image's address comes later), so nothing moves when it is. */}
+          <button
+            type="button"
+            className="media-viewer__button"
+            aria-pressed={isZoomable ? zoom != null : undefined}
+            hidden={!isZoomable && !reserveZoom}
+            data-reserved={!isZoomable || undefined}
+            aria-hidden={!isZoomable || undefined}
+            tabIndex={isZoomable ? undefined : -1}
+            disabled={!isZoomable}
+            onClick={() => zoom ? setZoom(null) : zoomAt()}
+          >
+            <ZoomIcon isOut={zoom != null} />
+            <span className="media-viewer__button-label">{zoom ? t('@da-facility.mediaViewer.zoomOut') : t('@da-facility.mediaViewer.zoomIn')}</span>
+          </button>
+          {panel != null && <button type="button" className="media-viewer__button media-viewer__button--panel" aria-expanded={isPanelOpen} aria-controls={`${id}-panel`} aria-keyshortcuts="I" onClick={() => setPanelOpen(!isPanelOpen)}>
             <Icon icon="info" size="sm" color="inherit" />
-            {panelLabel ?? t('@da-facility.mediaViewer.details')}
+            <span className="media-viewer__button-label">{panelLabel ?? t('@da-facility.mediaViewer.details')}</span>
           </button>}
           <button type="button" className="media-viewer__button" aria-keyshortcuts="Escape" onClick={() => callbacks.current.onClose()}>
-            {t('@da-facility.mediaViewer.close')}
             <Icon icon="close" size="sm" color="inherit" />
+            <span className="media-viewer__button-label">{t('@da-facility.mediaViewer.close')}</span>
           </button>
         </div>
       </div>
@@ -334,7 +389,9 @@ export function MediaViewer({
               />
             </div>
           : <div className="media-viewer__photo" style={{'--media-viewer-ratio': ratio} as CSSProperties} key={item.id}>
-              {item.thumbUrl && !isPreviewLoaded && <img className="media-viewer__image media-viewer__image--thumb" src={item.thumbUrl} alt="" draggable={false} />}
+              {item.thumbUrl && !isPreviewLoaded && <img className="media-viewer__image media-viewer__image--thumb" src={item.thumbUrl} alt="" draggable={false} onLoad={() => setLoaded(current => ({...current, thumb: item.thumbUrl}))} ref={image => {
+                if (image?.complete && image.naturalWidth > 0 && loaded.thumb !== item.thumbUrl) setLoaded(current => ({...current, thumb: item.thumbUrl}));
+              }} />}
               <img
                 className="media-viewer__image media-viewer__image--preview"
                 src={item.previewUrl}
@@ -349,8 +406,9 @@ export function MediaViewer({
                 key={attempt}
               />
               {failedPreview === item.previewUrl && !isPreviewLoaded && <div className="media-viewer__failed" role="alert">
-                <span>{t('@da-facility.mediaViewer.notLoaded')}</span>
-                <button type="button" className="media-viewer__button" onClick={() => { setFailedPreview(null); setAttempt(n => n + 1); }}>
+                {/* With the thumbnail on screen the person still sees the photo: what is missing is the sharper image. */}
+                <span>{t(item.thumbUrl && loaded.thumb === item.thumbUrl ? '@da-facility.mediaViewer.notLoadedLarger' : '@da-facility.mediaViewer.notLoaded')}</span>
+                <button type="button" className="media-viewer__retry" onClick={() => { setFailedPreview(null); setAttempt(n => n + 1); }}>
                   {t('@da-facility.mediaViewer.retry')}
                 </button>
               </div>}
@@ -363,7 +421,16 @@ export function MediaViewer({
         </button>}
       </div>
     </div>
-    {panel != null && <aside className="media-viewer__panel" id={`${id}-panel`} aria-label={panelLabel ?? t('@da-facility.mediaViewer.details')} hidden={!isPanelOpen}>
+    {panel != null && <aside ref={panelRef} className="media-viewer__panel" id={`${id}-panel`} aria-label={panelLabel ?? t('@da-facility.mediaViewer.details')} hidden={!isPanelOpen}>
+      {/* Phones: the sheet's top line, always under the image. A tap brings the sheet up or puts it back; dragging scrolls the viewer as before. */}
+      <div className="media-viewer__sheet-head">
+        <button type="button" className="media-viewer__sheet-toggle" onClick={toggleSheet}>
+          <span className="media-viewer__handle" aria-hidden="true" />
+          <span className="media-viewer__sheet-title">{sheetTitle ?? panelLabel ?? t('@da-facility.mediaViewer.details')}</span>
+          <Icon icon="chevronDown" size="sm" color="inherit" />
+        </button>
+        {sheetAction != null && <div className="media-viewer__sheet-action">{sheetAction}</div>}
+      </div>
       {panel}
     </aside>}
     <div className="media-viewer__announcer" role="status">{announcement}</div>
