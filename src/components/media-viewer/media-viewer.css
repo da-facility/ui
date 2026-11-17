@@ -404,11 +404,14 @@ html:has(.media-viewer[open]) {
     rotate: 180deg;
   }
 
+  /* Two lines at most, so a sentence beside the action (what a download did) is read whole. */
   .media-viewer__sheet-title {
+    display: -webkit-box;
     min-width: 0;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-height: 18px;
   }
 
   .media-viewer__sheet-action {
