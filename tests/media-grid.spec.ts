@@ -194,3 +194,26 @@ test('tiles without an image yet (state) still open and select, and say why', as
   await expect(page).toHaveURL(/#photo-1$/);
   expect(errors).toEqual([]);
 });
+
+test('the selection mark reads on any photo: a white ring with a tick, on a scrim in the corner', async ({page}, testInfo) => {
+  test.skip(isMobile(testInfo), 'hover');
+  await presetTweaks(page, 'media-grid', {selectable: true});
+  await page.goto('/render/media-grid');
+  await tile(page, 0).hover();
+  const circle = tile(page, 0).locator('.media-tile__circle');
+  await expect(tile(page, 0).locator('.media-tile__select')).toHaveCSS('opacity', '1');
+  const look = await circle.evaluate(element => {
+    const style = getComputedStyle(element);
+    const tick = getComputedStyle(element, '::after');
+    const scrim = getComputedStyle(element.parentElement!).backgroundImage;
+    return {size: element.getBoundingClientRect().width, ring: parseFloat(style.borderTopWidth), ringColor: style.borderTopColor, tick: Number(tick.opacity), scrim, shadow: style.boxShadow};
+  });
+  expect(look.size).toBeGreaterThanOrEqual(22);
+  expect(look.ring).toBeGreaterThanOrEqual(2);
+  expect(look.ringColor).toBe('rgb(255, 255, 255)');
+  // The tick shows before the photo is chosen, so the mark reads as a choice, not a dot.
+  expect(look.tick).toBeGreaterThan(0.5);
+  // A dark scrim behind it and a dark edge around the ring: white on a white sky still reads.
+  expect(look.scrim).toContain('radial-gradient');
+  expect(look.shadow).not.toBe('none');
+});

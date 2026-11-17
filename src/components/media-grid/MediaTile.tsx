@@ -96,6 +96,16 @@ const LONG_PRESS = 500;
  * tile's index, so a grid passes the same functions to every tile and only
  * tiles whose own props change re-render.
  */
+/**
+ * A tile placed at a shape other than its photo's (a panorama past the rows'
+ * widest tile, a sliver past the narrowest): the photo is shown whole inside
+ * it, never cropped.
+ */
+function fitsInside(width: number | undefined, height: number | undefined, place: CSSProperties | undefined) {
+  if (!width || !height || typeof place?.width !== 'number' || typeof place.height !== 'number' || place.height <= 0) return false;
+  return Math.abs(width / height - place.width / place.height) / (width / height) > 0.04;
+}
+
 export const Tile = memo(function Tile({src, state, alt, width, height, href, index, place, caption, position, setSize, isSelected, isSelectable, isSelecting, tabIndex, onToggle, onOpen, onKeyDown}: TileProps) {
   const t = useMessages();
   const Link = useLinkComponent();
@@ -143,7 +153,7 @@ export const Tile = memo(function Tile({src, state, alt, width, height, href, in
     onOpen?.(index, event);
   }
 
-  return <div className="media-tile" data-index={index} data-selected={isSelected || undefined} data-selecting={isSelecting || undefined} data-state={missing} data-narrow={typeof place?.width === 'number' && place.width < 96 ? true : undefined} style={place} {...listItem}>
+  return <div className="media-tile" data-index={index} data-selected={isSelected || undefined} data-selecting={isSelecting || undefined} data-state={missing} data-narrow={typeof place?.width === 'number' && place.width < 96 ? true : undefined} data-fit={fitsInside(width, height, place) ? 'contain' : undefined} style={place} {...listItem}>
     <Link
       className="media-tile__link"
       href={href}
