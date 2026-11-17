@@ -272,3 +272,18 @@ test('from the grid: a route the app owns; moving replaces the address and one B
   await expect(page).not.toHaveURL(/#photo/);
   await expect(page.locator('.media-tile[data-index="4"] .media-tile__link'), 'focus returns to the photo shown last').toBeFocused();
 });
+
+test('phones: the sheet’s line keeps room under its buttons, and its chevron points the way the sheet will move', async ({page}, testInfo) => {
+  test.skip(!isMobile(testInfo), 'phones');
+  await page.goto('/render/media-viewer');
+  const viewport = page.viewportSize()!;
+  const action = (await page.getByRole('dialog').getByRole('button', {name: 'Download'}).boundingBox())!;
+  expect(viewport.height - (action.y + action.height)).toBeGreaterThanOrEqual(8);
+  const toggle = page.locator('.media-viewer__sheet-toggle');
+  const rotation = () => toggle.locator(':scope > :last-child').evaluate(e => getComputedStyle(e).rotate);
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  expect(await rotation()).toBe('180deg');
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await expect.poll(rotation).toBe('0deg');
+});

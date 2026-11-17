@@ -116,7 +116,6 @@ export function PageTrail({levels, label, className}: PageTrailProps) {
         menuWidth={280}
         items={menuItems(ancestors.slice(0, -1))}
       />}
-      {ancestors.length > 1 && <span className="page-trail__separator" aria-hidden="true">/</span>}
       {parent.href
         ? <Link className="page-trail__back" href={parent.href}>
           <span className="page-trail__back-sign" aria-hidden="true">‹</span>

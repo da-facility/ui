@@ -127,6 +127,17 @@ export function MediaViewer({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
+  // Phones: whether the sheet is up (the image partly scrolled away), by tap or by drag. Watched, not listened for.
+  const [isSheetUp, setSheetUp] = useState(false);
+  useEffect(() => {
+    const main = mainRef.current;
+    const dialog = dialogRef.current;
+    if (!main || !dialog || panel == null) return;
+    const observer = new IntersectionObserver(([entry]) => setSheetUp(entry!.intersectionRatio < 0.97), {root: dialog, threshold: [0.97]});
+    observer.observe(main);
+    return () => observer.disconnect();
+  }, [panel != null]);
   const [ownPanelOpen, setOwnPanelOpen] = useState(defaultPanelOpen);
   const isPanelOpen = panel != null && (isPanelOpenProp ?? ownPanelOpen);
   const [zoom, setZoomState] = useState<Zoom | null>(null);
@@ -329,7 +340,7 @@ export function MediaViewer({
       else callbacks.current.onClose();
     }}
   >
-    <div className="media-viewer__main">
+    <div ref={mainRef} className="media-viewer__main">
       <div className="media-viewer__top">
         {/* The name, then the position: the same order everywhere, and a position that comes late pushes nothing. */}
         <p className="media-viewer__heading">
@@ -424,7 +435,7 @@ export function MediaViewer({
     {panel != null && <aside ref={panelRef} className="media-viewer__panel" id={`${id}-panel`} aria-label={panelLabel ?? t('@da-facility.mediaViewer.details')} hidden={!isPanelOpen}>
       {/* Phones: the sheet's top line, always under the image. A tap brings the sheet up or puts it back; dragging scrolls the viewer as before. */}
       <div className="media-viewer__sheet-head">
-        <button type="button" className="media-viewer__sheet-toggle" onClick={toggleSheet}>
+        <button type="button" className="media-viewer__sheet-toggle" aria-expanded={isSheetUp} onClick={toggleSheet}>
           <span className="media-viewer__handle" aria-hidden="true" />
           <span className="media-viewer__sheet-title">{sheetTitle ?? panelLabel ?? t('@da-facility.mediaViewer.details')}</span>
           <Icon icon="chevronDown" size="sm" color="inherit" />

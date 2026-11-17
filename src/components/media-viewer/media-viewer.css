@@ -271,8 +271,9 @@ html:has(.media-viewer[open]) {
     height: calc(100% - var(--media-viewer-peek));
   }
 
+  /* The sheet's line: the handle, a 44px row, and room under it above the screen's edge (the device's safe area too). */
   .media-viewer {
-    --media-viewer-peek: 56px;
+    --media-viewer-peek: calc(66px + env(safe-area-inset-bottom));
   }
 
   .media-viewer__top {
@@ -348,6 +349,7 @@ html:has(.media-viewer[open]) {
     display: flex;
     min-height: 50%;
     padding-top: 0;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
     overflow: visible;
     border-top: 1px solid var(--media-border);
     border-left: 0;
@@ -362,6 +364,8 @@ html:has(.media-viewer[open]) {
     height: calc(var(--media-viewer-peek) - 1px);
     margin: 0 -8px -6px;
     padding-top: 10px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    box-sizing: border-box;
     flex: none;
   }
 
@@ -400,8 +404,14 @@ html:has(.media-viewer[open]) {
     outline-offset: -2px;
   }
 
-  .media-viewer__sheet-toggle > svg {
+  /* The chevron points the way the sheet will move: up while it is down, down once it is up. */
+  .media-viewer__sheet-toggle > :last-child {
     rotate: 180deg;
+    transition: rotate 160ms ease;
+  }
+
+  .media-viewer__sheet-toggle[aria-expanded="true"] > :last-child {
+    rotate: 0deg;
   }
 
   /* Two lines at most, so a sentence beside the action (what a download did) is read whole. */
