@@ -172,14 +172,14 @@ test('closing the photo brings back the same tile at the same place, focused', a
   expect(Math.abs(after.y - before.y)).toBeLessThan(1);
 });
 
-test('the phone viewer: the position on its own line, whole, the file name under it', async ({page}, testInfo) => {
+test('the phone viewer: the file name, then the position on its own line, whole, as on a computer', async ({page}, testInfo) => {
   test.skip(!isMobile(testInfo), 'phones');
   await page.goto('/render/media-grid/large#photo-5000');
   const position = page.locator('.media-viewer__position');
   const title = page.locator('.media-viewer__title');
   await expect(position).toHaveText(/5,001 \/ 20,000$/);
   const [p, t] = await Promise.all([position.boundingBox(), title.boundingBox()]);
-  expect(t!.y).toBeGreaterThanOrEqual(p!.y + p!.height - 1);
+  expect(p!.y).toBeGreaterThanOrEqual(t!.y + t!.height - 1);
   expect(await position.evaluate(element => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
 });
 
@@ -193,6 +193,7 @@ test('an image that doesn’t load: the tile says so and still opens; the viewer
   await expect(tile(page, 0).locator('.media-tile__mark')).toBeVisible();
   await link(page, 0).click();
   const alert = page.getByRole('dialog').getByRole('alert');
+  // Neither the thumbnail nor the preview loaded: nothing of the photo shows.
   await expect(alert).toContainText('The image couldn’t be loaded.');
   failing = false;
   await alert.getByRole('button', {name: 'Try again'}).click();
