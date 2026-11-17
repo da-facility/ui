@@ -53,18 +53,55 @@ const ICONS: Record<RowActionIcon, ReactNode> = {edit: pencil, remove: bin};
 
 const CONTAINER = '[data-row-actions-container], table, [role="table"], ul, ol';
 
-/** Whether the list the row stands in is at least `minWidth` wide, followed as it changes. */
+/**
+ * The width of each list that has rows with actions, followed by one
+ * ResizeObserver for all of them: every row of a list asks about the same
+ * element, so 2,000 rows share one entry, not 2,000 observers.
+ */
+let listObserver: ResizeObserver | null = null;
+const lists = new Map<Element, {width: number; rows: Set<() => void>}>();
+
+function followList(list: Element, row: () => void) {
+  if (!listObserver)
+    listObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const followed = lists.get(entry.target);
+        if (!followed) continue;
+        followed.width = entry.target.getBoundingClientRect().width;
+        for (const r of followed.rows) r();
+      }
+    });
+  let followed = lists.get(list);
+  if (!followed) {
+    followed = {width: list.getBoundingClientRect().width, rows: new Set()};
+    lists.set(list, followed);
+    listObserver.observe(list);
+  }
+  followed.rows.add(row);
+  return {
+    width: () => lists.get(list)?.width ?? 0,
+    stop: () => {
+      const f = lists.get(list);
+      if (!f) return;
+      f.rows.delete(row);
+      if (f.rows.size === 0) {
+        lists.delete(list);
+        listObserver?.unobserve(list);
+      }
+    },
+  };
+}
+
+/** Whether the list the row stands in is at least `minWidth` wide, followed as it changes (one observer per page). */
 function useWideEnough(ref: React.RefObject<HTMLElement | null>, minWidth: number, enabled: boolean) {
   const [wide, setWide] = useState(true);
   useLayoutEffect(() => {
     const own = ref.current;
     const list = own?.closest<HTMLElement>(CONTAINER) ?? own?.parentElement;
     if (!enabled || !list) return;
-    const measure = () => setWide(list.getBoundingClientRect().width >= minWidth);
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(list);
-    return () => observer.disconnect();
+    const follow = followList(list, () => setWide(follow.width() >= minWidth));
+    setWide(follow.width() >= minWidth);
+    return follow.stop;
   }, [ref, minWidth, enabled]);
   return wide;
 }

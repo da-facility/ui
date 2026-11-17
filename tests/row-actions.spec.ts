@@ -62,3 +62,26 @@ test('more than two actions, or one without a plain icon: the menu with all of t
   await invited.getByRole('button', {name: 'Actions for ana@example.com'}).click();
   await expect(page.getByRole('menuitem')).toHaveText(['Send again', 'Extend access…', 'Withdraw the invitation…']);
 });
+
+test('the rows of a list share one watcher of its width, and every list of the page the same one', async ({page}, info) => {
+  test.skip(isMobile(info), 'the icons, and so the width, are for wide lists');
+  // Every observer that watches one of the example's lists, told apart.
+  await page.addInitScript(() => {
+    const w = window as unknown as {__listWatchers: Set<ResizeObserver>};
+    w.__listWatchers = new Set();
+    const observe = ResizeObserver.prototype.observe;
+    ResizeObserver.prototype.observe = function (this: ResizeObserver, target: Element, options?: ResizeObserverOptions) {
+      if (target.classList?.contains('row-actions-example__table')) w.__listWatchers.add(this);
+      return observe.call(this, target, options);
+    };
+  });
+  await page.goto('/render/row-actions');
+  await expect(lists(page).nth(0).getByRole('group', {name: 'Actions for Judges'})).toBeVisible();
+  const rows = await page.locator('[data-row-actions="icons"]').count();
+  expect(rows).toBeGreaterThan(3);
+  // However many rows and lists: one observer (before, one per row).
+  expect(await page.evaluate(() => (window as unknown as {__listWatchers: Set<unknown>}).__listWatchers.size)).toBe(1);
+  // And it still follows a list's width: narrowed, its rows fold into the menu.
+  await lists(page).nth(0).evaluate(table => ((table as HTMLElement).style.width = '360px'));
+  await expect(lists(page).nth(0).getByRole('button', {name: 'Actions for Judges'})).toBeVisible();
+});
