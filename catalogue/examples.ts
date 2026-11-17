@@ -15,6 +15,7 @@ import {CodeInputExample} from './examples/code-input/CodeInputExample';
 import {DateFieldExample} from './examples/date-field/DateFieldExample';
 import {TimeFieldExample} from './examples/time-field/TimeFieldExample';
 import {CycleButtonExample} from './examples/cycle-button/CycleButtonExample';
+import {RowActionsExample} from './examples/row-actions/RowActionsExample';
 import {SelectionBarExample} from './examples/selection-bar/SelectionBarExample';
 import {ToastsExample} from './examples/toasts/ToastsExample';
 import {UserMenuExample} from './examples/user-menu/UserMenuExample';
@@ -128,6 +129,14 @@ export const examples: Example[] = [
       {id: 'disabled', label: 'Disabled', group: 'State'},
     ],
     Component: CycleButtonExample,
+  },
+  {
+    id: 'row-actions',
+    name: 'Row actions',
+    kind: 'Component',
+    description: 'A row\'s actions given once: up to two plain icons where the list is wide enough, else its “…” menu.',
+    tweaks: [{id: 'single', label: 'One action', group: 'State'}],
+    Component: RowActionsExample,
   },
   {
     id: 'media-card',

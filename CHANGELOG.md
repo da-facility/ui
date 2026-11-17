@@ -7,6 +7,7 @@ New:
 - `MediaViewer` on phones: the panel's sheet always shows its top line whole under the image, with a handle and room under it above the screen's edge (the device's safe area included); a tap on it brings the sheet up and puts it back (dragging still works), and its chevron points the way the sheet will move (`aria-expanded`). `sheetAction` puts a control at the end of that line, within the thumb's reach, such as Download; `sheetTitle` is what the line says (the panel's label by default). The Details button gives way to the sheet on phones.
 - `MediaGrid` rows: `--da-media-row-min-tile` and `--da-media-row-min-tile-phone`, the narrowest a tile should be; a photo that would be narrower goes to the next row.
 - `SidebarLayout`: `drawerBy="width"` chooses the phone layout (top bar or floating button, and the drawer) by the window's width only, so a wide, low window keeps the rail. The default, `"width-and-height"`, is unchanged (under 600px tall is a phone's layout too).
+- `RowActions`: a row's actions given once, drawn as quiet icon buttons (a pencil, a bin; at most two, with tooltips, the destructive look only on hover or focus, an off one with its reason) or, with more actions, one without such an icon, a narrow list or a phone, as the row's "…" menu with all of them.
 - `MediaViewer`: `reserveZoom` (on by default) keeps zoom's place in the header while the item has no `fullUrl`, so the header doesn't move when the larger image's address arrives.
 
 Other changes:

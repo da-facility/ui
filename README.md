@@ -498,6 +498,22 @@ An Astryx `Button` that moves to the next of its two to four states on each clic
 
 `appearance="group"` shows every state side by side in a shared track, with only the current one raised, using Astryx's `SegmentedControl`. A click, the arrow keys, or dragging across the track with a mouse or finger choose a state directly, while vertical swipes still scroll the page. `isIconOnly` hides every segment's label. `size` and `isDisabled` still apply; `variant` does not. Four labelled segments are about 340px wide at the medium size, so use `size="sm"` or `isIconOnly` where that is too wide, such as in a phone card.
 
+### RowActions
+
+```tsx
+<RowActions
+  label={`Actions for ${group.name}`}
+  actions={[
+    {label: 'Rename…', icon: 'edit', onClick: rename},
+    {label: 'Remove group…', icon: 'remove', isDestructive: true, onClick: remove, isDisabled: !canRemove, reason: lockReason},
+  ]}
+/>
+```
+
+A row's actions, given once and drawn one of two ways. With at most two actions (`maxIcons`), each with an icon nobody has to guess (`edit`, a pencil, or `remove`, a bin), they are quiet icon buttons at the row's end: always visible, 32px, each named by its tooltip and for a screen reader, in the order given (put the one that removes last). An `isDestructive` action looks like the others until it is pointed at or focused. An `isDisabled` action is the same icon, off, with its `reason` as the tooltip and the button's description.
+
+With more actions, or one without an icon, all of them stay in the row's "…" menu (a locked item shows its reason as its line). A row never shows icons and "…" together. The icons also fold into the menu when the list is narrower than `minWidth` (600px by default), measured on the closest table, list or element marked `data-row-actions-container`, not the window, and always on phones. Both forms are rendered and CSS chooses, so a server-rendered page starts right.
+
 ### Toaster and toast
 
 ```tsx

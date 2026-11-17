@@ -1,0 +1,47 @@
+/* RowActions: a row's actions as quiet icons or its "…" menu (RowActions.tsx). */
+.row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.row-actions__icons {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--da-row-actions-gap, 2px);
+}
+
+/* Quiet at rest, in the text's colour; the one that removes takes the error colour only when pointed at or focused. */
+.row-actions__icons .astryx-button {
+  color: var(--color-text-secondary);
+}
+
+.row-actions__icons .astryx-button:is(:hover, :focus-visible):not(:disabled, [aria-disabled='true']) {
+  color: var(--color-text-primary);
+}
+
+.row-actions__icons .astryx-button[data-destructive]:is(:hover, :focus-visible):not(:disabled, [aria-disabled='true']) {
+  color: var(--color-error);
+  background: color-mix(in srgb, var(--color-error) 10%, transparent);
+}
+
+.row-actions__item {
+  display: inline-flex;
+}
+
+/* One form at a time. Icons where they may stand and the list is wide enough; else the menu. */
+.row-actions[data-row-actions='icons'][data-wide='true'] .row-actions__menu,
+.row-actions[data-row-actions='icons'][data-wide='false'] .row-actions__icons,
+.row-actions[data-row-actions='menu'] .row-actions__icons {
+  display: none;
+}
+
+/* Phones: the menu, from the first paint. */
+@media (max-width: 768px) {
+  .row-actions[data-row-actions='icons'] .row-actions__icons {
+    display: none;
+  }
+  .row-actions[data-row-actions='icons'] .row-actions__menu {
+    display: inline-flex;
+  }
+}
