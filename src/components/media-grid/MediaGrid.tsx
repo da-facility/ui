@@ -38,6 +38,44 @@ export type MediaGridSection = {
   meta?: string;
 };
 
+/**
+ * A stretch of the list that isn't loaded yet (`layout="rows"`), such as the
+ * photos before a place the person returns to. The grid draws stand-ins in
+ * its room, so the scrollbar and the sections' headings are right before it
+ * loads.
+ */
+export type MediaGridGap = {
+  /**
+   * Where it stands among `items`: just before `items[at]`; 0 before the
+   * first loaded item, `items.length` after the last (then it replaces
+   * `total`'s stand-ins at the end, and is asked for through `onLoadGap`).
+   */
+  at: number;
+  /** How many items it holds, exact or estimated. When it is filled, the app passes it smaller or leaves it out. */
+  count: number;
+  /**
+   * With `sectionOf`: its items by section, in order, the counts adding up to
+   * `count`, such as photos per day. A section with the key of the loaded
+   * item next to it is the same section, under one heading. Without: its
+   * stand-ins belong to the section around them.
+   */
+  sections?: (MediaGridSection & {count: number})[];
+};
+
+/** What the grid asks for when the window comes near a stretch that isn't loaded (`onLoadGap`). */
+export type MediaGridGapRequest =
+  /** The items just before `items[index]`: the stretch above it is near the window. */
+  | {side: 'before'; index: number}
+  /** The items just after `items[index]`, or from the very first when `index` is -1. */
+  | {side: 'after'; index: number}
+  /**
+   * The window is inside a stretch, more than `loadAhead` screens from both
+   * its ends (a jump with the scrollbar): `position` is the place in the
+   * whole list (0-based, stand-ins counted) at the window's top, for an app
+   * that can start loading there.
+   */
+  | {side: 'inside'; position: number};
+
 export type MediaGridProps<Item extends MediaGridItem> = {
   /** Everything loaded so far, in the order to show. New pages go at the end; the grid never reorders. */
   items: readonly Item[];
@@ -118,6 +156,33 @@ export type MediaGridProps<Item extends MediaGridItem> = {
    * this many screens below the window or nearer. Defaults to 3.
    */
   loadAhead?: number;
+  /**
+   * `layout="rows"`: stretches of the list not loaded yet, before, between or
+   * after the loaded `items`, which then are runs of the list rather than
+   * its start (a return to a far place, a jump to a date). Each tile's place
+   * for screen readers is its place in the whole list, and `total` is the
+   * whole list's count. When items arrive in a stretch above the window, or
+   * an estimated count becomes real rows there, the window moves with them:
+   * the tile at its top stays where it was. Rows of a run that started after
+   * a stretch are laid out from its first item, so they never change when
+   * items arrive above it. Arrow keys stay within a run.
+   *
+   * What the app passes: `items`, every loaded item in the list's order
+   * (runs one after another); `gaps`, for each stretch not loaded, where it
+   * stands (`at`) and how many it holds (by section, with `sectionOf`); and
+   * `total` with `isTotalExact` as before. Keep the array's identity while
+   * nothing changes.
+   */
+  gaps?: readonly MediaGridGap[];
+  /**
+   * `layout="rows"` with `gaps`: called when the window comes within
+   * `loadAhead` screens of a stretch: for its end next to a loaded item
+   * (`before` or `after`), else, the window inside it, for the place there
+   * (`inside`). Each is asked once until the items change or a returned
+   * promise settles, never on every frame; the app loads it and passes the
+   * new `items` and `gaps`.
+   */
+  onLoadGap?: (request: MediaGridGapRequest) => void | Promise<unknown>;
 };
 
 type Layout = {columns: number; tileHeight: number; gap: number};

@@ -1,5 +1,5 @@
 import {expect, test} from '@playwright/test';
-import {aspectOf, DEFAULT_ASPECT, justify, layoutRows, LOOKAHEAD, nearestInRow, ROWS_PER_BLOCK, type RowMetrics} from '../src/components/media-grid/rows';
+import {aspectOf, DEFAULT_ASPECT, justify, justifyBackward, layoutRows, LOOKAHEAD, nearestInRow, ROWS_PER_BLOCK, type RowMetrics} from '../src/components/media-grid/rows';
 
 // Pure functions: no page needed, so they run once, in the desktop project.
 test.beforeEach(({}, testInfo) => test.skip(testInfo.project.name !== 'desktop', 'runs once'));
@@ -152,4 +152,54 @@ test('rows already laid out stay as they were when more items arrive', () => {
     expect(settled.length).toBeGreaterThan(0);
     expect(settled).toEqual(whole.slice(0, settled.length));
   }
+});
+
+test('stretches not loaded: places count their stand-ins, a section that goes on across one has one heading', () => {
+  const aspects = Array.from({length: 60}, (_, index) => (index % 3 ? landscape : portrait));
+  // 500 not loaded (days a, b, and 20 of c), the 60 loaded (the rest of c), then 300 more of c and d.
+  const layout = layoutRows({
+    aspects,
+    sections: [{start: 0, key: 'c'}],
+    placeholders: 0,
+    gaps: [
+      {at: 0, count: 500, sections: [{key: 'a', count: 200}, {key: 'b', count: 280}, {key: 'c', count: 20}]},
+      {at: 60, count: 300, sections: [{key: 'c', count: 100}, {key: 'd', count: 200}]},
+    ],
+    metrics,
+  });
+  expect(layout.sections.map(s => [s.key, s.first, s.count])).toEqual([['a', 0, 200], ['b', 200, 280], ['c', 480, 180], ['d', 660, 200]]);
+  expect(layout.size).toBe(860);
+  expect(layout.positionOf[0]).toBe(500);
+  expect(layout.positionOf[59]).toBe(559);
+  // The loaded items start a row of their own, after the section's stand-ins.
+  expect(layout.place(0).left).toBe(0);
+  expect(layout.blocks[layout.blockOf[0]].isPlaceholder).toBe(false);
+  expect(layout.gaps.map(g => [g.gap, g.at, g.position, g.count])).toEqual([[0, 0, 0, 500], [1, 60, 560, 300]]);
+  expect(layout.gaps[0].bottom).toBeLessThanOrEqual(layout.place(0).top);
+  expect(layout.gaps[1].top).toBeGreaterThan(layout.place(59).top);
+  expect(layout.height).toBeGreaterThan(layout.gaps[1].bottom - 1);
+});
+
+test('rows from a place the grid holds never change when items arrive above it', () => {
+  const shapes = Array.from({length: 400}, (_, index) => [landscape, portrait, 1, 16 / 9, landscape][(index * 7) % 5]);
+  // First the run from item 300 on, then 100 and 200 more arrive before it: the item that started the run keeps its rows.
+  const rowsFrom = (loaded: number) => {
+    const aspects = shapes.slice(300 - loaded);
+    const layout = layoutRows({aspects, sections: [], placeholders: 0, gaps: [{at: 0, count: 300 - loaded}], pins: new Map([[loaded, 'forward' as const]]), metrics});
+    return layout.rows.filter(row => !layout.blocks[row.block].isPlaceholder && row.first >= loaded).map(row => ({first: row.first - loaded, count: row.count, height: row.height}));
+  };
+  const alone = rowsFrom(0);
+  expect(rowsFrom(100)).toEqual(alone);
+  expect(rowsFrom(200)).toEqual(alone);
+  // The rows above it end at it, the short one (at the target height) first, next to what isn't loaded.
+  const layout = layoutRows({aspects: shapes.slice(100), sections: [], placeholders: 0, gaps: [{at: 0, count: 100}], pins: new Map([[200, 'forward' as const]]), metrics});
+  const above = layout.rows.filter(row => !layout.blocks[row.block].isPlaceholder && row.first < 200);
+  expect(above.at(-1)!.first + above.at(-1)!.count).toBe(200);
+  expect(above[0].height).toBe(metrics.rowHeight);
+  for (const row of above.slice(1)) expect(Math.abs(row.height - metrics.rowHeight)).toBeLessThan(metrics.rowHeight * 0.4);
+  // A place laid out backward keeps the rows before the next place when what is above it is laid out forward.
+  const both = layoutRows({aspects: shapes, sections: [], placeholders: 0, pins: new Map([[100, 'backward' as const], [300, 'forward' as const]]), metrics});
+  const ownRows = both.rows.filter(row => row.first >= 100 && row.first < 300).map(row => ({first: row.first, count: row.count}));
+  const backward = justifyBackward(shapes, 100, 300, metrics).map(row => ({first: row.first, count: row.count}));
+  expect(ownRows).toEqual(backward);
 });

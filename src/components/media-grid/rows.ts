@@ -43,12 +43,15 @@ export type Placed = {left: number; top: number; width: number; height: number};
 export type Row = {first: number; count: number; top: number; height: number};
 
 export type Block = {
-  /** Stable while the block holds the same items: `<section>:<n>`. */
+  /** Stable while the block holds the same items (`keyOf` of its first item, else its place). */
   key: string;
   /** Distance from the top of the grid. */
   top: number;
   height: number;
+  /** Its first item: the index of a loaded item, or (stand-ins) its place in the whole list. */
   first: number;
+  /** The place of its first tile in the whole list, stand-ins counted. */
+  position: number;
   count: number;
   /** Places of its tiles, in order, relative to the block. */
   tiles: Placed[];
@@ -59,14 +62,28 @@ export type Block = {
 
 export type SectionLayout = {
   key: string;
-  /** Index of the first item in the section heading list (`MediaGrid`'s sections). */
-  heading: number | null;
+  /** Whether it has a heading (the section of `key`). */
+  isTitled: boolean;
   /** Distance of the section (its heading) from the top of the grid. */
   top: number;
   height: number;
+  /** Its first place in the whole list, and how many it holds, stand-ins counted. */
   first: number;
   count: number;
   blocks: Block[];
+};
+
+/** Where a stretch that isn't loaded stands, in pixels from the top of the grid. */
+export type GapExtent = {
+  /** Index into the input's `gaps`; -1 for `placeholders`. */
+  gap: number;
+  /** The loaded item after it (`aspects.length`: none). */
+  at: number;
+  /** Its first place in the whole list. */
+  position: number;
+  count: number;
+  top: number;
+  bottom: number;
 };
 
 export type GridLayout = {
@@ -75,8 +92,14 @@ export type GridLayout = {
   /** For each loaded item: its block (index into `blocks`) and row (index into `rows`). */
   blockOf: Int32Array;
   rowOf: Int32Array;
+  /** For each loaded item: its place in the whole list, the stand-ins before it counted. */
+  positionOf: Int32Array;
+  /** How many places the whole list has, stand-ins counted. */
+  size: number;
   blocks: Block[];
   rows: (Row & {block: number})[];
+  /** The stretches not loaded, in order. */
+  gaps: GapExtent[];
   /** Places of loaded items relative to the grid: left, top, width, height. */
   place: (index: number) => Placed;
 };
@@ -182,87 +205,220 @@ function placeRow(aspects: ArrayLike<number>, row: {first: number; count: number
   return height;
 }
 
+/**
+ * `justify` from the end: the rows end exactly at `to`, and the short row
+ * (at the target height) is the first. For items that arrive before a place
+ * the grid holds: the rows next to that place never change when more arrive
+ * above them.
+ */
+export function justifyBackward(aspects: ArrayLike<number>, from: number, to: number, metrics: Pick<RowMetrics, 'width' | 'rowHeight' | 'gap' | 'minTileWidth'>) {
+  const reversed = new Float64Array(to - from);
+  for (let index = from; index < to; index++) reversed[to - 1 - index] = aspects[index];
+  return justify(reversed, 0, reversed.length, metrics)
+    .reverse()
+    .map(row => ({first: to - (row.first + row.count), count: row.count, height: row.height}));
+}
+
+/** A stretch of the list that isn't loaded, for `layoutRows`. */
+export type LayoutGap = {
+  /** Where it stands: just before the loaded item `at` (`aspects.length`: after the last). */
+  at: number;
+  /** How many items it holds, exact or estimated. */
+  count: number;
+  /** Its items by section, in order, the counts adding up to `count`. None: the section around it. */
+  sections?: {key: string; count: number}[];
+};
+
+/**
+ * Where rows of loaded items must start (indices into `aspects`), and how
+ * the rows from there to the next one are laid out: `forward` from it (its
+ * last row short, at the target height), or `backward` from the next one
+ * (its first row short). Rows between two such places depend only on the
+ * items between them.
+ */
+export type LayoutPins = ReadonlyMap<number, 'forward' | 'backward'>;
+
 export type LayoutInput = {
-  /** Shapes of the loaded items (`aspectOf`). */
+  /** Shapes of the loaded items (`aspectOf`), in the list's order. */
   aspects: ArrayLike<number>;
-  /** Where each section starts (indices into `aspects`, ascending, the first 0) and its key; none: one section without a heading. */
+  /** Where each section starts among the loaded items (indices into `aspects`, ascending) and its key; none: one section without a heading. */
   sections: {start: number; key: string}[];
-  /** Items not loaded yet, drawn as grey stand-ins after the loaded ones. */
+  /** Items not loaded yet, drawn as grey stand-ins after everything else, without a heading. */
   placeholders: number;
   /**
-   * Their shapes, repeated in turn: the loaded items' own (`aspects`), so the
-   * stand-ins break into rows as the real mix does and the estimated height
-   * holds when they arrive. Empty: `DEFAULT_ASPECT`.
+   * Stretches not loaded yet between, before or after the loaded items, in
+   * the order they stand. Stand-ins take their room, under their sections'
+   * headings; a section that goes on from a stretch into loaded items (the
+   * same key) has one heading.
+   */
+  gaps?: readonly LayoutGap[];
+  /**
+   * Places where rows start (`LayoutPins`). Without them, a run of loaded
+   * items that follows a stretch not loaded is laid out from its first item.
+   */
+  pins?: LayoutPins;
+  /** A loaded item's stable key, for the key of the block it starts. */
+  keyOf?: (index: number) => string;
+  /**
+   * The stand-ins' shapes, repeated in turn: the loaded items' own
+   * (`aspects`), so the stand-ins break into rows as the real mix does and
+   * the estimated height holds when they arrive. Empty: `DEFAULT_ASPECT`.
    */
   placeholderShapes?: ArrayLike<number>;
   metrics: RowMetrics;
 };
 
-/** The whole grid: sections, their blocks of rows and every tile's place. */
-export function layoutRows({aspects, sections, placeholders, placeholderShapes = aspects, metrics}: LayoutInput): GridLayout {
+type Part =
+  | {kind: 'items'; from: number; to: number; position: number; afterGap: boolean}
+  | {kind: 'gap'; gap: number; at: number; count: number; position: number};
+type Span = {key: string; isTitled: boolean; parts: Part[]};
+
+/**
+ * The whole grid: sections, their blocks of rows and every tile's place.
+ * Places in the whole list count the stand-ins of every stretch before them,
+ * so an item's place never depends on what is loaded.
+ */
+export function layoutRows({aspects, sections, placeholders, gaps = [], pins, keyOf, placeholderShapes = aspects, metrics}: LayoutInput): GridLayout {
   const n = aspects.length;
   const blockOf = new Int32Array(n);
   const rowOf = new Int32Array(n);
+  const positionOf = new Int32Array(n);
   const blocks: Block[] = [];
   const allRows: (Row & {block: number})[] = [];
   const out: SectionLayout[] = [];
+  const extents: GapExtent[] = [];
   const hasHeadings = sections.length > 0;
-  const spans = hasHeadings
-    ? sections.map((s, i) => ({key: s.key, heading: i as number | null, first: s.start, end: i + 1 < sections.length ? sections[i + 1].start : n}))
-    : n > 0 ? [{key: 'all', heading: null as number | null, first: 0, end: n}] : [];
-  let top = 0;
-  const addBlocks = (section: SectionLayout, rows: {first: number; count: number; height: number}[], shapes: ArrayLike<number>, offset: number, isPlaceholder: boolean) => {
-    let y = 0;
-    for (let start = 0; start < rows.length; start += ROWS_PER_BLOCK) {
-      const tiles: Placed[] = [];
-      const blockRows: Row[] = [];
-      let height = 0;
-      for (const row of rows.slice(start, start + ROWS_PER_BLOCK)) {
-        if (height > 0) height += metrics.gap;
-        const h = placeRow(shapes, row, height, metrics.gap, tiles);
-        blockRows.push({first: row.first + offset, count: row.count, top: height, height: h});
-        height += h;
-      }
-      const block: Block = {
-        key: `${section.key}:${start / ROWS_PER_BLOCK}`,
-        top: section.top + section.height + y,
-        height,
-        first: rows[start].first + offset,
-        count: tiles.length,
-        tiles,
-        rows: blockRows,
-        isPlaceholder,
-      };
-      const blockIndex = blocks.length;
-      blocks.push(block);
-      section.blocks.push(block);
-      for (const row of blockRows) {
-        const rowIndex = allRows.length;
-        allRows.push({...row, block: blockIndex});
-        if (!isPlaceholder)
-          for (let index = row.first; index < row.first + row.count; index++) {
-            blockOf[index] = blockIndex;
-            rowOf[index] = rowIndex;
-          }
-      }
-      y += height + metrics.gap;
-    }
-    section.height += Math.max(0, y - metrics.gap);
+
+  // The list as spans (one per section) of parts: runs of loaded items and stretches of stand-ins.
+  const starts = new Map(sections.map(s => [s.start, s.key]));
+  const byAt = new Map<number, number[]>();
+  gaps.forEach((gap, index) => { if (gap.count > 0) byAt.set(gap.at, [...(byAt.get(gap.at) ?? []), index]); });
+  const spans: Span[] = [];
+  let current: Span | null = null;
+  let leading: Part[] = [];
+  let position = 0;
+  let itemKey = hasHeadings ? sections[0]?.key ?? 'all' : 'all';
+  const open = (key: string, isTitled: boolean) => {
+    current = {key, isTitled, parts: leading};
+    leading = [];
+    spans.push(current);
+    return current;
   };
-  for (const span of spans) {
-    if (out.length) top += metrics.sectionGap;
-    const section: SectionLayout = {key: span.key, heading: span.heading, top, height: span.heading === null ? 0 : metrics.headingHeight, first: span.first, count: span.end - span.first, blocks: []};
-    addBlocks(section, justify(aspects, span.first, span.end, metrics), aspects, 0, false);
-    out.push(section);
-    top += section.height;
+  for (let at = 0; at <= n; at++) {
+    for (const index of byAt.get(at) ?? []) {
+      const gap = gaps[index];
+      const parts = hasHeadings && gap.sections?.length ? gap.sections.filter(s => s.count > 0) : [{key: null, count: gap.count}];
+      for (const part of parts) {
+        const piece: Part = {kind: 'gap', gap: index, at, count: part.count, position};
+        position += part.count;
+        if (part.key === null) {
+          if (current) (current as Span).parts.push(piece);
+          else leading.push(piece);
+        } else {
+          const span: Span = current && (current as Span).key === part.key ? current : open(part.key, true);
+          span.parts.push(piece);
+        }
+      }
+    }
+    if (at === n) break;
+    if (hasHeadings && starts.has(at)) itemKey = starts.get(at)!;
+    const span: Span = current && (current as Span).key === itemKey ? current : open(itemKey, hasHeadings);
+    const last = span.parts.at(-1);
+    positionOf[at] = position;
+    if (last?.kind === 'items' && last.to === at) last.to = at + 1;
+    else span.parts.push({kind: 'items', from: at, to: at + 1, position, afterGap: last?.kind === 'gap'});
+    position++;
   }
+  if (leading.length) open('all', false);
   if (placeholders > 0) {
-    if (out.length) top += metrics.gap;
-    const shapes = new Float64Array(placeholders);
-    for (let index = 0; index < placeholders; index++)
-      shapes[index] = placeholderShapes.length ? placeholderShapes[index % placeholderShapes.length] : DEFAULT_ASPECT;
-    const section: SectionLayout = {key: 'placeholders', heading: null, top, height: 0, first: n, count: placeholders, blocks: []};
-    addBlocks(section, justify(shapes, 0, placeholders, metrics), shapes, n, true);
+    spans.push({key: 'placeholders', isTitled: false, parts: [{kind: 'gap', gap: -1, at: n, count: placeholders, position}]});
+    position += placeholders;
+  }
+
+  const shapesFor = (from: number, count: number) => {
+    const shapes = new Float64Array(count);
+    for (let index = 0; index < count; index++)
+      shapes[index] = placeholderShapes.length ? placeholderShapes[(from + index) % placeholderShapes.length] : DEFAULT_ASPECT;
+    return shapes;
+  };
+
+  let top = 0;
+  for (const span of spans) {
+    if (out.length) top += span.key === 'placeholders' ? metrics.gap : metrics.sectionGap;
+    const first = span.parts[0];
+    const section: SectionLayout = {key: span.key, isTitled: span.isTitled, top, height: span.isTitled ? metrics.headingHeight : 0, first: first ? first.position : position, count: 0, blocks: []};
+    let y = 0;
+    // Rows, cut into blocks of whole rows (from the end for rows laid out backward, so the blocks next to the place they keep stay the same).
+    const addRows = (rows: {first: number; count: number; height: number}[], shapes: ArrayLike<number>, offset: number, isPlaceholder: boolean, fromEnd: boolean, positionOfFirst: number) => {
+      const chunks: (typeof rows)[] = [];
+      if (fromEnd) for (let end = rows.length; end > 0; end -= ROWS_PER_BLOCK) chunks.unshift(rows.slice(Math.max(0, end - ROWS_PER_BLOCK), end));
+      else for (let start = 0; start < rows.length; start += ROWS_PER_BLOCK) chunks.push(rows.slice(start, start + ROWS_PER_BLOCK));
+      for (const chunk of chunks) {
+        if (y > 0) y += metrics.gap;
+        const tiles: Placed[] = [];
+        const blockRows: Row[] = [];
+        let height = 0;
+        for (const row of chunk) {
+          if (height > 0) height += metrics.gap;
+          const h = placeRow(shapes, row, height, metrics.gap, tiles);
+          blockRows.push({first: row.first + offset, count: row.count, top: height, height: h});
+          height += h;
+        }
+        const firstIndex = chunk[0].first + offset;
+        const blockPosition = positionOfFirst + chunk[0].first;
+        const block: Block = {
+          key: isPlaceholder ? `${span.key}:p${blockPosition}` : keyOf ? `i:${keyOf(firstIndex)}` : `${span.key}:${firstIndex}`,
+          top: section.top + section.height + y,
+          height,
+          first: isPlaceholder ? blockPosition : firstIndex,
+          position: blockPosition,
+          count: tiles.length,
+          tiles,
+          rows: blockRows,
+          isPlaceholder,
+        };
+        const blockIndex = blocks.length;
+        blocks.push(block);
+        section.blocks.push(block);
+        for (const row of blockRows) {
+          const rowIndex = allRows.length;
+          allRows.push({...row, block: blockIndex});
+          if (!isPlaceholder)
+            for (let index = row.first; index < row.first + row.count; index++) {
+              blockOf[index] = blockIndex;
+              rowOf[index] = rowIndex;
+            }
+        }
+        y += height;
+      }
+    };
+    for (const part of span.parts) {
+      section.count += part.kind === 'gap' ? part.count : part.to - part.from;
+      if (part.kind === 'gap') {
+        const shapes = shapesFor(part.position, part.count);
+        const before = blocks.length;
+        addRows(justify(shapes, 0, part.count, metrics), shapes, 0, true, false, part.position);
+        const own = blocks.slice(before);
+        const extent = {gap: part.gap, at: part.at, position: part.position, count: part.count, top: own[0].top, bottom: own.at(-1)!.top + own.at(-1)!.height};
+        const previous = extents.at(-1);
+        if (previous && previous.gap === part.gap && previous.gap !== -1) {
+          previous.count += part.count;
+          previous.bottom = extent.bottom;
+        } else extents.push(extent);
+        continue;
+      }
+      // A run of loaded items, cut where rows must start.
+      const cuts = [part.from];
+      if (pins) for (let index = part.from + 1; index < part.to; index++) if (pins.has(index)) cuts.push(index);
+      cuts.push(part.to);
+      for (let c = 0; c + 1 < cuts.length; c++) {
+        const [from, to] = [cuts[c], cuts[c + 1]];
+        const backward = pins?.has(from) ? pins.get(from) === 'backward' : c === 0 && part.afterGap && cuts.length > 2;
+        const rows = backward ? justifyBackward(aspects, from, to, metrics) : justify(aspects, from, to, metrics);
+        addRows(rows, aspects, 0, false, backward, part.position - part.from);
+      }
+    }
+    section.height += y;
     out.push(section);
     top += section.height;
   }
@@ -271,8 +427,11 @@ export function layoutRows({aspects, sections, placeholders, placeholderShapes =
     height: top,
     blockOf,
     rowOf,
+    positionOf,
+    size: position,
     blocks,
     rows: allRows,
+    gaps: extents,
     place(index) {
       const block = blocks[blockOf[index]];
       const tile = block.tiles[index - block.first];

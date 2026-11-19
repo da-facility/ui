@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+New:
+
+- `MediaGrid` rows: `gaps` and `onLoadGap` hold a list whose loaded part doesn't start at the start, such as a return to photo 9,501 of 10,000 or a jump to a date. Stretches not loaded yet take their room as stand-ins under their sections' headings (`gaps[].sections` with counts), so the scroll bar and the headings are right from the first paint; several loaded runs may stand with stretches between them; a tile's place for screen readers is its place in the whole list; the window coming near a stretch asks for it once (`before`, `after`, or `inside` with the place); and items arriving above the window move nothing on screen (the tile at its top stays within a pixel). Types `MediaGridGap` and `MediaGridGapRequest`.
+
+Other changes:
+
+- `MediaGrid` rows: the browser's scroll anchoring is off inside the grid, which keeps the window in place itself, and the tile with the grid's tab stop is followed by its id, so it stays the same when items arrive before it.
+
 ## 1.8.0
 
 New:

@@ -93,9 +93,13 @@
   position: relative;
 }
 
-/* The stand-ins move down as pages arrive above them: the browser must never
-   hold the window to one (scroll anchoring would carry it along), so a jump
-   into what isn't loaded yet stays where the person put it. */
+/* The browser never holds the window to a tile of the rows: stand-ins move
+   down as pages arrive above them (a jump into what isn't loaded yet stays
+   where the person put it), and when rows above the window change the grid
+   moves the window itself, by exactly what they moved (RowsGrid.tsx), which
+   the browser's own scroll anchoring would do a second time. */
+.media-grid[data-layout="rows"],
+.media-grid[data-layout="rows"] *,
 .media-grid__placeholders,
 .media-grid__placeholders * {
   overflow-anchor: none;
