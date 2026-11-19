@@ -61,6 +61,9 @@ test('more than two actions, or one without a plain icon: the menu with all of t
   await expect(invited.getByRole('button', {name: 'Send again'})).toHaveCount(0);
   await invited.getByRole('button', {name: 'Actions for ana@example.com'}).click();
   await expect(page.getByRole('menuitem')).toHaveText(['Send again', 'Extend access…', 'Withdraw the invitation…']);
+  // An item chosen at once, right after the menu was made by the press, acts.
+  await page.getByRole('menuitem', {name: 'Send again'}).click();
+  await expect(page.locator('.row-actions-example__said')).toHaveText('Sent again to ana@example.com.');
 });
 
 test('the rows of a list share one watcher of its width, and every list of the page the same one', async ({page}, info) => {

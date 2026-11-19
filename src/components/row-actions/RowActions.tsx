@@ -199,9 +199,10 @@ function MenuAction({label, actions}: {label: string; actions: RowAction[]}) {
         setOpen(true);
         swallow.current = window.setTimeout(() => (swallow.current = 0), 500);
       }}
-      // After a tap a click follows on the menu's new button: it would close what the press opened.
+      // After a tap a click follows on the menu's new button: it would close what the press opened. Only that click:
+      // the menu's items are in a layer elsewhere in the page, but React carries their clicks through here too.
       onClickCapture={event => {
-        if (!swallow.current) return;
+        if (!swallow.current || !ref.current?.contains(event.target as Node)) return;
         window.clearTimeout(swallow.current);
         swallow.current = 0;
         event.stopPropagation();
