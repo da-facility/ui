@@ -85,3 +85,62 @@ test('the rows of a list share one watcher of its width, and every list of the p
   await lists(page).nth(0).evaluate(table => ((table as HTMLElement).style.width = '360px'));
   await expect(lists(page).nth(0).getByRole('button', {name: 'Actions for Judges'})).toBeVisible();
 });
+
+test('2,000 rows: one form a row, no closed tooltip or menu until a row is pointed at, focused or opened', async ({page}, info) => {
+  test.setTimeout(60_000);
+  await page.goto('/render/row-actions/many');
+  await expect(page.getByRole('button', {name: 'Actions for Person 2000'})).toBeVisible();
+  const count = () => page.evaluate(() => ({
+    nodes: document.querySelectorAll('.row-actions-example__table .row-actions *').length,
+    document: document.getElementsByTagName('*').length,
+    rows: document.querySelectorAll('.row-actions-example__table .row-actions').length,
+    tooltips: document.querySelectorAll('[role="tooltip"]').length,
+    menus: document.querySelectorAll('[role="menu"]').length,
+    icons: document.querySelectorAll('.row-actions__icons').length,
+    triggers: document.querySelectorAll('.row-actions__menu').length,
+  }));
+  const at = await count();
+  console.log(`RowActions, 2,000 rows (${info.project.name}): ${JSON.stringify(at)}`);
+  await info.attach('row-actions-2000.json', {body: JSON.stringify(at, null, 2), contentType: 'application/json'});
+  expect(at.rows).toBe(2000);
+  // One form a row: icons in half of them on a computer, else every row its "…".
+  expect(at.icons + at.triggers).toBe(2000);
+  expect(at.tooltips).toBe(0);
+  expect(at.menus).toBe(0);
+  // The page holds the drawn form only: 12.5 nodes a row on a computer, 10 on a phone (1.8.0: 19.5 in the row and 39,000
+  // in all, both forms with two closed tooltips and a closed menu a row, about 29 a row with their layers).
+  expect(at.nodes / at.rows, 'nodes a row').toBeLessThanOrEqual(13);
+  expect(at.document / at.rows, 'nodes of the whole page a row (1.8.0: 41)').toBeLessThan(17);
+  // Pointed at: the tooltip comes as before. Opened: the menu, with every action.
+  if (!isMobile(info)) {
+    const rename = page.getByRole('group', {name: 'Actions for Person 1', exact: true}).getByRole('button', {name: 'Rename…'});
+    await rename.hover();
+    await expect(page.getByRole('tooltip').filter({hasText: 'Rename…'})).toBeVisible();
+    // By keyboard: focus to the next "…" and open it with Enter, the menu's first item focused; Escape gives focus back.
+    await page.getByRole('button', {name: 'Actions for Person 2', exact: true}).focus();
+    await expect(page.getByRole('button', {name: 'Actions for Person 2', exact: true})).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('menuitem', {name: 'Send again'})).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('menu')).toHaveCount(0);
+    await expect(page.getByRole('button', {name: 'Actions for Person 2', exact: true})).toBeFocused();
+  } else {
+    await page.getByRole('button', {name: 'Actions for Person 1', exact: true}).tap();
+    await expect(page.getByRole('menuitem', {name: 'Rename…'})).toBeVisible();
+  }
+});
+
+test('a keyboard reaches an icon’s tooltip and an off one’s reason, as before', async ({page}, info) => {
+  test.skip(isMobile(info), 'the icons are for wide lists');
+  await page.goto('/render/row-actions');
+  const wide = lists(page).nth(0);
+  await page.getByText('Nothing done yet.').click();
+  // Tab into the first row's icons: the tooltip of the focused one shows.
+  const rename = wide.getByRole('group', {name: 'Actions for Judges'}).getByRole('button', {name: 'Rename…'});
+  while (!(await rename.evaluate(element => element === document.activeElement))) await page.keyboard.press('Tab');
+  await expect(page.getByRole('tooltip').filter({hasText: 'Rename…'})).toBeVisible();
+  const locked = wide.getByRole('group', {name: 'Actions for Sponsors'}).getByRole('button', {name: 'Remove group…'});
+  await locked.focus();
+  await expect(locked).toHaveAccessibleDescription('Locked. The agency shares galleries with this group, so only the agency can remove it.');
+  await expect(locked).toHaveAttribute('aria-disabled', 'true');
+});

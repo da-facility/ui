@@ -134,7 +134,7 @@ export const examples: Example[] = [
     id: 'row-actions',
     name: 'Row actions',
     kind: 'Component',
-    description: 'A row\'s actions given once: up to two plain icons where the list is wide enough, else its “…” menu.',
+    description: 'A row\'s actions given once: up to two plain icons where the list is wide enough, else its “…” menu; /row-actions/many holds 2,000 rows.',
     tweaks: [{id: 'single', label: 'One action', group: 'State'}],
     Component: RowActionsExample,
   },

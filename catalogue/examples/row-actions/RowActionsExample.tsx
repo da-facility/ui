@@ -11,8 +11,46 @@ const groups: Row[] = [
   {name: 'Sponsors', detail: '2 members', locked: 'Locked. The agency shares galleries with this group, so only the agency can remove it.'},
 ];
 
+/** `/row-actions/many`: this many people, each row with its actions, as a large client's people list. */
+export const MANY_ROWS = 2000;
+
 /** Rows with two actions with plain icons, a locked one, rows with more actions, and the same list narrow. */
-export function RowActionsExample({tweaks}: ExampleProps) {
+export function RowActionsExample({page, tweaks}: ExampleProps) {
+  if (page === 'many') return <ManyRows />;
+  return <Examples tweaks={tweaks} />;
+}
+
+/** 2,000 rows, half with two icon actions and half with a menu, to count what each row costs the page. */
+function ManyRows() {
+  const [said, setSaid] = useState('Nothing done yet.');
+  return <main className="row-actions-example">
+    <h1>2,000 rows</h1>
+    <p className="row-actions-example__said" role="status">{said}</p>
+    <table className="row-actions-example__table">
+      <tbody>
+        {Array.from({length: MANY_ROWS}, (_, index) => {
+          const name = `Person ${index + 1}`;
+          const actions: RowAction[] = index % 2
+            ? [
+                {label: 'Send again', onClick: () => setSaid(`Sent again to ${name}.`)},
+                {label: 'Extend access…', onClick: () => setSaid(`Extend ${name}.`)},
+                {label: 'Remove…', isDestructive: true, onClick: () => setSaid(`Remove ${name}.`)},
+              ]
+            : [
+                {label: 'Rename…', icon: 'edit', onClick: () => setSaid(`Rename ${name}.`)},
+                {label: 'Remove…', icon: 'remove', isDestructive: true, onClick: () => setSaid(`Remove ${name}.`)},
+              ];
+          return <tr key={name}>
+            <th scope="row">{name}</th>
+            <td className="row-actions-example__end"><RowActions label={`Actions for ${name}`} actions={actions} /></td>
+          </tr>;
+        })}
+      </tbody>
+    </table>
+  </main>;
+}
+
+function Examples({tweaks}: Pick<ExampleProps, 'tweaks'>) {
   const [said, setSaid] = useState('Nothing done yet.');
   const two = (row: Row): RowAction[] => [
     {label: 'Rename…', icon: 'edit', onClick: () => setSaid(`Rename ${row.name}.`)},

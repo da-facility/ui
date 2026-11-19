@@ -8,6 +8,7 @@ New:
 
 Other changes:
 
+- `RowActions` keeps one form in the page, the one that shows, and makes its tooltips and its menu the first time the row's control is pointed at, focused or pressed: 2,000 rows went from 82,020 document nodes, with 2,000 closed tooltips and 2,000 closed menus, to 33,019 and none. They look, open and read as before. A server-rendered page still starts right: both light forms until it hydrates, chosen by CSS.
 - `MediaGrid` rows: the browser's scroll anchoring is off inside the grid, which keeps the window in place itself, and the tile with the grid's tab stop is followed by its id, so it stays the same when items arrive before it.
 
 ## 1.8.0
