@@ -130,8 +130,16 @@ export function prepareLaunch(from: ToastFrom | undefined): Launch | undefined {
 function coverOf(from: ToastFrom): Cover | undefined {
   if (from instanceof Element) {
     const rect = from.getBoundingClientRect();
+    // Its box without a passing transform, around the same centre: a button's press feedback scales it down while
+    // pressed (Astryx: 0.98, with a transition), and the trail passes behind the button as it stands once released.
+    // Measured mid-press, the trail showed over its rim.
+    const laidOut = from instanceof HTMLElement && from.offsetWidth > 0 ? {width: from.offsetWidth, height: from.offsetHeight} : rect;
+    const width = Math.max(rect.width, laidOut.width);
+    const height = Math.max(rect.height, laidOut.height);
+    const x = rect.left + rect.width / 2 - width / 2;
+    const y = rect.top + rect.height / 2 - height / 2;
     const radius = parseFloat(getComputedStyle(from).borderTopLeftRadius) || 0;
-    return {x: rect.x, y: rect.y, width: rect.width, height: rect.height, radius: Math.min(radius, rect.width / 2, rect.height / 2)};
+    return {x, y, width, height, radius: Math.min(radius, width / 2, height / 2)};
   }
   if (typeof DOMRect !== 'undefined' && from instanceof DOMRect) return {x: from.x, y: from.y, width: from.width, height: from.height, radius: 0};
   return undefined;

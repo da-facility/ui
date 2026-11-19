@@ -175,7 +175,13 @@ test('phones: the sheet’s top line shows whole under the image, with a handle,
   // The details button is the sheet's line on phones.
   await expect(page.locator('.media-viewer__button--panel')).toBeHidden();
   await toggle.click();
-  await expect.poll(() => page.locator('dialog').evaluate(dialog => dialog.scrollTop)).toBeGreaterThan(viewport.height / 3);
+  // Up, and at rest: a tap while the sheet still slides makes Playwright scroll the toggle into view on its retry,
+  // which moved the dialog back to the top just before the second tap (the toggle then rightly brought it up again).
+  const dialog = page.locator('dialog');
+  const end = await dialog.evaluate(d => Math.min(d.scrollHeight - d.clientHeight, d.querySelector<HTMLElement>('.media-viewer__panel')?.offsetTop ?? Infinity));
+  expect(end).toBeGreaterThan(viewport.height / 3);
+  await expect.poll(() => dialog.evaluate(d => Math.round(d.scrollTop))).toBeGreaterThanOrEqual(Math.floor(end) - 1);
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   await toggle.click();
   await expect.poll(() => page.locator('dialog').evaluate(dialog => dialog.scrollTop)).toBe(0);
 });

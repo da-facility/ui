@@ -161,12 +161,40 @@ test('toasts take the dark theme and Croatian from the app', async ({page}) => {
   await expect(toast).toHaveCSS('background-color', popover);
 });
 
+/** Pixels of the trail drawn inside a box, at the moment the page's clock stands. */
+function trailPixelsUnder(page: Page, cover: {x: number; y: number; width: number; height: number}) {
+  return page.evaluate(cover => {
+    const canvas = document.querySelector<HTMLCanvasElement>('.da-toast-trail')!;
+    const pixels = canvas.getContext('2d')!.getImageData(0, 0, canvas.width, canvas.height).data;
+    const box = canvas.getBoundingClientRect();
+    const ratio = canvas.width / box.width;
+    let under = 0;
+    for (let y = 0; y < canvas.height; y++) for (let x = 0; x < canvas.width; x++) {
+      if (!pixels[(y * canvas.width + x) * 4 + 3]) continue;
+      const cx = box.left + x / ratio;
+      const cy = box.top + y / ratio;
+      if (cx > cover.x + 1 && cx < cover.x + cover.width - 1 && cy > cover.y + 1 && cy < cover.y + cover.height - 1) under++;
+    }
+    return under;
+  }, cover);
+}
+
 /** Paints the trail at a moment of the flight (on the page's fake clock) and reads it back. */
 async function trailAt(page: Page, label: string, ms: number) {
   const trigger = button(page, label);
   await trigger.scrollIntoViewIfNeeded();
   const cover = (await trigger.boundingBox())!;
+  const mounted = page.locator('[data-sonner-toast][data-mounted="true"]');
+  const before = await mounted.count();
   await trigger.click();
+  // The flight starts on the frame after Sonner marks the toast mounted, which React does in its own time: running the
+  // page's clock on before that ran the moment out before the star had flown (no trail yet, or a faint one), and a
+  // clock left running flew it on while the test waited. The clock is paused (below) and stepped a frame at a time
+  // until the toast is mounted, then run for exactly the moment measured.
+  for (let frame = 0; (await mounted.count()) <= before; frame++) {
+    expect(frame, 'the toast is mounted').toBeLessThan(120);
+    await page.clock.runFor(16);
+  }
   await page.clock.runFor(ms);
   return page.evaluate(cover => {
     const canvas = document.querySelector<HTMLCanvasElement>('.da-toast-trail')!;
@@ -190,9 +218,10 @@ async function trailAt(page: Page, label: string, ms: number) {
 }
 
 test('the star starts behind its button, tinted red for errors and yellow for warnings', async ({page}) => {
-  await page.clock.install();
+  await page.clock.install({time: 0});
   await page.goto('/render/toasts');
-  await page.clock.runFor(500);
+  // Paused, past every timer of the page's start (its first toasts' timers run out meanwhile).
+  await page.clock.pauseAt(100_000);
 
   const error = await trailAt(page, 'Error', 120);
   expect(error.underButton, 'the trail is hidden behind the button').toBe(0);
@@ -209,6 +238,25 @@ test('the star starts behind its button, tinted red for errors and yellow for wa
   const info = await trailAt(page, 'Info', 120);
   const [ir, ig, ib] = info.brightest.rgb;
   expect(ib, 'other toasts keep the trail colour (blue on this page)').toBeGreaterThan(Math.max(ir, ig));
+});
+
+test('a button caught in its press feedback still hides the star’s start: the trail passes behind the button as it stands', async ({page}) => {
+  await page.clock.install({time: 0});
+  await page.goto('/render/toasts');
+  await page.clock.pauseAt(100_000);
+  // Held at a deep press, as a loaded machine catches the click mid-transition (Astryx scales a pressed button to 0.98).
+  await button(page, 'Error').evaluate(element => {
+    (element as HTMLElement).style.transition = 'none';
+    (element as HTMLElement).style.transform = 'scale(0.9)';
+  });
+  const pressed = (await button(page, 'Error').boundingBox())!;
+  const error = await trailAt(page, 'Error', 120);
+  await button(page, 'Error').evaluate(element => { (element as HTMLElement).style.transform = ''; });
+  const released = (await button(page, 'Error').boundingBox())!;
+  expect(released.width).toBeGreaterThan(pressed.width + 4);
+  expect(error.brightest.alpha).toBeGreaterThan(100);
+  // trailAt measures against the box it saw before the click (the pressed one): read again against the released one.
+  expect(await trailPixelsUnder(page, released), 'nothing over the released button').toBe(0);
 });
 
 test('the toast’s text waits for the card to open, then fades in', async ({page}) => {
