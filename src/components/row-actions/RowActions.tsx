@@ -1,4 +1,4 @@
-import {useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode} from 'react';
+import {useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode} from 'react';
 import {Button} from '@astryxdesign/core/Button';
 import {DropdownMenu} from '@astryxdesign/core/DropdownMenu';
 import {Icon} from '@astryxdesign/core/Icon';
@@ -136,6 +136,9 @@ function IconAction({action}: {action: RowAction}) {
   const [armed, setArmed] = useState(Boolean(action.isDisabled && action.reason));
   const ref = useRef<HTMLSpanElement>(null);
   const woke = useRef<'pointer' | 'focus' | null>(null);
+  // Where the pointer is while it is over the item, as the pointer's own events say (WebKit doesn't always report
+  // :hover yet in the frame the tooltip is made).
+  const over = useRef(false);
   const arm = (by: 'pointer' | 'focus') => {
     if (armed) return;
     woke.current = by;
@@ -145,12 +148,21 @@ function IconAction({action}: {action: RowAction}) {
   useLayoutEffect(() => {
     const button = ref.current?.querySelector('button');
     if (!armed || !woke.current || !button) return;
-    if (woke.current === 'pointer' && ref.current!.matches(':hover')) button.dispatchEvent(new MouseEvent('mouseenter'));
+    if (woke.current === 'pointer' && over.current) button.dispatchEvent(new MouseEvent('mouseenter'));
     if (woke.current === 'focus' && button.matches(':focus-visible')) button.dispatchEvent(new FocusEvent('focusin', {bubbles: true}));
     woke.current = null;
   }, [armed]);
   return (
-    <span ref={ref} className="row-actions__item" onPointerEnter={() => arm('pointer')} onFocus={() => arm('focus')}>
+    <span
+      ref={ref}
+      className="row-actions__item"
+      onPointerEnter={event => {
+        over.current = event.pointerType === 'mouse';
+        arm('pointer');
+      }}
+      onPointerLeave={() => (over.current = false)}
+      onFocus={() => arm('focus')}
+    >
       <Button
         label={action.label}
         isIconOnly
@@ -168,54 +180,44 @@ function IconAction({action}: {action: RowAction}) {
 }
 
 /**
- * The row's "…": a plain button until it is pointed at, focused or pressed,
- * then the menu (made then, with its items), focus and an open press carried
- * over, so a list of 2,000 rows holds no closed menus.
+ * The row's "…": a plain button until it is clicked, tapped or reached by the
+ * keyboard, then the menu (made then, with its items), so a list of 2,000
+ * rows holds no closed menus. Made when the click is over (it opens at once,
+ * focus carried over) or on keyboard focus, never in the middle of a press:
+ * a button swapped under a press takes the press with it (a row that renders
+ * again as it is pointed at, or focus moving at the press, swapped it between
+ * the press and its release, and the menu didn't open).
  */
 function MenuAction({label, actions}: {label: string; actions: RowAction[]}) {
   const [armed, setArmed] = useState(false);
-  const [open, setOpen] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
   const hadFocus = useRef(false);
-  const pressed = useRef(false);
-  const swallow = useRef(0);
-  const arm = (opening: boolean) => {
+  const opening = useRef(false);
+  const arm = (open: boolean) => {
     hadFocus.current = Boolean(ref.current?.contains(document.activeElement));
+    opening.current = open;
     setArmed(true);
-    if (opening) setOpen(true);
   };
   useLayoutEffect(() => {
     if (armed && hadFocus.current) ref.current?.querySelector('button')?.focus();
     hadFocus.current = false;
   }, [armed]);
+  // A click that made it opens it through its own button, as every menu opens (its own state, its own layer's order),
+  // once that button is in the page.
+  useEffect(() => {
+    if (!armed || !opening.current) return;
+    opening.current = false;
+    const frame = requestAnimationFrame(() => ref.current?.querySelector<HTMLButtonElement>('button')?.click());
+    return () => cancelAnimationFrame(frame);
+  }, [armed]);
   const button = {label, isIconOnly: true, icon: <Icon icon="moreHorizontal" />, variant: 'secondary' as const, size: 'sm' as const};
   return (
-    <span
-      ref={ref}
-      className="row-actions__menu"
-      onPointerUp={() => {
-        if (!pressed.current) return;
-        pressed.current = false;
-        setOpen(true);
-        swallow.current = window.setTimeout(() => (swallow.current = 0), 500);
-      }}
-      // After a tap a click follows on the menu's new button: it would close what the press opened. Only that click:
-      // the menu's items are in a layer elsewhere in the page, but React carries their clicks through here too.
-      onClickCapture={event => {
-        if (!swallow.current || !ref.current?.contains(event.target as Node)) return;
-        window.clearTimeout(swallow.current);
-        swallow.current = 0;
-        event.stopPropagation();
-        event.preventDefault();
-      }}
-    >
+    <span ref={ref} className="row-actions__menu">
       {armed
         ? <DropdownMenu
             button={button}
             placement="below"
             alignment="end"
-            isMenuOpen={open}
-            onOpenChange={setOpen}
             items={actions.map(action => ({
               label: action.label,
               ...(action.icon ? {icon: ICONS[action.icon]} : {}),
@@ -227,16 +229,15 @@ function MenuAction({label, actions}: {label: string; actions: RowAction[]}) {
             {...button}
             aria-haspopup="menu"
             aria-expanded={false}
-            onPointerEnter={event => event.pointerType === 'mouse' && arm(false)}
-            // Pressed before the menu was made (a quick click, a tap): the menu is made now and opens as the press ends
-            // (no click follows: the press began on this button, which is gone).
-            onPointerDown={event => {
-              if (event.button !== 0) return;
-              pressed.current = true;
-              arm(false);
-            }}
-            onFocus={() => arm(false)}
+            // A click or tap (or Enter and Space): the menu, open.
             onClick={() => arm(true)}
+            // Reached by the keyboard: made now, so its own keys work from here on; a mouse's focus waits for the click.
+            onFocus={event => event.currentTarget.matches(':focus-visible') && arm(false)}
+            onKeyDown={event => {
+              if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+              event.preventDefault();
+              arm(true);
+            }}
           />}
     </span>
   );

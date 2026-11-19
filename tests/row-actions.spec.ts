@@ -147,3 +147,15 @@ test('a keyboard reaches an icon’s tooltip and an off one’s reason, as befor
   await expect(locked).toHaveAccessibleDescription('Locked. The agency shares galleries with this group, so only the agency can remove it.');
   await expect(locked).toHaveAttribute('aria-disabled', 'true');
 });
+
+test('a row that renders again as it is pointed at still opens its menu with one click', async ({page}) => {
+  await page.goto('/render/row-actions');
+  const invited = lists(page).nth(2);
+  for (let i = 0; i < 5; i++) {
+    const name = i % 2 ? 'ivo@example.com' : 'ana@example.com';
+    await invited.getByRole('button', {name: `Actions for ${name}`}).click();
+    await expect(page.getByRole('menuitem', {name: 'Send again'})).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('menu')).toHaveCount(0);
+  }
+});

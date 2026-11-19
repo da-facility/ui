@@ -52,6 +52,7 @@ function ManyRows() {
 
 function Examples({tweaks}: Pick<ExampleProps, 'tweaks'>) {
   const [said, setSaid] = useState('Nothing done yet.');
+  const [pointed, setPointed] = useState<string | null>(null);
   const two = (row: Row): RowAction[] => [
     {label: 'Rename…', icon: 'edit', onClick: () => setSaid(`Rename ${row.name}.`)},
     {label: 'Remove group…', icon: 'remove', isDestructive: true, isDisabled: !!row.locked, reason: row.locked, onClick: () => setSaid(`Remove ${row.name}.`)},
@@ -93,7 +94,10 @@ function Examples({tweaks}: Pick<ExampleProps, 'tweaks'>) {
               <th scope="row">{name}</th>
               <td>Invited</td>
               <td className="row-actions-example__end">
-                <RowActions label={`Actions for ${name}`} actions={more(name)} />
+                {/* As an app's row that asks something when its actions are pointed at: it renders again then. */}
+                <span onPointerEnter={() => setPointed(name)} data-pointed={pointed === name || undefined}>
+                  <RowActions label={`Actions for ${name}`} actions={more(name)} />
+                </span>
               </td>
             </tr>
           ))}
