@@ -136,6 +136,8 @@ export function RowsGrid<Item extends MediaGridItem>({
   // The layout, with the blocks that didn't change taken over from the last
   // one, so a page that arrives redraws only the blocks it touches.
   const previous = useRef<Map<string, Block>>(new Map());
+  // The layout on screen and what it was made of: the window keeps its rows (below) and its place (further below).
+  const shown = useRef<{layout: GridLayout; items: readonly Item[]; metrics: RowMetrics} | null>(null);
   const layout = useMemo<GridLayout | null>(() => {
     if (!metrics) return null;
     const aspects = new Float64Array(items.length);
@@ -178,12 +180,33 @@ export function RowsGrid<Item extends MediaGridItem>({
         if (index !== undefined) pins.set(index, direction);
       }
     }
+    // The rows in and near the window keep their breaks and heights when items arrive (a page above, a run that
+    // meets another): only rows away from the window may break anew, and the window moves with them (below).
+    const fixed = new Map<number, {count: number; height: number; blockStart: boolean; blockEnd: boolean}>();
+    const before = shown.current;
+    const root = rootRef.current;
+    if (layoutGaps.length && before && root && sameMetrics(before.metrics, metrics) && typeof window !== 'undefined') {
+      const top = -root.getBoundingClientRect().top;
+      const indexOf = new Map<string, number>();
+      items.forEach((item, index) => indexOf.set(item.id, index));
+      for (const block of blocksBetween(before.layout, top - window.innerHeight, top + 2 * window.innerHeight)) {
+        if (block.isPlaceholder) continue;
+        block.rows.forEach((row, r) => {
+          const first = indexOf.get(before.items[row.first]?.id ?? '');
+          if (first === undefined || row.exact === undefined) return;
+          let same = true;
+          for (let k = 0; k < row.count && same; k++) same = items[first + k]?.id === before.items[row.first + k]?.id;
+          if (same) fixed.set(first, {count: row.count, height: row.exact, blockStart: r === 0, blockEnd: r === block.rows.length - 1});
+        });
+      }
+    }
     const next = layoutRows({
       aspects,
       sections: sections.map(s => ({start: s.start, key: s.key})),
       placeholders,
       gaps: layoutGaps,
       pins,
+      fixed,
       keyOf: layoutGaps.length ? index => items[index].id : undefined,
       metrics,
     });
@@ -249,7 +272,6 @@ export function RowsGrid<Item extends MediaGridItem>({
 
   // Rows above the window changed (items arrived there, an estimate became real rows): the window moves with
   // them, so the tile at its top stays where it was on screen. Before the drawn set is worked out again.
-  const shown = useRef<{layout: GridLayout; items: readonly Item[]; metrics: RowMetrics} | null>(null);
   useLayoutEffect(() => {
     const before = shown.current;
     shown.current = layout && metrics ? {layout, items, metrics} : null;

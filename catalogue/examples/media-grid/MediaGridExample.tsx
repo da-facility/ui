@@ -38,7 +38,7 @@ export function MediaGridExample({page, tweaks}: ExampleProps) {
 }
 
 /** The test hooks of `/media-grid/rows-middle`: what the grid asked for, and holding answers back. */
-type MiddleHooks = {mediaGridRequests: unknown[]; mediaGridRuns?: {from: number; to: number}[]; mediaGridHold?: boolean; mediaGridRelease?: () => void};
+type MiddleHooks = {mediaGridRequests: unknown[]; mediaGridRuns?: {from: number; to: number}[]; mediaGridPage?: number; mediaGridHold?: boolean; mediaGridRelease?: () => void};
 const MIDDLE_PAGE = 100;
 /** `/media-grid/rows-middle` starts at this photo, as an app returning to it would. */
 export const MIDDLE_START = 9500;
@@ -96,7 +96,7 @@ function MiddleExample({tweaks}: Pick<ExampleProps, 'tweaks'>) {
             const run = next.find(r => r.from === place);
             if (run) {
               const previous = next.filter(r => r.to <= run.from).at(-1);
-              run.from = Math.max(previous?.to ?? 0, run.from - MIDDLE_PAGE);
+              run.from = Math.max(previous?.to ?? 0, run.from - (hooks.mediaGridPage ?? MIDDLE_PAGE));
             }
           } else if (request.side === 'after') {
             if (place < 0) next.unshift({from: 0, to: Math.min(MIDDLE_PAGE, next[0]?.from ?? ROWS_LARGE)});

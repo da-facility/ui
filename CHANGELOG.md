@@ -4,7 +4,7 @@
 
 New:
 
-- `MediaGrid` rows: `gaps` and `onLoadGap` hold a list whose loaded part doesn't start at the start, such as a return to photo 9,501 of 10,000 or a jump to a date. Stretches not loaded yet take their room as stand-ins under their sections' headings (`gaps[].sections` with counts), so the scroll bar and the headings are right from the first paint; several loaded runs may stand with stretches between them; a tile's place for screen readers is its place in the whole list; the window coming near a stretch asks for it once (`before`, `after`, or `inside` with the place); and items arriving above the window move nothing on screen (the tile at its top stays within a pixel). Types `MediaGridGap` and `MediaGridGapRequest`.
+- `MediaGrid` rows: `gaps` and `onLoadGap` hold a list whose loaded part doesn't start at the start, such as a return to photo 9,501 of 10,000 or a jump to a date. Stretches not loaded yet take their room as stand-ins under their sections' headings (`gaps[].sections` with counts), so the scroll bar and the headings are right from the first paint; several loaded runs may stand with stretches between them; a tile's place for screen readers is its place in the whole list; the window coming near a stretch asks for it once (`before`, `after`, or `inside` with the place); and items arriving above the window move nothing on screen: the rows in and near the window keep their breaks and heights, and the window stays with them (within a pixel). Types `MediaGridGap` and `MediaGridGapRequest`.
 
 Other changes:
 

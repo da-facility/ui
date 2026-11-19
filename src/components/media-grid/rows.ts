@@ -40,7 +40,7 @@ export type RowMetrics = {
 /** One tile's place inside its block. */
 export type Placed = {left: number; top: number; width: number; height: number};
 
-export type Row = {first: number; count: number; top: number; height: number};
+export type Row = {first: number; count: number; top: number; height: number; exact?: number};
 
 export type Block = {
   /** Stable while the block holds the same items (`keyOf` of its first item, else its place). */
@@ -257,6 +257,11 @@ export type LayoutInput = {
    * items that follows a stretch not loaded is laid out from its first item.
    */
   pins?: LayoutPins;
+  /**
+   * Rows that stay as they are (by their first item: how many it holds and its exact height): the rows in the window
+   * when items arrive near it, so a row the person looks at never re-breaks. Rows are cut around them.
+   */
+  fixed?: ReadonlyMap<number, {count: number; height: number; blockStart?: boolean; blockEnd?: boolean}>;
   /** A loaded item's stable key, for the key of the block it starts. */
   keyOf?: (index: number) => string;
   /**
@@ -278,7 +283,7 @@ type Span = {key: string; isTitled: boolean; parts: Part[]};
  * Places in the whole list count the stand-ins of every stretch before them,
  * so an item's place never depends on what is loaded.
  */
-export function layoutRows({aspects, sections, placeholders, gaps = [], pins, keyOf, placeholderShapes = aspects, metrics}: LayoutInput): GridLayout {
+export function layoutRows({aspects, sections, placeholders, gaps = [], pins, fixed, keyOf, placeholderShapes = aspects, metrics}: LayoutInput): GridLayout {
   const n = aspects.length;
   const blockOf = new Int32Array(n);
   const rowOf = new Int32Array(n);
@@ -349,10 +354,16 @@ export function layoutRows({aspects, sections, placeholders, gaps = [], pins, ke
     const section: SectionLayout = {key: span.key, isTitled: span.isTitled, top, height: span.isTitled ? metrics.headingHeight : 0, first: first ? first.position : position, count: 0, blocks: []};
     let y = 0;
     // Rows, cut into blocks of whole rows (from the end for rows laid out backward, so the blocks next to the place they keep stay the same).
-    const addRows = (rows: {first: number; count: number; height: number}[], shapes: ArrayLike<number>, offset: number, isPlaceholder: boolean, fromEnd: boolean, positionOfFirst: number) => {
-      const chunks: (typeof rows)[] = [];
+    type R = {first: number; count: number; height: number};
+    const chunked = (rows: R[], fromEnd: boolean) => {
+      const chunks: R[][] = [];
       if (fromEnd) for (let end = rows.length; end > 0; end -= ROWS_PER_BLOCK) chunks.unshift(rows.slice(Math.max(0, end - ROWS_PER_BLOCK), end));
       else for (let start = 0; start < rows.length; start += ROWS_PER_BLOCK) chunks.push(rows.slice(start, start + ROWS_PER_BLOCK));
+      return chunks;
+    };
+    const addRows = (rows: R[], shapes: ArrayLike<number>, offset: number, isPlaceholder: boolean, fromEnd: boolean, positionOfFirst: number) =>
+      addChunks(chunked(rows, fromEnd), shapes, offset, isPlaceholder, positionOfFirst);
+    const addChunks = (chunks: R[][], shapes: ArrayLike<number>, offset: number, isPlaceholder: boolean, positionOfFirst: number) => {
       for (const chunk of chunks) {
         if (y > 0) y += metrics.gap;
         const tiles: Placed[] = [];
@@ -361,7 +372,7 @@ export function layoutRows({aspects, sections, placeholders, gaps = [], pins, ke
         for (const row of chunk) {
           if (height > 0) height += metrics.gap;
           const h = placeRow(shapes, row, height, metrics.gap, tiles);
-          blockRows.push({first: row.first + offset, count: row.count, top: height, height: h});
+          blockRows.push({first: row.first + offset, count: row.count, top: height, height: h, exact: row.height});
           height += h;
         }
         const firstIndex = chunk[0].first + offset;
@@ -408,15 +419,37 @@ export function layoutRows({aspects, sections, placeholders, gaps = [], pins, ke
         continue;
       }
       // A run of loaded items, cut where rows must start.
-      const cuts = [part.from];
-      if (pins) for (let index = part.from + 1; index < part.to; index++) if (pins.has(index)) cuts.push(index);
-      cuts.push(part.to);
-      for (let c = 0; c + 1 < cuts.length; c++) {
-        const [from, to] = [cuts[c], cuts[c + 1]];
-        const backward = pins?.has(from) ? pins.get(from) === 'backward' : c === 0 && part.afterGap && cuts.length > 2;
-        const rows = backward ? justifyBackward(aspects, from, to, metrics) : justify(aspects, from, to, metrics);
-        addRows(rows, aspects, 0, false, backward, part.position - part.from);
+      const cuts = new Set([part.from, part.to]);
+      if (pins) for (let index = part.from + 1; index < part.to; index++) if (pins.has(index)) cuts.add(index);
+      const kept = new Map<number, {count: number; height: number; blockStart?: boolean; blockEnd?: boolean}>();
+      if (fixed)
+        for (const [first, row] of fixed)
+          if (first >= part.from && first + row.count <= part.to) {
+            kept.set(first, row);
+            cuts.add(first);
+            cuts.add(first + row.count);
+          }
+      const ordered = [...cuts].sort((a, b) => a - b);
+      // Pieces between places where rows start: a kept row as it was, else laid out forward from its start, or
+      // backward to its end (the part's first piece, after a stretch not loaded, before a place it holds).
+      // Blocks: a backward piece's from its end, a forward piece's from its start, kept rows in the blocks they stood
+      // in (so the tiles the person looks at stay where they are in the page, never drawn anew).
+      const chunks: R[][] = [];
+      let open: R[] | null = null;
+      for (let c = 0; c + 1 < ordered.length; c++) {
+        const [from, to] = [ordered[c], ordered[c + 1]];
+        const keep = kept.get(from);
+        if (keep && keep.count === to - from) {
+          if (!open || keep.blockStart || open.length >= ROWS_PER_BLOCK) chunks.push((open = []));
+          open.push({first: from, count: keep.count, height: keep.height});
+          if (keep.blockEnd) open = null;
+          continue;
+        }
+        open = null;
+        const backward = pins?.has(from) ? pins.get(from) === 'backward' : c === 0 && part.afterGap && ordered.length > 2;
+        chunks.push(...chunked(backward ? justifyBackward(aspects, from, to, metrics) : justify(aspects, from, to, metrics), backward));
       }
+      addChunks(chunks, aspects, 0, false, part.position - part.from);
     }
     section.height += y;
     out.push(section);

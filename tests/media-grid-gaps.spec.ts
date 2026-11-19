@@ -187,3 +187,20 @@ for (const direction of ['down', 'up'] as const)
       await releaseAndCheck(page, `step ${step}`);
     }
   });
+
+test('small pages arriving just above the window move no tile in it: rows the person looks at never break anew', async ({page}) => {
+  test.setTimeout(60_000);
+  // Ten photos a page, as for someone who sees one photo in fifty: every row near the window is within reach of the next.
+  await page.addInitScript(() => { (window as unknown as {mediaGridPage: number}).mediaGridPage = 10; });
+  await hold(page);
+  await page.goto('/render/media-grid/rows-middle');
+  await expect(byPlace(page, START + 1)).toBeVisible();
+  await releaseAndCheck(page, 'first pages');
+  for (let step = 0; step < 6; step++) {
+    // A little up each time, so the window holds photos that came in earlier pages and the stand-ins above them.
+    await page.evaluate(() => scrollBy({top: -300, behavior: 'instant'}));
+    await expect.poll(async () => (await requests(page)).filter(r => r.side === 'before').length, {message: JSON.stringify(await requests(page))}).toBeGreaterThan(step + 1);
+    await releaseAndCheck(page, `page ${step + 1}`);
+  }
+  expect((await shownTiles(page)).size).toBeGreaterThan(5);
+});
