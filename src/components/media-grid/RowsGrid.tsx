@@ -33,6 +33,9 @@ type Section = {start: number; key: string; title: string; meta?: string};
  * change (items arrive there, an estimate becomes real rows) the window
  * moves with them, so the tile at its top stays where it was.
  */
+/** The stand-ins take the shapes of this many loaded items, repeated. */
+const SHAPE_SAMPLE = 24;
+
 export function RowsGrid<Item extends MediaGridItem>({
   items,
   getHref,
@@ -139,10 +142,14 @@ export function RowsGrid<Item extends MediaGridItem>({
   const previous = useRef<Map<string, Block>>(new Map());
   // The layout on screen and what it was made of: the window keeps its rows (below) and its place (further below).
   const shown = useRef<{layout: GridLayout; items: readonly Item[]; metrics: RowMetrics} | null>(null);
+  // The stand-ins' shapes: a sample of the first SHAPE_SAMPLE items loaded, kept once it is whole, so an estimate of
+  // thousands of stand-ins doesn't change with every page that arrives (each page re-shaped all of them).
+  const shapeSample = useRef<Float64Array | null>(null);
   const layout = useMemo<GridLayout | null>(() => {
     if (!metrics) return null;
     const aspects = new Float64Array(items.length);
     items.forEach((item, index) => { aspects[index] = aspectOf(item.width, item.height); });
+    if (!shapeSample.current || shapeSample.current.length < SHAPE_SAMPLE) shapeSample.current = aspects.slice(0, SHAPE_SAMPLE);
     const layoutGaps: LayoutGap[] = (gaps ?? []).map(gap => ({at: Math.min(gap.at, items.length), count: Math.max(0, gap.count), sections: gap.sections}));
     const pins = new Map<number, 'forward' | 'backward'>();
     if (layoutGaps.length || pinIds.current.size) {
@@ -209,6 +216,7 @@ export function RowsGrid<Item extends MediaGridItem>({
       pins,
       fixed,
       keyOf: layoutGaps.length ? index => items[index].id : undefined,
+      placeholderShapes: shapeSample.current,
       metrics,
     });
     const kept = new Map<string, Block>();
