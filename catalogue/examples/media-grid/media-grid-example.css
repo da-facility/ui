@@ -25,3 +25,12 @@
   }
 }
 
+
+/* The photos' part of the page: the scroll bar by date's grip follows it (DateScrollBar's `timeline`). */
+.media-grid-example--dates {
+  timeline-scope: --photos;
+}
+
+.media-grid-example__photos {
+  view-timeline: --photos block;
+}

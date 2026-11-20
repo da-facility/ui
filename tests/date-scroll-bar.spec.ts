@@ -75,6 +75,46 @@ test('a click jumps too, the keyboard moves a day, a month, to the ends, and the
   await expect(page.locator('.media-tile[aria-posinset="9991"]')).toBeVisible();
 });
 
+test('at rest a rail and a grip to take, the hand over them, colour only when pointed at, the grip following the photos\' part', async ({page}) => {
+  test.skip(isMobile(test.info()), 'The phone has its grip, below');
+  await page.goto('/render/media-grid/rows-dates');
+  await expect(page.locator('.media-tile[aria-posinset="9501"]')).toBeVisible();
+  const track = (await bar(page).boundingBox())!;
+  const rail = (await page.locator('.date-scroll-bar__rail').boundingBox())!;
+  expect(rail.width).toBeGreaterThanOrEqual(6);
+  expect(rail.height).toBeGreaterThan(track.height - 2);
+  const grip = page.locator('.date-scroll-bar__grip');
+  const g = (await grip.boundingBox())!;
+  expect(g.width).toBeGreaterThanOrEqual(16);
+  expect(g.height).toBeGreaterThanOrEqual(30);
+  const style = (selector: string, property: string) => page.locator(selector).evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property);
+  expect(await style('.date-scroll-bar__track', 'cursor')).toBe('pointer');
+  expect(await style('.date-scroll-bar__thumb', 'cursor')).toBe('grab');
+  const accent = await page.evaluate(() => {
+    const probe = document.createElement('span');
+    probe.style.color = 'var(--color-accent)';
+    document.body.append(probe);
+    const colour = getComputedStyle(probe).color;
+    probe.remove();
+    return colour;
+  });
+  // Quiet at rest, the accent when pointed at.
+  await page.mouse.move(10, 10);
+  expect(await style('.date-scroll-bar__grip', 'border-top-color')).not.toBe(accent);
+  await page.mouse.move(track.x + track.width - 12, track.y + track.height * 0.3);
+  await expect.poll(() => style('.date-scroll-bar__grip', 'border-top-color')).toBe(accent);
+  await page.mouse.move(10, 10);
+  // The page's top: the grip at the first day, whatever stands above the photos. The photos' end in view: the last.
+  const gripCentre = async () => {
+    const b = (await grip.boundingBox())!;
+    return b.y + b.height / 2;
+  };
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect.poll(gripCentre).toBeLessThan(track.y + 20);
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect.poll(gripCentre).toBeGreaterThan(track.y + track.height - 20);
+});
+
 test('on a phone a grip at the right edge, a thumb\'s size, drags along the whole height and jumps on release', async ({page}) => {
   test.skip(!isMobile(test.info()), 'The phone\'s form');
   await page.goto('/render/media-grid/rows-dates');

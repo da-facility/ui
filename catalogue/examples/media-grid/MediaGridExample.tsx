@@ -143,8 +143,10 @@ function MiddleExample({tweaks, withDates = false}: Pick<ExampleProps, 'tweaks'>
     setJump(j => ({key: String(day), request: (j?.request ?? 0) + 1}));
   }, [dateDays]);
   return <main className={withDates ? 'media-grid-example media-grid-example--dates' : 'media-grid-example'}>
-    {withDates && <DateScrollBar days={dateDays} onJump={jumpTo} />}
+    {withDates && <DateScrollBar days={dateDays} onJump={jumpTo} timeline="--photos" />}
     <PageHeader title="Final" meta={['Main Arena', `${new Intl.NumberFormat('en').format(ROWS_LARGE)} photos`]} />
+    {/* The photos' part of the page, as a view timeline the bar's grip follows. */}
+    <div className="media-grid-example__photos">
     <MediaGrid
       layout="rows"
       items={items}
@@ -164,6 +166,7 @@ function MiddleExample({tweaks, withDates = false}: Pick<ExampleProps, 'tweaks'>
       captions={tweaks.captionsAlways ? 'always' : 'hover'}
       scrollToSection={jump}
     />
+    </div>
   </main>;
 }
 

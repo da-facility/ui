@@ -1,4 +1,4 @@
-import {use, useCallback, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent} from 'react';
+import {use, useCallback, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent} from 'react';
 import {InternationalizationContext} from '@astryxdesign/core/i18n';
 import {useMessages} from '../../i18n';
 import './date-scroll-bar.css';
@@ -20,6 +20,13 @@ export type DateScrollBarProps = {
   current?: string;
   /** Accessible name. Defaults to "Jump to a date". */
   label?: string;
+  /**
+   * The name of a view timeline on the list (`view-timeline: --photos block` on the list, `timeline-scope: --photos`
+   * on an element holding both): the grip then follows the list's part of the page, at the first day while the
+   * list's top is at or below the window's top and at the last once its end is in view. Without it the grip
+   * follows the whole page's scroll.
+   */
+  timeline?: string;
 };
 
 type Mark = {key: string; text: string; at: number};
@@ -39,11 +46,13 @@ const MARK_SPACE = 22;
  * through `MediaGrid`'s `scrollToSection`). A slider for the keyboard: arrows
  * a day, Page Up and Page Down a month, Home and End the ends. On phones only
  * a grip at the right edge is drawn, a thumb's size, that drags along the
- * whole height. Its place follows the page's scroll through a CSS scroll
- * timeline (no scroll listeners); where the browser has none, the grip rests
- * at the middle.
+ * whole height. On a computer the track is a rail with the same grip on it,
+ * the pointer's hand over both, quiet until pointed at or dragged (then the
+ * accent). The grip's place follows the list's part of the page (`timeline`,
+ * a CSS view timeline) or the page's scroll (a scroll timeline), never a
+ * scroll listener; where the browser has neither, it rests at the middle.
  */
-export function DateScrollBar({days, onJump, current, label}: DateScrollBarProps) {
+export function DateScrollBar({days, onJump, current, label, timeline}: DateScrollBarProps) {
   const t = useMessages();
   const {locale} = use(InternationalizationContext);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -51,6 +60,8 @@ export function DateScrollBar({days, onJump, current, label}: DateScrollBarProps
   // The day pointed at (hover, drag or keys) and how: a drag jumps on release, keys at once.
   const [pointed, setPointed] = useState<{index: number; at: number; mode: 'hover' | 'drag' | 'keys'} | null>(null);
   const dragging = useRef(false);
+  /** Half the grip's height: the days start and end that far inside the track, so the grip never leaves it. */
+  const gripPad = () => (trackRef.current?.querySelector<HTMLElement>('.date-scroll-bar__thumb')?.offsetHeight ?? 0) / 2;
 
   const formats = useMemo(() => ({
     day: new Intl.DateTimeFormat(locale, {timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'long', year: 'numeric'}),
@@ -83,7 +94,7 @@ export function DateScrollBar({days, onJump, current, label}: DateScrollBarProps
     let lastYear = '';
     days.forEach((d, i) => {
       if (i > 0 && group(d.key) === group(days[i - 1]!.key)) return;
-      const y = starts[i]! * height;
+      const y = starts[i]! * (height - 2 * gripPad());
       if (y - last < MARK_SPACE) return;
       const year = d.key.slice(0, 4);
       const text = by === 'year' ? formats.year.format(times[i]) : by === 'month' ? (year !== lastYear ? formats.monthYear : formats.month).format(times[i]) : formats.short.format(times[i]);
@@ -103,10 +114,11 @@ export function DateScrollBar({days, onJump, current, label}: DateScrollBarProps
     return () => observer.disconnect();
   }, [days.length > 1]);
 
-  /** Where a point is on the track (0 to 1). */
+  /** Where a point is on the track (0 to 1): the days stand between the grip's half height at either end. */
   const fractionAt = (clientY: number) => {
     const box = trackRef.current!.getBoundingClientRect();
-    return Math.min(0.9999, Math.max(0, (clientY - box.top) / Math.max(1, box.height)));
+    const pad = gripPad();
+    return Math.min(0.9999, Math.max(0, (clientY - box.top - pad) / Math.max(1, box.height - 2 * pad)));
   };
   /** The day at a point of the track. */
   const dayAt = useCallback((clientY: number) => {
@@ -173,7 +185,11 @@ export function DateScrollBar({days, onJump, current, label}: DateScrollBarProps
   const valueIndex = shown?.mode === 'keys' ? shown.index : currentIndex;
   const dayText = (index: number) => formats.day.format(noon(days[index]!.key));
 
-  return <div className="date-scroll-bar" data-dragging={shown?.mode === 'drag' || undefined}>
+  // A place on the track (0 to 1) as a CSS top: inside the grip's half height at either end (--da-date-scroll-bar-pad).
+  const place = (at: number) => `calc(var(--date-scroll-bar-pad) + ${at} * (100% - 2 * var(--date-scroll-bar-pad)))`;
+  const timelineStyle = timeline ? {'--date-scroll-bar-timeline': timeline, '--date-scroll-bar-range': 'contain 0% contain 100%'} as CSSProperties : undefined;
+
+  return <div className="date-scroll-bar" data-dragging={shown?.mode === 'drag' || undefined} data-pointed={shown?.mode === 'hover' || undefined} style={timelineStyle}>
     <div
       ref={trackRef}
       className="date-scroll-bar__track"
@@ -193,9 +209,10 @@ export function DateScrollBar({days, onJump, current, label}: DateScrollBarProps
       onKeyDown={keyDown}
       onBlur={() => setPointed(p => (p?.mode === 'keys' ? null : p))}
     >
-      {marks.map(mark => <span key={mark.key} className="date-scroll-bar__mark" style={{top: `${mark.at * 100}%`}} aria-hidden="true">{mark.text}</span>)}
-      <span className="date-scroll-bar__thumb" aria-hidden="true" style={shown?.mode === 'drag' ? {top: `${shown.at * 100}%`, animation: 'none'} : undefined}><span className="date-scroll-bar__grip" /></span>
-      {shown && <span className="date-scroll-bar__pointer" style={{top: `${shown.at * 100}%`}} aria-hidden="true">
+      <span className="date-scroll-bar__rail" aria-hidden="true" />
+      {marks.map(mark => <span key={mark.key} className="date-scroll-bar__mark" style={{top: place(mark.at)}} aria-hidden="true">{mark.text}</span>)}
+      <span className="date-scroll-bar__thumb" aria-hidden="true" style={shown?.mode === 'drag' ? {top: place(shown.at), animation: 'none'} : undefined}><span className="date-scroll-bar__grip" /></span>
+      {shown && <span className="date-scroll-bar__pointer" style={{top: place(shown.at)}} aria-hidden="true">
         <span className="date-scroll-bar__bubble">{dayText(shown.index)}</span>
       </span>}
     </div>

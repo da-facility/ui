@@ -1,5 +1,7 @@
 /* The scroll bar by date: fixed at the right of the content area, under the layout's header. */
 .date-scroll-bar {
+  /* Half the grip's height: the days start and end that far inside the track, so the grip never leaves it. */
+  --date-scroll-bar-pad: 18px;
   position: fixed;
   z-index: 3;
   top: calc(var(--da-date-scroll-bar-top, var(--sidebar-layout-header, 0px)) + 12px);
@@ -21,15 +23,25 @@
   border-radius: 8px;
 }
 
-/* The hairline the days stand on. */
-.date-scroll-bar__track::before {
-  content: '';
+.date-scroll-bar[data-dragging] .date-scroll-bar__track {
+  cursor: grabbing;
+}
+
+/* The rail the days stand on: seen at rest, quiet, darker while pointed at. */
+.date-scroll-bar__rail {
   position: absolute;
   top: 0;
   bottom: 0;
-  right: 9px;
-  width: 1px;
-  background: var(--color-border, rgb(0 0 0 / 0.12));
+  right: 14px;
+  width: 6px;
+  border-radius: 3px;
+  background: var(--color-border-emphasized, rgb(0 0 0 / 0.2));
+  transition: background-color 120ms ease;
+}
+
+.date-scroll-bar__track:hover .date-scroll-bar__rail,
+.date-scroll-bar[data-dragging] .date-scroll-bar__rail {
+  background: var(--color-text-disabled, rgb(0 0 0 / 0.35));
 }
 
 .date-scroll-bar__track:focus-visible {
@@ -38,40 +50,100 @@
 
 .date-scroll-bar__mark {
   position: absolute;
-  right: 16px;
-  transform: translateY(-1px);
+  right: 30px;
+  transform: translateY(-50%);
   font-size: 11px;
   line-height: 14px;
   white-space: nowrap;
   color: var(--color-text-secondary, #666);
 }
 
-/* Where the window is: moved by the page's scroll (a CSS scroll timeline), never by a listener. */
+/*
+ * Where the window is, a grip to take: moved by the list's view timeline (DateScrollBar's `timeline`) or the page's
+ * scroll timeline, never by a listener; the same grip as the phone's, smaller.
+ */
 .date-scroll-bar__thumb {
   position: absolute;
   right: 4px;
   top: 50%;
-  width: 11px;
-  height: 4px;
-  margin-top: -2px;
-  border-radius: 2px;
-  background: var(--color-text-primary, #222);
+  width: 26px;
+  height: calc(2 * var(--date-scroll-bar-pad));
+  margin-top: calc(-1 * var(--date-scroll-bar-pad));
+  cursor: grab;
+}
+
+.date-scroll-bar[data-dragging] .date-scroll-bar__thumb {
+  cursor: grabbing;
 }
 
 @supports (animation-timeline: scroll()) {
   .date-scroll-bar__thumb {
     animation: date-scroll-bar-thumb linear both;
-    animation-timeline: scroll(root block);
+    animation-timeline: var(--date-scroll-bar-timeline, scroll(root block));
+    animation-range: var(--date-scroll-bar-range, normal);
   }
 }
 
 @keyframes date-scroll-bar-thumb {
-  from { top: 0%; }
-  to { top: 100%; }
+  from { top: var(--date-scroll-bar-pad); }
+  to { top: calc(100% - var(--date-scroll-bar-pad)); }
 }
 
 .date-scroll-bar__grip {
-  display: none;
+  position: absolute;
+  top: 0;
+  right: 3px;
+  box-sizing: border-box;
+  width: 20px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border-emphasized, rgb(0 0 0 / 0.3));
+  background: var(--color-background-popover, #fff);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.22);
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+/* Two small chevrons, up and down: the grip moves both ways. */
+.date-scroll-bar__grip::before,
+.date-scroll-bar__grip::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border: solid var(--color-text-secondary, #555);
+  border-width: 2px 0 0 2px;
+}
+
+.date-scroll-bar__grip::before {
+  top: 8px;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.date-scroll-bar__grip::after {
+  bottom: 8px;
+  transform: translateX(-50%) rotate(225deg);
+}
+
+/* Colour only when pointed at or dragged. */
+.date-scroll-bar__track:hover .date-scroll-bar__grip,
+.date-scroll-bar__track:focus-visible .date-scroll-bar__grip {
+  border-color: var(--color-accent, #222);
+}
+
+.date-scroll-bar__track:hover .date-scroll-bar__grip::before,
+.date-scroll-bar__track:hover .date-scroll-bar__grip::after {
+  border-color: var(--color-accent, #222);
+}
+
+.date-scroll-bar[data-dragging] .date-scroll-bar__grip {
+  border-color: var(--color-accent, #222);
+  background: var(--color-accent, #222);
+}
+
+.date-scroll-bar[data-dragging] .date-scroll-bar__grip::before,
+.date-scroll-bar[data-dragging] .date-scroll-bar__grip::after {
+  border-color: var(--color-on-accent, #fff);
 }
 
 /* The day pointed at: a line across the track and its name to the left. */
@@ -81,6 +153,7 @@
   left: 0;
   height: 0;
   border-top: 2px solid var(--color-accent, currentColor);
+  pointer-events: none;
 }
 
 .date-scroll-bar__bubble {
@@ -102,6 +175,7 @@
 /* Phones: no track, only a grip at the right edge, a thumb's size, that drags along the whole height. */
 @media (max-width: 768px) {
   .date-scroll-bar {
+    --date-scroll-bar-pad: 24px;
     width: var(--da-date-scroll-bar-width-phone, 44px);
   }
 
@@ -109,7 +183,7 @@
     pointer-events: none;
   }
 
-  .date-scroll-bar__track::before,
+  .date-scroll-bar__rail,
   .date-scroll-bar__mark {
     display: none;
   }
@@ -117,44 +191,32 @@
   .date-scroll-bar__thumb {
     right: 0;
     width: 44px;
-    height: 48px;
-    margin-top: -24px;
-    background: none;
     pointer-events: auto;
   }
 
   .date-scroll-bar__grip {
-    display: block;
-    position: absolute;
-    right: 4px;
     top: 8px;
+    right: 4px;
     width: 24px;
     height: 32px;
     border-radius: 12px;
-    background: var(--color-background-popover, #fff);
+    border: none;
     box-shadow: var(--shadow-med, 0 2px 8px rgb(0 0 0 / 0.25));
   }
 
-  /* Two small chevrons, up and down: the grip moves both ways. */
   .date-scroll-bar__grip::before,
   .date-scroll-bar__grip::after {
-    content: '';
-    position: absolute;
-    left: 50%;
     width: 7px;
     height: 7px;
-    border: solid var(--color-text-secondary, #555);
     border-width: 2px 0 0 2px;
   }
 
   .date-scroll-bar__grip::before {
     top: 8px;
-    transform: translateX(-50%) rotate(45deg);
   }
 
   .date-scroll-bar__grip::after {
     bottom: 8px;
-    transform: translateX(-50%) rotate(225deg);
   }
 
   .date-scroll-bar__pointer {
@@ -163,9 +225,5 @@
 
   .date-scroll-bar__bubble {
     right: 52px;
-  }
-
-  .date-scroll-bar[data-dragging] .date-scroll-bar__grip {
-    background: var(--color-accent, #222);
   }
 }
