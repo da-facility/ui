@@ -372,6 +372,16 @@ A scroll bar by date for a long list of dated items. `days` are the list's days 
 
 It is fixed at the right of `SidebarLayout`'s content area, from under its header (`--da-date-scroll-bar-top`) to above its bottom chrome, `--da-date-scroll-bar-width` (56px) wide: give the list that much room on its right. On a computer the track is a rail, seen at rest, with a grip on it where the window is (the phone's grip, smaller); the pointer is a hand over the rail and a grab over the grip, and both stay neutral until pointed at or dragged, then take the accent. The grip moves without a scroll listener: with `timeline` (a view timeline's name: `view-timeline: --photos block` on the list, `timeline-scope: --photos` on an element holding the list and the bar) it follows the list's part of the page, at the first day while the list's top is at or below the window's top and at the last once the list's end is in view; without it, the whole page's scroll. Browsers without scroll timelines leave it in the middle. On phones (768px and narrower) only a grip is drawn at the right edge, a thumb's size (`--da-date-scroll-bar-width-phone`, 44px wide, 48px tall), which follows the finger while it drags along the whole height and names the day beside it; the rest of the edge lets taps through to the list.
 
+### PanelButton
+
+```tsx
+<PanelButton label="Filters" count={chosen} title="Order and filters">
+  <SegmentedControl label="Added" value={added} onChange={setAdded}>…</SegmentedControl>
+</PanelButton>
+```
+
+A button that opens a panel of choices, such as a list's filters: a popover under the button on a computer (`width`, 520px by default, its end at the button's end), a sheet from the bottom on phones and short windows, with `title` (else `label`) at its top. Light dismiss and Escape close it; the panel has no buttons of its own, its choices apply as they are made. `count` (the choices made) shows after the label ("Filters · 2") on the accent's quiet tint. 32px tall, 44px on phones; `isFullWidth` stretches it over its row. The sheet stands on the popover's surface, so the panel's controls look the same in both forms.
+
 ### SelectionBar
 
 ```tsx

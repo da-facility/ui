@@ -1,0 +1,17 @@
+.panel-button-example {
+  padding: 32px;
+  font-family: var(--font-family-body, inherit);
+}
+
+.panel-button-example__bar {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 720px;
+}
+
+.panel-button-example__row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+  gap: 12px;
+}

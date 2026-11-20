@@ -1,0 +1,78 @@
+/* PanelButton: a bar's button that opens a panel of choices (a popover, a sheet on phones). */
+.panel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border-emphasized, rgb(0 0 0 / 0.3));
+  border-radius: var(--radius-element, 8px);
+  background: var(--color-background-surface, #fff);
+  color: var(--color-text-primary, #1c1c1c);
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.panel-button:hover {
+  background: var(--color-overlay-hover, rgb(0 0 0 / 0.04));
+}
+
+.panel-button:focus-visible {
+  outline: 2px solid var(--color-accent, currentColor);
+  outline-offset: 2px;
+}
+
+/* Choices made: the button says how many, in the accent's quiet tint. */
+.panel-button--active {
+  border-color: var(--color-accent, currentColor);
+  background: var(--color-accent-muted, rgb(0 0 0 / 0.06));
+  color: var(--color-text-primary, #1c1c1c);
+}
+
+.panel-button__count {
+  font-weight: 600;
+}
+
+.panel-button--full {
+  width: 100%;
+}
+
+.panel-button__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel-button__sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* Below the sheet's grab handle and its edge's tint, and off the screen's edges. */
+  padding: 28px 16px 24px;
+}
+
+.panel-button__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+@media (max-width: 768px) {
+  .panel-button {
+    height: 44px;
+    padding: 0 14px;
+    font-size: 15px;
+  }
+}
+
+/* The sheet on the popover's surface: the panel's controls look (and contrast) the same in both forms. */
+.panel-button__bottom-sheet,
+.panel-button__bottom-sheet > div {
+  background: var(--color-background-popover, #fff);
+}

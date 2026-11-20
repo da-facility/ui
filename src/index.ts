@@ -24,6 +24,7 @@ export {MediaGrid, type MediaGridGap, type MediaGridGapRequest, type MediaGridIt
 export {MediaTile, type MediaTileCaption, type MediaTileProps, type MediaTileState} from './components/media-grid/MediaTile';
 export {SelectionBar, type SelectionBarProps} from './components/selection-bar/SelectionBar';
 export {DateScrollBar, type DateScrollBarDay, type DateScrollBarProps} from './components/date-scroll-bar/DateScrollBar';
+export {PanelButton, type PanelButtonProps} from './components/panel-button/PanelButton';
 export {MediaViewer, type MediaViewerItem, type MediaViewerProps} from './components/media-viewer/MediaViewer';
 
 // Astryx components for app screens, so apps import their UI from this package alone.
