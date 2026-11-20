@@ -370,5 +370,8 @@
   },
   "@astryx.timeInput.clearLabel": {
     "defaultMessage": "Očisti: {label}"
+  },
+  "@da-facility.dateScrollBar.label": {
+    "defaultMessage": "Skoči na datum"
   }
 }

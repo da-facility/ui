@@ -7,6 +7,10 @@
   padding: 40px 32px 160px;
 }
 
+.media-grid-example--dates {
+  padding-right: 72px;
+}
+
 .media-grid-example__end {
   margin: 0;
   color: var(--color-text-secondary);

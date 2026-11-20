@@ -1,0 +1,171 @@
+/* The scroll bar by date: fixed at the right of the content area, under the layout's header. */
+.date-scroll-bar {
+  position: fixed;
+  z-index: 3;
+  top: calc(var(--da-date-scroll-bar-top, var(--sidebar-layout-header, 0px)) + 12px);
+  bottom: calc(var(--sidebar-layout-chrome-bottom, 0px) + 12px);
+  right: var(--sidebar-layout-content-end, 0px);
+  width: var(--da-date-scroll-bar-width, 56px);
+  pointer-events: none;
+  font-family: var(--font-family-body, inherit);
+}
+
+.date-scroll-bar__track {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  outline: none;
+  border-radius: 8px;
+}
+
+/* The hairline the days stand on. */
+.date-scroll-bar__track::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 9px;
+  width: 1px;
+  background: var(--color-border, rgb(0 0 0 / 0.12));
+}
+
+.date-scroll-bar__track:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-accent, currentColor);
+}
+
+.date-scroll-bar__mark {
+  position: absolute;
+  right: 16px;
+  transform: translateY(-1px);
+  font-size: 11px;
+  line-height: 14px;
+  white-space: nowrap;
+  color: var(--color-text-secondary, #666);
+}
+
+/* Where the window is: moved by the page's scroll (a CSS scroll timeline), never by a listener. */
+.date-scroll-bar__thumb {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  width: 11px;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 2px;
+  background: var(--color-text-primary, #222);
+}
+
+@supports (animation-timeline: scroll()) {
+  .date-scroll-bar__thumb {
+    animation: date-scroll-bar-thumb linear both;
+    animation-timeline: scroll(root block);
+  }
+}
+
+@keyframes date-scroll-bar-thumb {
+  from { top: 0%; }
+  to { top: 100%; }
+}
+
+.date-scroll-bar__grip {
+  display: none;
+}
+
+/* The day pointed at: a line across the track and its name to the left. */
+.date-scroll-bar__pointer {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 0;
+  border-top: 2px solid var(--color-accent, currentColor);
+}
+
+.date-scroll-bar__bubble {
+  position: absolute;
+  right: calc(100% + 8px);
+  top: 0;
+  transform: translateY(-50%);
+  padding: 6px 10px;
+  border-radius: var(--radius-container, 8px);
+  background: var(--color-text-primary, #1c1c1c);
+  color: var(--color-background-body, #fff);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  white-space: nowrap;
+  box-shadow: var(--shadow-med, 0 4px 12px rgb(0 0 0 / 0.2));
+}
+
+/* Phones: no track, only a grip at the right edge, a thumb's size, that drags along the whole height. */
+@media (max-width: 768px) {
+  .date-scroll-bar {
+    width: var(--da-date-scroll-bar-width-phone, 44px);
+  }
+
+  .date-scroll-bar__track {
+    pointer-events: none;
+  }
+
+  .date-scroll-bar__track::before,
+  .date-scroll-bar__mark {
+    display: none;
+  }
+
+  .date-scroll-bar__thumb {
+    right: 0;
+    width: 44px;
+    height: 48px;
+    margin-top: -24px;
+    background: none;
+    pointer-events: auto;
+  }
+
+  .date-scroll-bar__grip {
+    display: block;
+    position: absolute;
+    right: 4px;
+    top: 8px;
+    width: 24px;
+    height: 32px;
+    border-radius: 12px;
+    background: var(--color-background-popover, #fff);
+    box-shadow: var(--shadow-med, 0 2px 8px rgb(0 0 0 / 0.25));
+  }
+
+  /* Two small chevrons, up and down: the grip moves both ways. */
+  .date-scroll-bar__grip::before,
+  .date-scroll-bar__grip::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    width: 7px;
+    height: 7px;
+    border: solid var(--color-text-secondary, #555);
+    border-width: 2px 0 0 2px;
+  }
+
+  .date-scroll-bar__grip::before {
+    top: 8px;
+    transform: translateX(-50%) rotate(45deg);
+  }
+
+  .date-scroll-bar__grip::after {
+    bottom: 8px;
+    transform: translateX(-50%) rotate(225deg);
+  }
+
+  .date-scroll-bar__pointer {
+    border-top: none;
+  }
+
+  .date-scroll-bar__bubble {
+    right: 52px;
+  }
+
+  .date-scroll-bar[data-dragging] .date-scroll-bar__grip {
+    background: var(--color-accent, #222);
+  }
+}

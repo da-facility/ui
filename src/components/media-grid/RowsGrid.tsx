@@ -55,6 +55,7 @@ export function RowsGrid<Item extends MediaGridItem>({
   loadAhead = 3,
   gaps,
   onLoadGap,
+  scrollToSection,
 }: MediaGridProps<Item>) {
   const t = useMessages();
   const headingId = useId();
@@ -368,6 +369,25 @@ export function RowsGrid<Item extends MediaGridItem>({
     updateDrawn();
     focusIndex(index);
   }, [layout, items, isDone, focusId, focusOffset, restoreKey, focusIndex, updateDrawn]);
+
+  // A section brought to the top of the window on request (a jump to a date): once per request, when the layout has it.
+  const sectionDone = useRef<number | null>(null);
+  useLayoutEffect(() => {
+    if (!scrollToSection || sectionDone.current === scrollToSection.request || !layout || !rootRef.current) return;
+    const section = layout.sections.find(s => s.key === scrollToSection.key && s.isTitled) ?? layout.sections.find(s => s.key === scrollToSection.key);
+    if (!section) return;
+    sectionDone.current = scrollToSection.request;
+    const root = rootRef.current;
+    const gridTop = root.getBoundingClientRect().top + window.scrollY;
+    // Where a sticky heading stands: the same custom property its CSS reads.
+    const probe = document.createElement('div');
+    probe.style.cssText = 'position:absolute;visibility:hidden;height:var(--da-media-section-sticky-top, var(--sidebar-layout-header, 0px))';
+    root.append(probe);
+    const stickyTop = stickySections ? probe.getBoundingClientRect().height : 0;
+    probe.remove();
+    window.scrollTo({top: Math.max(0, gridTop + section.top - stickyTop), behavior: 'instant'});
+    updateDrawn();
+  }, [scrollToSection, layout, stickySections, updateDrawn]);
 
   const toggle = useCallback((index: number, isRange: boolean) => {
     const {items, selected, onSelectionChange} = latest.current;

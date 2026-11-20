@@ -183,6 +183,16 @@ export type MediaGridProps<Item extends MediaGridItem> = {
    * new `items` and `gaps`.
    */
   onLoadGap?: (request: MediaGridGapRequest) => void | Promise<unknown>;
+  /**
+   * `layout="rows"` with `sectionOf`: brings the section with `key` to the
+   * top of the window (its heading where a sticky heading stands), once for
+   * each new `request` number, such as a jump from a `DateScrollBar`. The
+   * section may be loaded or a stretch's (`gaps`): the window lands on its
+   * stand-ins, and the grid asks for the place there (`onLoadGap`) unless
+   * the app is loading it already. A key the grid doesn't have yet waits
+   * until it does.
+   */
+  scrollToSection?: {key: string; request: number};
 };
 
 type Layout = {columns: number; tileHeight: number; gap: number};

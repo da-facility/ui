@@ -154,7 +154,7 @@ export const examples: Example[] = [
     id: 'media-grid',
     name: 'Media grid',
     kind: 'Component',
-    description: 'Even grid of 3:2 tiles, or whole photos in rows of equal height with days as sections and captions, with selection, keyboard focus and paging; /media-grid/large holds 20,000 photos, /media-grid/rows-large 10,000 in rows, /media-grid/rows-middle 10,000 loaded from photo 9,501 on, as a return to a far place.',
+    description: 'Even grid of 3:2 tiles, or whole photos in rows of equal height with days as sections and captions, with selection, keyboard focus and paging; /media-grid/large holds 20,000 photos, /media-grid/rows-large 10,000 in rows, /media-grid/rows-middle 10,000 loaded from photo 9,501 on, as a return to a far place, /media-grid/rows-dates the same with a scroll bar by date.',
     tweaks: [
       {id: 'selectable', label: 'Selection', group: 'Behaviour', default: true},
       {id: 'rows', label: 'Whole photos in rows', group: 'Layout'},

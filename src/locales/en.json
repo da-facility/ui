@@ -314,5 +314,9 @@
   "@da-facility.timeField.formatHint": {
     "defaultMessage": "e.g., {example}",
     "description": "Placeholder of a focused, empty time field, showing how to write a time. {example} is a time in the locale's clock, such as 14:30."
+  },
+  "@da-facility.dateScrollBar.label": {
+    "defaultMessage": "Jump to a date",
+    "description": "Accessible name of the scroll bar by date beside a long list of photos: a slider over its days."
   }
 }

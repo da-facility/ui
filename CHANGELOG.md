@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+New:
+
+- `DateScrollBar`: a scroll bar by date beside a long list of dated items, such as a `MediaGrid` in rows with a section per day. The days are a track at the right of the content area, each as tall as its share of the items, marked by year, month or day as there is room; the day under the pointer is named while the track is pointed at or dragged, and a click or a drag's end calls `onJump` with that day. It is a slider for the keyboard (arrows a day, Page Up and Page Down a month, Home and End the ends), named "Jump to a date" ("Skoči na datum"). On phones only a grip at the right edge is drawn, 44 by 48 px, that drags along the whole height; the photos under the rest of the edge still take taps. Its place follows the page's scroll through a CSS scroll timeline, never a scroll listener. Types `DateScrollBarDay` and `DateScrollBarProps`; `--da-date-scroll-bar-top`, `--da-date-scroll-bar-width` (56px) and `--da-date-scroll-bar-width-phone` (44px).
+- `MediaGrid` rows: `scrollToSection` (`{key, request}`) brings a section to the window's top, under a sticky heading's place, once per new `request`, also a section of a stretch not loaded yet (the window lands on its stand-ins); with `gaps` the app loads the run there, and the window stays on it as its pages arrive. `/media-grid/rows-dates` in the catalogue jumps with a `DateScrollBar`.
+
 ## 1.9.0
 
 New:

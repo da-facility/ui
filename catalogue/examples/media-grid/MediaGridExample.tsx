@@ -1,5 +1,5 @@
 import {useCallback, useMemo, useRef, useState, useSyncExternalStore} from 'react';
-import {Button, MediaGrid, MediaViewer, PageHeader, SelectionBar, useLocale, type MediaGridGapRequest} from '@da-facility/ui';
+import {Button, DateScrollBar, MediaGrid, MediaViewer, PageHeader, SelectionBar, useLocale, type MediaGridGapRequest} from '@da-facility/ui';
 import {PhotoDetails} from '../shared/PhotoDetails';
 import {viewerItem} from '../media-viewer/MediaViewerExample';
 import {demoPhoto, demoPhotos, type DemoPhoto} from '../shared/photos';
@@ -33,7 +33,7 @@ function useOpenPhoto() {
 }
 
 export function MediaGridExample({page, tweaks}: ExampleProps) {
-  if (page === 'rows-middle') return <MiddleExample tweaks={tweaks} />;
+  if (page === 'rows-middle' || page === 'rows-dates') return <MiddleExample tweaks={tweaks} withDates={page === 'rows-dates'} />;
   return <PagedExample page={page} tweaks={tweaks} />;
 }
 
@@ -51,7 +51,7 @@ export const MIDDLE_START = 9500;
  * its own once the window reaches it, and a jump into the middle starts one
  * there.
  */
-function MiddleExample({tweaks}: Pick<ExampleProps, 'tweaks'>) {
+function MiddleExample({tweaks, withDates = false}: Pick<ExampleProps, 'tweaks'> & {withDates?: boolean}) {
   const all = useMemo(() => demoPhotos(ROWS_LARGE).map(toTile), []);
   const [runs, setRuns] = useState<{from: number; to: number}[]>([{from: MIDDLE_START, to: MIDDLE_START + MIDDLE_PAGE}]);
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
@@ -128,7 +128,22 @@ function MiddleExample({tweaks}: Pick<ExampleProps, 'tweaks'>) {
     });
   }, [tweaks.slowNetwork, hooks]);
   const getHref = useMemo(() => (item: Tile) => `#${item.id}`, []);
-  return <main className="media-grid-example">
+  // `/media-grid/rows-dates`: the days as a scroll bar by date, from 1 January 2025 on. A jump loads a run from the day's
+  // first photo (as an app's list starts at a day, one call) and brings its section to the top of the window.
+  const [jump, setJump] = useState<{key: string; request: number} | undefined>();
+  const dateDays = useMemo(() => Array.from({length: Math.ceil(ROWS_LARGE / PER_DAY)}, (_, day) => ({
+    key: new Date(Date.UTC(2025, 0, 1 + day)).toISOString().slice(0, 10),
+    count: Math.min(PER_DAY, ROWS_LARGE - day * PER_DAY),
+  })), []);
+  const jumpTo = useCallback((key: string) => {
+    const day = dateDays.findIndex(d => d.key === key);
+    const from = day * PER_DAY;
+    setRuns(current => current.some(run => run.from <= from && run.to > from) ? current
+      : [...current, {from, to: Math.min(current.find(r => r.from > from)?.from ?? ROWS_LARGE, from + MIDDLE_PAGE)}].sort((a, b) => a.from - b.from));
+    setJump(j => ({key: String(day), request: (j?.request ?? 0) + 1}));
+  }, [dateDays]);
+  return <main className={withDates ? 'media-grid-example media-grid-example--dates' : 'media-grid-example'}>
+    {withDates && <DateScrollBar days={dateDays} onJump={jumpTo} />}
     <PageHeader title="Final" meta={['Main Arena', `${new Intl.NumberFormat('en').format(ROWS_LARGE)} photos`]} />
     <MediaGrid
       layout="rows"
@@ -147,6 +162,7 @@ function MiddleExample({tweaks}: Pick<ExampleProps, 'tweaks'>) {
       sectionOf={sectionOf}
       stickySections={Boolean(tweaks.sticky)}
       captions={tweaks.captionsAlways ? 'always' : 'hover'}
+      scrollToSection={jump}
     />
   </main>;
 }
