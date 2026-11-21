@@ -128,6 +128,36 @@ function MiddleExample({tweaks, withDates = false}: Pick<ExampleProps, 'tweaks'>
     });
   }, [tweaks.slowNetwork, hooks]);
   const getHref = useMemo(() => (item: Tile) => `#${item.id}`, []);
+  // Selecting as an app does it for a list it hasn't loaded whole: whole days (`days`, with photos taken out of them,
+  // `except`) and single photos (`selected`); the grid's selected tiles are the loaded part of that.
+  const [days, setDays] = useState<Set<string>>(() => new Set());
+  const [except, setExcept] = useState<Set<string>>(() => new Set());
+  const dayKey = (item: Tile) => String(item.day);
+  const selectedNow = useMemo(() => new Set(items.filter(item => days.has(dayKey(item)) ? !except.has(item.id) : selected.has(item.id)).map(item => item.id)), [items, days, except, selected]);
+  const changeSelection = useCallback((next: Set<string>) => {
+    const out = new Set(except);
+    const picked = new Set(selected);
+    for (const item of items) {
+      if (days.has(dayKey(item))) {
+        if (next.has(item.id)) out.delete(item.id);
+        else out.add(item.id);
+      } else if (next.has(item.id)) picked.add(item.id);
+      else picked.delete(item.id);
+    }
+    setExcept(out);
+    setSelected(picked);
+  }, [items, days, except, selected]);
+  const sectionSelection = useMemo(() => ({
+    stateOf: (key: string) => days.has(key)
+      ? (all.some(item => dayKey(item) === key && except.has(item.id)) ? 'some' as const : 'all' as const)
+      : (all.some(item => dayKey(item) === key && selected.has(item.id)) ? 'some' as const : 'none' as const),
+    onToggle: (key: string) => {
+      const whole = days.has(key) && !all.some(item => dayKey(item) === key && except.has(item.id));
+      setDays(current => { const next = new Set(current); if (whole) next.delete(key); else next.add(key); return next; });
+      setExcept(current => new Set([...current].filter(id => dayKey(all[Number(id.replace(/\D/g, ''))]) !== key)));
+      setSelected(current => new Set([...current].filter(id => dayKey(all[Number(id.replace(/\D/g, ''))]) !== key)));
+    },
+  }), [days, except, selected, all]);
   // `/media-grid/rows-dates`: the days as a scroll bar by date, from 1 January 2025 on. A jump loads a run from the day's
   // first photo (as an app's list starts at a day, one call) and brings its section to the top of the window.
   const [jump, setJump] = useState<{key: string; request: number} | undefined>();
@@ -153,8 +183,10 @@ function MiddleExample({tweaks, withDates = false}: Pick<ExampleProps, 'tweaks'>
       gaps={gaps}
       onLoadGap={load}
       getHref={getHref}
-      selectedIds={selected}
-      onSelectionChange={tweaks.selectable ? setSelected : undefined}
+      selectedIds={selectedNow}
+      onSelectionChange={tweaks.selectable ? changeSelection : undefined}
+      sectionSelection={tweaks.selectable ? sectionSelection : undefined}
+      isSelecting={days.size > 0}
       isDone={runs.at(-1)?.to === ROWS_LARGE}
       label="Photos"
       focusId={all[MIDDLE_START].id}

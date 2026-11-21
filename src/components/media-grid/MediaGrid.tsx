@@ -92,6 +92,20 @@ export type MediaGridProps<Item extends MediaGridItem> = {
    * screens, and Ctrl/Cmd+A for everything loaded.
    */
   onSelectionChange?: (selectedIds: Set<string>) => void;
+  /**
+   * Ctrl or Cmd and A in the grid: the app selects the whole list itself (with what isn't loaded yet), instead of the
+   * grid selecting the items loaded so far. `layout="rows"`.
+   */
+  onSelectAll?: () => void;
+  /** A selection has begun though no loaded item is in it (such as a day not loaded yet): the marks show as they do once something is selected. */
+  isSelecting?: boolean;
+  /**
+   * `layout="rows"` with sections: a checkbox before each section's heading that selects the whole section (such as a
+   * day), with three states (`none`, `some`, `all`), shaped like a tile's mark: on a computer seen when the pointer is
+   * over the heading or once anything is selected, on a touch screen once a selection has begun. `stateOf` says each
+   * section's state (also for a section not loaded yet, which the app selects as what it is); `onToggle` gets its key.
+   */
+  sectionSelection?: {stateOf: (key: string) => 'none' | 'some' | 'all'; onToggle: (key: string) => void};
   /** Called when a tile's link is followed, before it navigates. Call `event.preventDefault()` to open it yourself. */
   onOpen?: (item: Item, index: number, event: MouseEvent<HTMLAnchorElement>) => void;
   /**

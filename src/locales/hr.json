@@ -170,6 +170,9 @@
   "@da-facility.mediaGrid.label": {
     "defaultMessage": "Galerija"
   },
+  "@da-facility.mediaGrid.selectSection": {
+    "defaultMessage": "Odaberi sve: {name}"
+  },
   "@da-facility.mediaGrid.selectedAll": {
     "defaultMessage": "Odabrano sve učitano: {count}."
   },

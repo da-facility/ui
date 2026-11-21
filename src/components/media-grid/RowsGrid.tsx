@@ -56,6 +56,9 @@ export function RowsGrid<Item extends MediaGridItem>({
   sectionHeadingLevel = 2,
   captions = 'hover',
   minTileAspect = 0,
+  onSelectAll,
+  sectionSelection,
+  isSelecting: selectingAnyway = false,
   loadAhead = 3,
   gaps,
   onLoadGap,
@@ -232,8 +235,8 @@ export function RowsGrid<Item extends MediaGridItem>({
 
   // Handlers read the latest props through a ref, so tiles get the same
   // functions on every render and only the tiles that change re-render.
-  const latest = useRef({items, selected, onSelectionChange, onOpen, layout, restoreKey, onLoadGap, loadAhead});
-  latest.current = {items, selected, onSelectionChange, onOpen, layout, restoreKey, onLoadGap, loadAhead};
+  const latest = useRef({items, selected, onSelectionChange, onOpen, layout, restoreKey, onLoadGap, loadAhead, onSelectAll});
+  latest.current = {items, selected, onSelectionChange, onOpen, layout, restoreKey, onLoadGap, loadAhead, onSelectAll};
 
   // Whether the grid has come back to its place (below): until then the window isn't where the person will be.
   const restored = useRef(false);
@@ -459,6 +462,7 @@ export function RowsGrid<Item extends MediaGridItem>({
       case 'A':
         if (!onSelectionChange || !isCommand || event.altKey || event.shiftKey) return;
         event.preventDefault();
+        if (latest.current.onSelectAll) return latest.current.onSelectAll();
         onSelectionChange(new Set(items.map(item => item.id)));
         setAnnouncement(t('@da-facility.mediaGrid.selectedAll', {count: items.length}));
     }
@@ -470,7 +474,7 @@ export function RowsGrid<Item extends MediaGridItem>({
   // The block of the tile with focus stays drawn, so focus never falls out of the grid.
   const pinned = layout && items.length ? layout.blocks[layout.blockOf[focusTarget ?? active]]?.key : undefined;
   const lead = (gaps ?? []).reduce((n, gap) => n + (gap.at <= 0 ? Math.max(0, gap.count) : 0), 0);
-  const tileProps = {items, getHref, selected, isSelectable, isSelecting: selected.size > 0, active, setSize, onToggle: toggle, onOpen: open, onKeyDown: keyDown};
+  const tileProps = {items, getHref, selected, isSelectable, isSelecting: selected.size > 0 || selectingAnyway, active, setSize, onToggle: toggle, onOpen: open, onKeyDown: keyDown};
 
   return <div
     ref={rootRef}
@@ -481,7 +485,7 @@ export function RowsGrid<Item extends MediaGridItem>({
     role="group"
     aria-label={label ?? t('@da-facility.mediaGrid.label')}
     aria-busy={isWaiting || undefined}
-    data-selecting={selected.size > 0 || undefined}
+    data-selecting={selected.size > 0 || selectingAnyway || undefined}
   >
     <div ref={probeRef} className="media-grid__rows-probe" aria-hidden="true" />
     {layout
@@ -502,6 +506,7 @@ export function RowsGrid<Item extends MediaGridItem>({
           const id = `${headingId}-${sectionIndex}`;
           return <div key={section.key} role="group" aria-labelledby={id} className="media-grid__section" style={{marginTop}}>
             <div className="media-grid__heading" style={{height: metrics!.headingHeight}}>
+              {sectionSelection && <SectionCheck sectionKey={section.key} title={heading.title} state={sectionSelection.stateOf(section.key)} onToggle={sectionSelection.onToggle} />}
               {createElement(`h${sectionHeadingLevel}`, {id, className: 'media-grid__heading-title'}, heading.title)}
               {heading.meta && <span className="media-grid__heading-meta">{heading.meta}</span>}
             </div>
@@ -530,6 +535,26 @@ export function RowsGrid<Item extends MediaGridItem>({
     {(!layout || placeholders === 0) && !hasEndGap && <div ref={aheadRef} className="media-grid__sentinel" />}
     <div className="media-grid__announcer" role="status">{announcement}</div>
   </div>;
+}
+
+/** A section's checkbox (its whole section), shaped like a tile's mark, with a third state for part of it. */
+function SectionCheck({sectionKey, title, state, onToggle}: {sectionKey: string; title: string; state: 'none' | 'some' | 'all'; onToggle: (key: string) => void}) {
+  const t = useMessages();
+  const ref = useRef<HTMLInputElement>(null);
+  useLayoutEffect(() => {
+    if (ref.current) ref.current.indeterminate = state === 'some';
+  }, [state]);
+  return <label className="media-grid__heading-select" data-state={state}>
+    <input
+      ref={ref}
+      type="checkbox"
+      className="media-grid__heading-checkbox"
+      checked={state === 'all'}
+      aria-label={t('@da-facility.mediaGrid.selectSection', {name: title})}
+      onChange={() => onToggle(sectionKey)}
+    />
+    <span className="media-grid__heading-circle" aria-hidden="true" />
+  </label>;
 }
 
 type BlockProps = {

@@ -10,6 +10,7 @@ New:
 - `MediaGrid` rows and `MediaTile`: `caption.marks` underlines parts of a caption's lines, such as the words a search found.
 - `MediaGrid` rows: `scrollToSection` (`{key, request}`) brings a section to the window's top, under a sticky heading's place, once per new `request`, also a section of a stretch not loaded yet (the window lands on its stand-ins); with `gaps` the app loads the run there, and the window stays on it as its pages arrive. `/media-grid/rows-dates` in the catalogue jumps with a `DateScrollBar`.
 - `MediaGrid` rows: `minTileAspect` keeps every tile at least that wide for its height (1: a square), the photo whole inside a wider tile, for a list whose captions must always be read, such as a search's results: a tall photo's tile has room for its two lines.
+- `MediaGrid` rows: `sectionSelection` puts a checkbox before each section's heading that selects the whole section (such as a day), also one not loaded yet, with three states (none, some, all; mixed for screen readers), shaped like a tile's mark in the page's colours: on a computer it shows when the pointer is over the heading or once anything is selected, on a touch screen once a selection has begun, and it keeps its room, so nothing moves when it shows. `isSelecting` shows the marks for a selection with no loaded item in it, and `onSelectAll` lets Ctrl or Cmd and A select the whole list through the app, not only what is loaded.
 
 Other changes:
 

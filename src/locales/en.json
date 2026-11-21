@@ -227,6 +227,10 @@
     "defaultMessage": "Gallery",
     "description": "Default accessible name of a grid of images."
   },
+  "@da-facility.mediaGrid.selectSection": {
+    "defaultMessage": "Select all of {name}",
+    "description": "Checkbox before a section’s heading in a grid of images (such as a day): selects every image of the section, also those not loaded yet. {name} is the heading."
+  },
   "@da-facility.mediaGrid.selectedAll": {
     "defaultMessage": "Selected all {count} loaded.",
     "description": "Announced after Ctrl or Cmd and A selects every image loaded so far."
