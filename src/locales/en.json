@@ -318,5 +318,9 @@
   "@da-facility.dateScrollBar.label": {
     "defaultMessage": "Jump to a date",
     "description": "Accessible name of the scroll bar by date beside a long list of photos: a slider over its days."
+  },
+  "@da-facility.searchField.clear": {
+    "defaultMessage": "Clear the search",
+    "description": "The search field's button that empties it."
   }
 }

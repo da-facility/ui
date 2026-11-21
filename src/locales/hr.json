@@ -373,5 +373,8 @@
   },
   "@da-facility.dateScrollBar.label": {
     "defaultMessage": "Skoči na datum"
+  },
+  "@da-facility.searchField.clear": {
+    "defaultMessage": "Očisti pretragu"
   }
 }

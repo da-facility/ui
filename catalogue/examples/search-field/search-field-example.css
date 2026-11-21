@@ -1,0 +1,13 @@
+.search-field-example {
+  padding: 32px;
+  font-family: var(--font-family-body, inherit);
+}
+
+.search-field-example__bar {
+  display: flex;
+  max-width: 720px;
+}
+
+.search-field-example__status {
+  color: var(--color-text-secondary, #666);
+}

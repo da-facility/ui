@@ -1,4 +1,4 @@
-import {memo, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent} from 'react';
+import {memo, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode} from 'react';
 import {useLinkComponent} from '@astryxdesign/core/Link';
 import {useMessages} from '../../i18n';
 import './media-tile.css';
@@ -12,7 +12,27 @@ export type MediaTileCaption = {
   title: string;
   /** The second line, such as the headline or description and the author. */
   text?: string;
+  /**
+   * Parts of either line to mark, such as the words a search found, as `[start, end)` ranges of that line's text
+   * (UTF-16 offsets, in order, not overlapping): drawn underlined, as `<mark>`.
+   */
+  marks?: {title?: ReadonlyArray<readonly [number, number]>; text?: ReadonlyArray<readonly [number, number]>};
 };
+
+/** A caption line with its marked ranges as `<mark>`. */
+function marked(line: string, ranges: ReadonlyArray<readonly [number, number]> | undefined) {
+  if (!ranges?.length) return line;
+  const out: ReactNode[] = [];
+  let at = 0;
+  for (const [start, end] of ranges) {
+    if (start < at || end <= start || end > line.length) continue;
+    if (start > at) out.push(line.slice(at, start));
+    out.push(<mark key={start} className="media-tile__term">{line.slice(start, end)}</mark>);
+    at = end;
+  }
+  if (at < line.length) out.push(line.slice(at));
+  return out;
+}
 
 export type MediaTileProps = {
   /**
@@ -178,8 +198,8 @@ export const Tile = memo(function Tile({src, state, alt, width, height, href, in
           </span>
         : <img className="media-tile__image" src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async" draggable={false} onError={() => setBrokenSrc(src ?? null)} />}
       {caption && <span className="media-tile__caption" aria-hidden="true">
-        <span className="media-tile__caption-title">{caption.title}</span>
-        {caption.text && <span className="media-tile__caption-text">{caption.text}</span>}
+        <span className="media-tile__caption-title">{marked(caption.title, caption.marks?.title)}</span>
+        {caption.text && <span className="media-tile__caption-text">{marked(caption.text, caption.marks?.text)}</span>}
       </span>}
       {isSelected && <span className="media-tile__visually-hidden">, {t('@da-facility.mediaTile.selected')}</span>}
     </Link>

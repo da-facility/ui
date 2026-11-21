@@ -1,0 +1,51 @@
+import {expect, test} from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+import {collectErrors, isMobile, presetTweaks} from './helpers';
+
+/** `SearchField` (`/search-field`): the bar's search, a second way to search behind its toggle, the words found marked in the grid's captions. */
+
+test('typing searches, the found words are marked in the captions, Enter submits, the clear button empties it', async ({page}) => {
+  const errors = collectErrors(page);
+  await page.goto('/render/search-field');
+  const field = page.getByRole('searchbox', {name: 'Search photos'});
+  const box = (await page.locator('.search-field').boundingBox())!;
+  expect(box.height).toBe(isMobile(test.info()) ? 44 : 32);
+  await field.fill('img_400');
+  await expect(page.locator('.media-tile')).toHaveCount(10);
+  // Every caption marks the word that matched, as written.
+  const marks = await page.locator('.media-tile__term').allTextContents();
+  expect(marks.length).toBeGreaterThan(0);
+  for (const m of marks) expect(['IMG', '4000', '4001', '4002', '4003', '4004', '4005', '4006', '4007', '4008', '4009']).toContain(m);
+  await field.press('Enter');
+  await expect(page.locator('.search-field-example__status')).toContainText('Submitted: img_400.');
+  await page.getByRole('button', {name: 'Clear the search'}).click();
+  await expect(field).toHaveValue('');
+  await expect(page.locator('.media-tile')).toHaveCount(24);
+  await expect(page.getByRole('button', {name: 'Clear the search'})).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('the toggle is a pressed button that gives the field its star; on a phone its short text', async ({page}) => {
+  await page.goto('/render/search-field');
+  const toggle = page.getByRole('button', {name: 'AI search'});
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  expect((await toggle.innerText()).trim()).toBe(isMobile(test.info()) ? 'AI' : 'AI search');
+  // On a phone each of its buttons is a touch target of the field's height.
+  if (isMobile(test.info())) expect((await toggle.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.search-field')).toHaveAttribute('data-toggled', 'true');
+  await expect(page.locator('.search-field__icon .search-field__star')).toBeVisible();
+  await expect(page.locator('.search-field-example__status')).toContainText('by what is in the picture');
+});
+
+test('has no accessibility violations, light and dark, empty and searching', async ({page}) => {
+  for (const darkMode of [false, true]) {
+    await presetTweaks(page, 'search-field', {}, {darkMode});
+    await page.goto('/render/search-field');
+    expect((await new AxeBuilder({page}).analyze()).violations).toEqual([]);
+    await page.getByRole('searchbox', {name: 'Search photos'}).fill('img');
+    await page.getByRole('button', {name: 'AI search'}).click();
+    expect((await new AxeBuilder({page}).analyze()).violations).toEqual([]);
+  }
+});

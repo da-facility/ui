@@ -1,0 +1,173 @@
+/* SearchField: a list's search in its toolbar, with an optional second way to search behind a button at its end. */
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 32px;
+  padding: 0 3px 0 10px;
+  border: 1px solid var(--color-border-emphasized, rgb(0 0 0 / 0.3));
+  border-radius: var(--radius-element, 8px);
+  background: var(--color-background-surface, #fff);
+  color: var(--color-text-primary, #1c1c1c);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.search-field:focus-within {
+  outline: 2px solid var(--color-accent, currentColor);
+  outline-offset: -1px;
+}
+
+/* The other way is on: its star in the field, the accent's outline. */
+.search-field[data-toggled] {
+  border-color: var(--color-accent, currentColor);
+}
+
+.search-field__icon {
+  display: inline-flex;
+  flex: none;
+  margin-inline-end: 4px;
+  color: var(--color-text-secondary, #666);
+}
+
+.search-field[data-toggled] .search-field__icon {
+  color: var(--color-accent, currentColor);
+}
+
+.search-field__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.search-field__input::placeholder {
+  color: var(--color-text-secondary, #666);
+  opacity: 1;
+}
+
+/* The browser's own clear button: the field draws one that looks like the bar's other controls. */
+.search-field__input::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* The buttons: as tall as their face here, the field's height on phones (a touch target), the face inside. */
+.search-field__clear,
+.search-field__toggle {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.search-field__face {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-sizing: border-box;
+  height: 24px;
+  border-radius: calc(var(--radius-element, 8px) - 2px);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.search-field__clear .search-field__face {
+  width: 24px;
+  color: var(--color-text-secondary, #666);
+}
+
+.search-field__clear:hover .search-field__face {
+  background: var(--color-overlay-hover, rgb(0 0 0 / 0.04));
+  color: var(--color-text-primary, #1c1c1c);
+}
+
+/* A button that looks like one: an edge and the neutral fill, pressed in the accent's quiet tint. */
+.search-field__toggle .search-field__face {
+  padding: 0 8px;
+  border: 1px solid var(--color-border, rgb(0 0 0 / 0.15));
+  background: var(--color-neutral, rgb(0 0 0 / 0.04));
+  color: var(--color-text-primary, #1c1c1c);
+}
+
+.search-field__toggle:hover .search-field__face {
+  border-color: var(--color-border-emphasized, rgb(0 0 0 / 0.3));
+}
+
+.search-field__toggle[aria-pressed='true'] .search-field__face {
+  border-color: var(--color-accent, currentColor);
+  background: var(--color-accent-muted, rgb(0 0 0 / 0.06));
+}
+
+.search-field__clear:focus-visible,
+.search-field__toggle:focus-visible {
+  outline: none;
+}
+
+.search-field__clear:focus-visible .search-field__face,
+.search-field__toggle:focus-visible .search-field__face {
+  outline: 2px solid var(--color-accent, currentColor);
+  outline-offset: 1px;
+}
+
+.search-field__star {
+  flex: none;
+}
+
+.search-field__toggle-short {
+  display: none;
+}
+
+/* Phones: a touch target like the bar's other controls, 16px text (no zoom on focus), the toggle's short text. */
+@media (max-width: 768px) {
+  .search-field {
+    height: 44px;
+    padding: 0 3px 0 12px;
+    font-size: 16px;
+  }
+
+  .search-field__clear,
+  .search-field__toggle {
+    height: 44px;
+    margin-block: -1px;
+  }
+
+  .search-field__face {
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .search-field__clear .search-field__face {
+    width: 32px;
+  }
+
+  .search-field__clear {
+    width: 40px;
+  }
+
+  .search-field__toggle {
+    padding: 0 3px;
+  }
+
+  .search-field__toggle-label {
+    display: none;
+  }
+
+  .search-field__toggle-short {
+    display: inline;
+  }
+}

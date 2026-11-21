@@ -16,6 +16,7 @@ import {DateFieldExample} from './examples/date-field/DateFieldExample';
 import {TimeFieldExample} from './examples/time-field/TimeFieldExample';
 import {CycleButtonExample} from './examples/cycle-button/CycleButtonExample';
 import {PanelButtonExample} from './examples/panel-button/PanelButtonExample';
+import {SearchFieldExample} from './examples/search-field/SearchFieldExample';
 import {RowActionsExample} from './examples/row-actions/RowActionsExample';
 import {SelectionBarExample} from './examples/selection-bar/SelectionBarExample';
 import {ToastsExample} from './examples/toasts/ToastsExample';
@@ -138,6 +139,14 @@ export const examples: Example[] = [
     description: 'A button that opens a panel of choices, such as a list\'s filters: a popover on a computer, a sheet from the bottom on a phone.',
     tweaks: [],
     Component: PanelButtonExample,
+  },
+  {
+    id: 'search-field',
+    name: 'Search field',
+    kind: 'Component',
+    description: 'A list\'s search in its toolbar, with a second way to search behind a button at its end; the words found marked in the captions.',
+    tweaks: [],
+    Component: SearchFieldExample,
   },
   {
     id: 'row-actions',

@@ -190,6 +190,15 @@
   font-weight: 600;
 }
 
+/* A marked part (such as the words a search found): underlined in the caption's own colour, on the photo's shade. */
+.media-tile__term {
+  background: none;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+}
+
 .media-tile:hover .media-tile__caption,
 .media-tile:has(.media-tile__link:focus-visible) .media-tile__caption,
 .media-grid[data-captions="always"] .media-tile__caption {
