@@ -19,6 +19,38 @@ const topHeading = (page: Page) => page.evaluate(() => {
   return headings[0] ?? null;
 });
 
+const MONTHS = {
+  en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+  hr: ['siječanj', 'veljača', 'ožujak', 'travanj', 'svibanj', 'lipanj', 'srpanj', 'kolovoz', 'rujan', 'listopad', 'studeni', 'prosinac'],
+};
+
+for (const language of ['en', 'hr'] as const)
+  test(`months are marked by their whole names, the year under the first, inside the bar and clear of the grip (${language})`, async ({page}) => {
+    test.skip(isMobile(test.info()), 'The phone shows no marks');
+    await presetTweaks(page, 'media-grid', {}, {croatian: language === 'hr'});
+    await page.goto('/render/media-grid/rows-dates');
+    const marks = page.locator('.date-scroll-bar__mark');
+    await expect(marks.first()).toBeVisible();
+    // An abbreviation can read as another word (Croatian "svi", May, reads as "everyone"): whole names only.
+    const texts = await marks.evaluateAll(els => els.map(el => ({
+      month: el.firstChild?.textContent ?? '',
+      year: el.querySelector('.date-scroll-bar__year')?.textContent ?? null,
+    })));
+    expect(texts.length).toBeGreaterThan(4);
+    for (const t of texts) expect(MONTHS[language]).toContain(t.month);
+    expect(texts[0]!.year).toMatch(/^2025\.?$/);
+    expect(texts.slice(1).every(t => t.year === null)).toBe(true);
+    if (language === 'hr') expect(texts.map(t => t.month)).toContain('svibanj');
+    // Every mark stands inside the bar's room and left of the rail and its grip.
+    const box = (await page.locator('.date-scroll-bar').boundingBox())!;
+    const grip = (await page.locator('.date-scroll-bar__grip').boundingBox())!;
+    for (const m of await marks.all()) {
+      const b = (await m.boundingBox())!;
+      expect(b.x).toBeGreaterThanOrEqual(box.x);
+      expect(b.x + b.width).toBeLessThanOrEqual(grip.x - 2);
+    }
+  });
+
 test('a drag names the day under the pointer and, let go, loads that day and brings its heading to the top', async ({page}) => {
   test.skip(isMobile(test.info()), 'The phone has its grip, below');
   const errors = collectErrors(page);
@@ -26,7 +58,7 @@ test('a drag names the day under the pointer and, let go, loads that day and bri
   await expect(page.locator('.media-tile[aria-posinset="9501"]')).toBeVisible();
   const box = (await bar(page).boundingBox())!;
   // Year marks are too sparse here (nine months): months, each named once there is room.
-  await expect(page.locator('.date-scroll-bar__mark').first()).toHaveText(/Jan.*2025/);
+  await expect(page.locator('.date-scroll-bar__mark').first()).toHaveText(/^January\s*2025$/);
   await page.mouse.move(box.x + box.width / 2, box.y + 4);
   await page.mouse.down();
   // Halfway down: day 135 of 271, 15 May 2025.

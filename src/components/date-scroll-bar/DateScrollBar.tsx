@@ -27,15 +27,22 @@ export type DateScrollBarProps = {
    * follows the whole page's scroll.
    */
   timeline?: string;
+  /**
+   * How a day is written on the track's marks, given its key (`YYYY-MM-DD`): as the app writes a day elsewhere,
+   * such as "14. 6." or "14 Jun". Defaults to the locale's day and month in numbers without leading zeros.
+   */
+  formatDay?: (key: string) => string;
 };
 
-type Mark = {key: string; text: string; at: number};
+/** A mark on the track: its text and, where a year begins, the year under it. */
+type Mark = {key: string; text: string; year?: string; at: number};
 
 const DAY_MS = 86_400_000;
 /** A day key as a moment at its noon, read in UTC so the calendar day never shifts. */
 const noon = (key: string) => Date.UTC(Number(key.slice(0, 4)), Number(key.slice(5, 7)) - 1, Number(key.slice(8, 10)), 12);
-/** Marks closer than this (px) to the one above are left out. */
-const MARK_SPACE = 22;
+/** One line of a mark (px), and the least room between two marks: a closer one is left out. */
+const MARK_LINE = 14;
+const MARK_GAP = 8;
 
 /**
  * A scroll bar by date beside a long list of dated items (a `MediaGrid` in
@@ -52,7 +59,7 @@ const MARK_SPACE = 22;
  * a CSS view timeline) or the page's scroll (a scroll timeline), never a
  * scroll listener; where the browser has neither, it rests at the middle.
  */
-export function DateScrollBar({days, onJump, current, label, timeline}: DateScrollBarProps) {
+export function DateScrollBar({days, onJump, current, label, timeline, formatDay}: DateScrollBarProps) {
   const t = useMessages();
   const {locale} = use(InternationalizationContext);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -65,11 +72,15 @@ export function DateScrollBar({days, onJump, current, label, timeline}: DateScro
 
   const formats = useMemo(() => ({
     day: new Intl.DateTimeFormat(locale, {timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'long', year: 'numeric'}),
-    month: new Intl.DateTimeFormat(locale, {timeZone: 'UTC', month: 'short'}),
-    monthYear: new Intl.DateTimeFormat(locale, {timeZone: 'UTC', month: 'short', year: 'numeric'}),
+    // Whole month names (an abbreviation can read as another word, such as Croatian "svi" for May), the name alone.
+    month: new Intl.DateTimeFormat(locale, {timeZone: 'UTC', month: 'long'}),
     year: new Intl.DateTimeFormat(locale, {timeZone: 'UTC', year: 'numeric'}),
     short: new Intl.DateTimeFormat(locale, {timeZone: 'UTC', day: 'numeric', month: 'numeric'}),
   }), [locale]);
+  /** A day's mark: the app's way, else day and month in numbers without leading zeros ("14. 6.", "14/6"). */
+  const dayMark = useCallback((key: string) => formatDay
+    ? formatDay(key)
+    : formats.short.formatToParts(noon(key)).map(p => (p.type === 'day' || p.type === 'month' ? String(Number(p.value)) : p.value)).join(''), [formatDay, formats]);
 
   // Where each day starts on the track (0 to 1), by its share of the items.
   const starts = useMemo(() => {
@@ -90,20 +101,26 @@ export function DateScrollBar({days, onJump, current, label, timeline}: DateScro
     const by: 'year' | 'month' | 'day' = span > 540 * DAY_MS ? 'year' : span > 31 * DAY_MS ? 'month' : 'day';
     const group = (key: string) => (by === 'year' ? key.slice(0, 4) : by === 'month' ? key.slice(0, 7) : key);
     const out: Mark[] = [];
+    // The last mark's centre and its half height.
     let last = -Infinity;
+    let lastHalf = 0;
     let lastYear = '';
     days.forEach((d, i) => {
       if (i > 0 && group(d.key) === group(days[i - 1]!.key)) return;
       const y = starts[i]! * (height - 2 * gripPad());
-      if (y - last < MARK_SPACE) return;
-      const year = d.key.slice(0, 4);
-      const text = by === 'year' ? formats.year.format(times[i]) : by === 'month' ? (year !== lastYear ? formats.monthYear : formats.month).format(times[i]) : formats.short.format(times[i]);
-      out.push({key: d.key, text, at: starts[i]!});
+      const yearText = formats.year.format(times[i]);
+      // By month, the year stands under the month's name where it begins (and at the first mark): two lines.
+      const year = by === 'month' && d.key.slice(0, 4) !== lastYear ? yearText : undefined;
+      const half = ((year ? 2 : 1) * MARK_LINE) / 2;
+      if (y - last < lastHalf + half + MARK_GAP) return;
+      const text = by === 'year' ? yearText : by === 'month' ? formats.month.format(times[i]) : dayMark(d.key);
+      out.push({key: d.key, text, ...(year ? {year} : {}), at: starts[i]!});
       last = y;
-      lastYear = year;
+      lastHalf = half;
+      lastYear = d.key.slice(0, 4);
     });
     return out;
-  }, [days, starts, height, formats]);
+  }, [days, starts, height, formats, dayMark]);
 
   useLayoutEffect(() => {
     const track = trackRef.current;
@@ -210,7 +227,10 @@ export function DateScrollBar({days, onJump, current, label, timeline}: DateScro
       onBlur={() => setPointed(p => (p?.mode === 'keys' ? null : p))}
     >
       <span className="date-scroll-bar__rail" aria-hidden="true" />
-      {marks.map(mark => <span key={mark.key} className="date-scroll-bar__mark" style={{top: place(mark.at)}} aria-hidden="true">{mark.text}</span>)}
+      {marks.map(mark => <span key={mark.key} className="date-scroll-bar__mark" style={{top: place(mark.at)}} aria-hidden="true">
+        {mark.text}
+        {mark.year && <span className="date-scroll-bar__year">{mark.year}</span>}
+      </span>)}
       <span className="date-scroll-bar__thumb" aria-hidden="true" style={shown?.mode === 'drag' ? {top: place(shown.at), animation: 'none'} : undefined}><span className="date-scroll-bar__grip" /></span>
       {shown && <span className="date-scroll-bar__pointer" style={{top: place(shown.at)}} aria-hidden="true">
         <span className="date-scroll-bar__bubble">{dayText(shown.index)}</span>

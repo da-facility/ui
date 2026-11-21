@@ -9,10 +9,12 @@ export function PanelButtonExample(_: ExampleProps) {
   const [shape, setShape] = useState('all');
   const [author, setAuthor] = useState('');
   const count = (added !== 'any' ? 1 : 0) + (shape !== 'all' ? 1 : 0) + (author ? 1 : 0);
+  // What the sheet's closing button says it shows: a made-up count of what the choices leave.
+  const shown = Math.round(960 / 2 ** count);
   return <main className="panel-button-example">
     <h1>Panel button</h1>
     <div className="panel-button-example__bar">
-      <PanelButton label="Filters" count={count}>
+      <PanelButton label="Filters" count={count} doneLabel={count === 0 ? 'Show photos' : `Show ${shown} photos`}>
         <div className="panel-button-example__row">
           <span>Added</span>
           <SegmentedControl label="Added" value={added} onChange={setAdded}>

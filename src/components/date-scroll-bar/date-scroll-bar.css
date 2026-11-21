@@ -7,7 +7,8 @@
   top: calc(var(--da-date-scroll-bar-top, var(--sidebar-layout-header, 0px)) + 12px);
   bottom: calc(var(--sidebar-layout-chrome-bottom, 0px) + 12px);
   right: var(--sidebar-layout-content-end, 0px);
-  width: var(--da-date-scroll-bar-width, 56px);
+  /* Room for a month's whole name left of the rail (the longest, "September", about 52 px at 11 px). */
+  width: var(--da-date-scroll-bar-width, 88px);
   pointer-events: none;
   font-family: var(--font-family-body, inherit);
 }
@@ -54,8 +55,15 @@
   transform: translateY(-50%);
   font-size: 11px;
   line-height: 14px;
+  text-align: right;
   white-space: nowrap;
   color: var(--color-text-secondary, #666);
+}
+
+/* The year where it begins, under the month's name. */
+.date-scroll-bar__year {
+  display: block;
+  font-weight: 600;
 }
 
 /*
