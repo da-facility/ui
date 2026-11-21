@@ -133,7 +133,8 @@ function MiddleExample({tweaks, withDates = false}: Pick<ExampleProps, 'tweaks'>
   const [days, setDays] = useState<Set<string>>(() => new Set());
   const [except, setExcept] = useState<Set<string>>(() => new Set());
   const dayKey = (item: Tile) => String(item.day);
-  const selectedNow = useMemo(() => new Set(items.filter(item => days.has(dayKey(item)) ? !except.has(item.id) : selected.has(item.id)).map(item => item.id)), [items, days, except, selected]);
+  // Only where the example selects (its tweak), and the same set while no day is selected: a new one with every page would redraw every drawn block.
+  const selectedNow = useMemo(() => !tweaks.selectable || days.size === 0 ? selected : new Set(items.filter(item => days.has(dayKey(item)) ? !except.has(item.id) : selected.has(item.id)).map(item => item.id)), [tweaks.selectable, items, days, except, selected]);
   const changeSelection = useCallback((next: Set<string>) => {
     const out = new Set(except);
     const picked = new Set(selected);
@@ -147,12 +148,14 @@ function MiddleExample({tweaks, withDates = false}: Pick<ExampleProps, 'tweaks'>
     setExcept(out);
     setSelected(picked);
   }, [items, days, except, selected]);
+  // A photo's day from its id (photo-<index>): only the photos picked or taken out are looked at, never all 10,000.
+  const dayOfId = (id: string) => dayKey(all[Number(id.replace(/\D/g, ''))]);
   const sectionSelection = useMemo(() => ({
     stateOf: (key: string) => days.has(key)
-      ? (all.some(item => dayKey(item) === key && except.has(item.id)) ? 'some' as const : 'all' as const)
-      : (all.some(item => dayKey(item) === key && selected.has(item.id)) ? 'some' as const : 'none' as const),
+      ? ([...except].some(id => dayOfId(id) === key) ? 'some' as const : 'all' as const)
+      : ([...selected].some(id => dayOfId(id) === key) ? 'some' as const : 'none' as const),
     onToggle: (key: string) => {
-      const whole = days.has(key) && !all.some(item => dayKey(item) === key && except.has(item.id));
+      const whole = days.has(key) && ![...except].some(id => dayOfId(id) === key);
       setDays(current => { const next = new Set(current); if (whole) next.delete(key); else next.add(key); return next; });
       setExcept(current => new Set([...current].filter(id => dayKey(all[Number(id.replace(/\D/g, ''))]) !== key)));
       setSelected(current => new Set([...current].filter(id => dayKey(all[Number(id.replace(/\D/g, ''))]) !== key)));
@@ -186,7 +189,7 @@ function MiddleExample({tweaks, withDates = false}: Pick<ExampleProps, 'tweaks'>
       selectedIds={selectedNow}
       onSelectionChange={tweaks.selectable ? changeSelection : undefined}
       sectionSelection={tweaks.selectable ? sectionSelection : undefined}
-      isSelecting={days.size > 0}
+      isSelecting={Boolean(tweaks.selectable) && days.size > 0}
       isDone={runs.at(-1)?.to === ROWS_LARGE}
       label="Photos"
       focusId={all[MIDDLE_START].id}

@@ -15,6 +15,7 @@ New:
 Other changes:
 
 - `MediaGrid` rows: the stand-ins of what isn't loaded take the shapes of the first 24 items loaded, kept once there are 24, instead of all of them, which every arriving page changed: an estimate of thousands of stand-ins no longer re-breaks with each page. Returning to photo 9,500 of 10,000 and loading three pages above it changed the page's height by 4,425 px on a computer and 42,131 px on a phone, now by 433 and 108 (the window never moved, the scroll bar did).
+- `DateScrollBar`: a pointer move with the mouse where it was (WebKit sends one when the page scrolls under a mouse at rest, as after a jump) no longer replaces the day the keyboard chose: Arrow keys after a click on the bar went back to the day under the mouse about one time in nine.
 - `MediaTile`: a caption line with a mark that doesn't start it is cut around the mark when it doesn't fit, what stands before the mark giving way first ("…" at its start), then the line's end, so the marked part (the word a search found) is always seen. A line that fits reads whole.
 
 ## 1.9.0

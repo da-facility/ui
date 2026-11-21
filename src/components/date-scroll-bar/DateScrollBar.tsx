@@ -156,12 +156,18 @@ export function DateScrollBar({days, onJump, current, label, timeline, formatDay
     if (event.button !== 0) return;
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
+    lastPointer.current = {x: event.clientX, y: event.clientY};
     dragging.current = true;
     setPointed({index: dayAt(event.clientY), at: fractionAt(event.clientY), mode: 'drag'});
   };
+  // Where the mouse last was: a move event with the mouse where it was (WebKit sends one when the page scrolls under a
+  // mouse at rest, as after a jump) names nothing new, so the day chosen by the keyboard stays.
+  const lastPointer = useRef<{x: number; y: number} | null>(null);
   const move = (event: PointerEvent<HTMLElement>) => {
+    const still = lastPointer.current?.x === event.clientX && lastPointer.current?.y === event.clientY;
+    lastPointer.current = {x: event.clientX, y: event.clientY};
     if (dragging.current) setPointed({index: dayAt(event.clientY), at: fractionAt(event.clientY), mode: 'drag'});
-    else if (event.pointerType === 'mouse') setPointed({index: dayAt(event.clientY), at: fractionAt(event.clientY), mode: 'hover'});
+    else if (event.pointerType === 'mouse' && !(still && pointed?.mode === 'keys')) setPointed({index: dayAt(event.clientY), at: fractionAt(event.clientY), mode: 'hover'});
   };
   const up = (event: PointerEvent<HTMLElement>) => {
     if (!dragging.current) return;

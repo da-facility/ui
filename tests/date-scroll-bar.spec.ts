@@ -97,8 +97,13 @@ test('a click jumps too, the keyboard moves a day, a month, to the ends, and the
   await page.keyboard.press('Home');
   await expect(bar(page)).toHaveAttribute('aria-valuenow', '0');
   await expect(bar(page)).toHaveAttribute('aria-valuetext', /January 1, 2025/);
+  // The jump lands (its run loaded, its section brought to the window) while the mouse rests on the bar since the click:
+  // the page scrolling under it (WebKit then sends a move) must not take the day the keyboard chose.
+  await expect.poll(async () => (await runs(page)).some(run => run.from === 0)).toBe(true);
+  await expect(page.locator('.media-tile[aria-posinset="1"]')).toBeInViewport();
   await page.keyboard.press('ArrowDown');
   await expect(bar(page)).toHaveAttribute('aria-valuetext', /January 2, 2025/);
+  await expect(page.locator('.media-tile[aria-posinset="38"]')).toBeInViewport();
   await page.keyboard.press('PageDown');
   await expect(bar(page)).toHaveAttribute('aria-valuetext', /February 1, 2025/);
   await page.keyboard.press('End');
