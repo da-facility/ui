@@ -9,10 +9,12 @@ New:
 - `SearchField`: a list's search in its toolbar, with a button that clears it and, with `toggle`, a second way to search behind a button at its end (such as "AI search", "AI" on phones), pressed in the accent. 32px tall, 44px on phones. Types `SearchFieldProps` and `SearchFieldToggle`.
 - `MediaGrid` rows and `MediaTile`: `caption.marks` underlines parts of a caption's lines, such as the words a search found.
 - `MediaGrid` rows: `scrollToSection` (`{key, request}`) brings a section to the window's top, under a sticky heading's place, once per new `request`, also a section of a stretch not loaded yet (the window lands on its stand-ins); with `gaps` the app loads the run there, and the window stays on it as its pages arrive. `/media-grid/rows-dates` in the catalogue jumps with a `DateScrollBar`.
+- `MediaGrid` rows: `minTileAspect` keeps every tile at least that wide for its height (1: a square), the photo whole inside a wider tile, for a list whose captions must always be read, such as a search's results: a tall photo's tile has room for its two lines.
 
 Other changes:
 
 - `MediaGrid` rows: the stand-ins of what isn't loaded take the shapes of the first 24 items loaded, kept once there are 24, instead of all of them, which every arriving page changed: an estimate of thousands of stand-ins no longer re-breaks with each page. Returning to photo 9,500 of 10,000 and loading three pages above it changed the page's height by 4,425 px on a computer and 42,131 px on a phone, now by 433 and 108 (the window never moved, the scroll bar did).
+- `MediaTile`: a caption line with a mark that doesn't start it is cut around the mark when it doesn't fit, what stands before the mark giving way first ("…" at its start), then the line's end, so the marked part (the word a search found) is always seen. A line that fits reads whole.
 
 ## 1.9.0
 

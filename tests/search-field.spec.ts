@@ -49,3 +49,34 @@ test('has no accessibility violations, light and dark, empty and searching', asy
     expect((await new AxeBuilder({page}).analyze()).violations).toEqual([]);
   }
 });
+
+test('a marked word late in a long caption is seen whole in every tile, cut around; no result tile is narrower than a square', async ({page}) => {
+  await page.goto('/render/search-field');
+  await page.getByRole('searchbox', {name: 'Search photos'}).fill('sunset');
+  await expect(page.locator('.media-tile').first()).toBeVisible();
+  const tiles = page.locator('.media-tile');
+  for (let i = 0; i < await tiles.count(); i++) {
+    const tile = (await tiles.nth(i).boundingBox())!;
+    const mark = (await tiles.nth(i).locator('.media-tile__term').first().boundingBox())!;
+    expect(mark.x).toBeGreaterThanOrEqual(tile.x);
+    expect(mark.x + mark.width).toBeLessThanOrEqual(tile.x + tile.width + 0.5);
+    // What stood before it gave way, its start cut ("…").
+    await expect(tiles.nth(i).locator('.media-tile__caption-lead')).toBeVisible();
+  }
+  // A tall photo (the lighthouse) gets a square tile, the photo whole inside it.
+  await page.getByRole('searchbox', {name: 'Search photos'}).fill('lighthouse');
+  const tall = page.locator('.media-tile').first();
+  await expect(tall).toBeVisible();
+  const box = (await tall.boundingBox())!;
+  expect(box.width).toBeGreaterThanOrEqual(box.height - 1);
+  await expect(tall).toHaveAttribute('data-fit', 'contain');
+  await expect(tall.locator('.media-tile__caption')).toBeVisible();
+});
+
+test('a caption line that fits reads whole, with no cut', async ({page}) => {
+  await page.goto('/render/search-field');
+  await page.getByRole('searchbox', {name: 'Search photos'}).fill('img');
+  const title = page.locator('.media-tile__caption-title').first();
+  await expect(title).toBeVisible();
+  await expect(title.locator('.media-tile__caption-lead')).toHaveCount(0);
+});

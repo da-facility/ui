@@ -55,6 +55,7 @@ export function RowsGrid<Item extends MediaGridItem>({
   stickySections = false,
   sectionHeadingLevel = 2,
   captions = 'hover',
+  minTileAspect = 0,
   loadAhead = 3,
   gaps,
   onLoadGap,
@@ -148,7 +149,7 @@ export function RowsGrid<Item extends MediaGridItem>({
   const layout = useMemo<GridLayout | null>(() => {
     if (!metrics) return null;
     const aspects = new Float64Array(items.length);
-    items.forEach((item, index) => { aspects[index] = aspectOf(item.width, item.height); });
+    items.forEach((item, index) => { aspects[index] = Math.max(minTileAspect, aspectOf(item.width, item.height)); });
     if (!shapeSample.current || shapeSample.current.length < SHAPE_SAMPLE) shapeSample.current = aspects.slice(0, SHAPE_SAMPLE);
     const layoutGaps: LayoutGap[] = (gaps ?? []).map(gap => ({at: Math.min(gap.at, items.length), count: Math.max(0, gap.count), sections: gap.sections}));
     const pins = new Map<number, 'forward' | 'backward'>();
@@ -227,7 +228,7 @@ export function RowsGrid<Item extends MediaGridItem>({
     }
     previous.current = kept;
     return next;
-  }, [items, sections, placeholders, metrics, gaps]);
+  }, [items, sections, placeholders, metrics, gaps, minTileAspect]);
 
   // Handlers read the latest props through a ref, so tiles get the same
   // functions on every render and only the tiles that change re-render.
@@ -517,7 +518,7 @@ export function RowsGrid<Item extends MediaGridItem>({
             width={item.width}
             height={item.height}
             href={(getHref as (item: MediaGridItem, index: number) => string)(item, index)}
-            place={{flexGrow: aspectOf(item.width, item.height), flexBasis: `calc(${aspectOf(item.width, item.height)} * var(--media-grid-row-height))`}}
+            place={{flexGrow: Math.max(minTileAspect, aspectOf(item.width, item.height)), flexBasis: `calc(${Math.max(minTileAspect, aspectOf(item.width, item.height))} * var(--media-grid-row-height))`}}
             caption={item.caption}
             position={lead + index + 1}
             setSize={setSize}

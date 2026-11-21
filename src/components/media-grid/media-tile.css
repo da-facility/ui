@@ -190,6 +190,31 @@
   font-weight: 600;
 }
 
+/* A line with a mark inside it, cut around the mark: the part before it gives way first, cut at its start ("…"),
+   then the line's end, so the marked part is always seen. */
+.media-tile__caption-cut {
+  display: flex;
+  min-width: 0;
+}
+
+.media-tile__caption-lead {
+  flex: 0 100000 auto;
+  min-width: 1.2em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl;
+  text-align: left;
+}
+
+.media-tile__caption-rest {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* A marked part (such as the words a search found): underlined in the caption's own colour, on the photo's shade. */
 .media-tile__term {
   background: none;

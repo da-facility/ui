@@ -19,19 +19,37 @@ export type MediaTileCaption = {
   marks?: {title?: ReadonlyArray<readonly [number, number]>; text?: ReadonlyArray<readonly [number, number]>};
 };
 
-/** A caption line with its marked ranges as `<mark>`. */
-function marked(line: string, ranges: ReadonlyArray<readonly [number, number]> | undefined) {
+/** A caption line's text with its marked ranges as `<mark>`. */
+function marked(line: string, ranges: ReadonlyArray<readonly [number, number]> | undefined, offset = 0) {
   if (!ranges?.length) return line;
   const out: ReactNode[] = [];
   let at = 0;
-  for (const [start, end] of ranges) {
+  for (const [from, to] of ranges) {
+    const start = from - offset;
+    const end = to - offset;
     if (start < at || end <= start || end > line.length) continue;
     if (start > at) out.push(line.slice(at, start));
-    out.push(<mark key={start} className="media-tile__term">{line.slice(start, end)}</mark>);
+    out.push(<mark key={from} className="media-tile__term">{line.slice(start, end)}</mark>);
     at = end;
   }
   if (at < line.length) out.push(line.slice(at));
   return out;
+}
+
+/**
+ * A caption line. With a mark that doesn't start it, the line is cut around the mark when it doesn't fit: what
+ * stands before the mark gives way first (cut at its start, "…"), then the end of the line, so the marked part (the
+ * word a search found) is always seen. A line that fits reads whole.
+ */
+function CaptionLine({className, line, ranges}: {className: string; line: string; ranges: ReadonlyArray<readonly [number, number]> | undefined}) {
+  const first = ranges?.find(([start, end]) => start >= 0 && end > start && end <= line.length);
+  if (!first || first[0] === 0) return <span className={className}>{marked(line, ranges)}</span>;
+  // The space before the mark stays a space where the lead's end meets it.
+  const lead = line.slice(0, first[0]).replace(/\s$/, '\u00a0');
+  return <span className={`${className} media-tile__caption-cut`}>
+    <span className="media-tile__caption-lead"><bdi>{lead}</bdi></span>
+    <span className="media-tile__caption-rest">{marked(line.slice(first[0]), ranges, first[0])}</span>
+  </span>;
 }
 
 export type MediaTileProps = {
@@ -198,8 +216,8 @@ export const Tile = memo(function Tile({src, state, alt, width, height, href, in
           </span>
         : <img className="media-tile__image" src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async" draggable={false} onError={() => setBrokenSrc(src ?? null)} />}
       {caption && <span className="media-tile__caption" aria-hidden="true">
-        <span className="media-tile__caption-title">{marked(caption.title, caption.marks?.title)}</span>
-        {caption.text && <span className="media-tile__caption-text">{marked(caption.text, caption.marks?.text)}</span>}
+        <CaptionLine className="media-tile__caption-title" line={caption.title} ranges={caption.marks?.title} />
+        {caption.text && <CaptionLine className="media-tile__caption-text" line={caption.text} ranges={caption.marks?.text} />}
       </span>}
       {isSelected && <span className="media-tile__visually-hidden">, {t('@da-facility.mediaTile.selected')}</span>}
     </Link>

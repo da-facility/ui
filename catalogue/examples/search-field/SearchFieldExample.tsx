@@ -21,7 +21,7 @@ export function SearchFieldExample(_: ExampleProps) {
   const [submitted, setSubmitted] = useState('');
   const words = value.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
   const items = useMemo(() => photos
-    .map(p => ({id: p.id, src: p.thumbUrl, alt: p.alt, width: p.width, height: p.height, caption: {title: p.fileName, text: p.alt}}))
+    .map(p => ({id: p.id, src: p.thumbUrl, alt: p.alt, width: p.width, height: p.height, caption: {title: p.fileName, text: `Taken at first light on the coast near the old harbour wall: ${p.alt}`}}))
     .filter(item => words.every(w => `${item.caption.title} ${item.caption.text}`.toLowerCase().includes(w)))
     .map(item => ({...item, caption: {...item.caption, marks: {title: rangesIn(item.caption.title, words), text: rangesIn(item.caption.text, words)}}})), [value]);
   return <main className="search-field-example">
@@ -37,6 +37,7 @@ export function SearchFieldExample(_: ExampleProps) {
       />
     </div>
     <p className="search-field-example__status">{byContent ? 'Searching by what is in the picture.' : 'Searching the text.'}{submitted ? ` Submitted: ${submitted}.` : ''}</p>
-    <MediaGrid layout="rows" items={items} captions="always" label="Photos" isDone getHref={item => `#${item.id}`} />
+    {/* Results: every caption read, so no tile narrower than a square. */}
+    <MediaGrid layout="rows" items={items} captions="always" minTileAspect={1} label="Photos" isDone getHref={item => `#${item.id}`} />
   </main>;
 }

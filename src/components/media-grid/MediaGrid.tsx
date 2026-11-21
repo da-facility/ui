@@ -152,6 +152,12 @@ export type MediaGridProps<Item extends MediaGridItem> = {
   /** `layout="rows"`: captions on hover and keyboard focus (`hover`, the default), or always, as for touch screens. */
   captions?: 'hover' | 'always';
   /**
+   * `layout="rows"`: no tile narrower than this shape (width to height, such as 1 for a square), the photo shown
+   * whole inside a wider tile, as a panorama's is. For a list whose captions must always be read, such as a search's
+   * results: a tall photo's tile keeps room for its two lines. Default: the photo's own shape.
+   */
+  minTileAspect?: number;
+  /**
    * `layout="rows"`: ask for the next page while the end of what is loaded is
    * this many screens below the window or nearer. Defaults to 3.
    */
