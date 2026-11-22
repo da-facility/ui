@@ -212,8 +212,10 @@ export function MediaViewer({
   // Per item, the largest size chosen so far: a smaller window never trades it for a smaller one.
   const chosen = useRef(new Map<string, {url: string; width: number}>());
   const pick = (of: MediaViewerItem) => {
+    // An item without sizes (yet: an app's list card before its details) shows its preview and binds nothing.
+    if (!of.sources?.length) return of.previewUrl;
     // Until the stage is measured an item with sizes waits (its thumbnail shows): nothing larger is fetched by mistake.
-    if (!stage && of.sources?.length) return null;
+    if (!stage) return null;
     const want = viewerSource(of, stage, pixelRatio);
     const had = chosen.current.get(of.id);
     // Another set of addresses for the item (a new hour's): the same size from the new set.

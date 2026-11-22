@@ -326,3 +326,11 @@ test('saving data: nothing is loaded ahead, only the image shown', async ({page}
   const shown = await preview(page).getAttribute('src');
   expect(requested.filter(url => /size=(preview|mid)/.test(url) && !url.endsWith(shown!.replace(/^.*\//, '')))).toEqual([]);
 });
+
+test('an item that gets its sizes later (a list card, then its details) takes the smallest sharp one, not the preview it showed first', async ({page}) => {
+  await page.setViewportSize({width: 1280, height: 800});
+  await presetTweaks(page, 'media-viewer', {sizesLater: true});
+  await page.goto('/render/media-viewer');
+  for (let tries = 0; tries < 9 && (await page.locator('.media-viewer__photo').evaluate(element => element.clientWidth / element.clientHeight)) < 1; tries++) await page.keyboard.press('ArrowRight');
+  await expect(preview(page)).toHaveAttribute('src', /size=mid/);
+});

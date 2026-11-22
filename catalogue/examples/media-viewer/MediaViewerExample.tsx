@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Button, MediaViewer, type MediaViewerItem} from '@da-facility/ui';
 import {demoPhoto, type DemoPhoto} from '../shared/photos';
 import {PhotoDetails} from '../shared/PhotoDetails';
@@ -22,6 +22,13 @@ export function viewerItem(photo: DemoPhoto, isZoomable = true): MediaViewerItem
 
 export function MediaViewerExample({tweaks}: ExampleProps) {
   const [index, setIndex] = useState<number | null>(13);
+  // As an app whose list knows only the thumbnail: the sizes come a moment after each item.
+  const [detailed, setDetailed] = useState<number | null>(null);
+  useEffect(() => {
+    if (!tweaks.sizesLater) return;
+    const timer = setTimeout(() => setDetailed(index), 300);
+    return () => clearTimeout(timer);
+  }, [index, tweaks.sizesLater]);
   const at = (position: number) => position >= 0 && position < TOTAL ? viewerItem(demoPhoto(position), !tweaks.noZoom) : null;
 
   return <main className="media-viewer-example">
@@ -29,7 +36,7 @@ export function MediaViewerExample({tweaks}: ExampleProps) {
     <p>Arrow keys or swipes move, a click or + zooms, I toggles the details, Escape closes.</p>
     <Button label="Open the viewer" variant="primary" onClick={() => setIndex(13)} />
     {index != null && <MediaViewer
-      item={at(index)!}
+      item={tweaks.sizesLater && detailed !== index ? {...at(index)!, sources: undefined} : at(index)!}
       title={demoPhoto(index).fileName}
       position={index + 1}
       total={TOTAL}

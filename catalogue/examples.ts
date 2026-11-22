@@ -195,6 +195,7 @@ export const examples: Example[] = [
       {id: 'noPanel', label: 'Without the side panel', group: 'Parts'},
       {id: 'noZoom', label: 'No larger image to zoom into', group: 'Parts'},
       {id: 'saveData', label: 'Saving data: nothing loaded ahead', group: 'Loading'},
+      {id: 'sizesLater', label: 'Sizes arrive after the item', group: 'Loading'},
     ],
     Component: MediaViewerExample,
   },
