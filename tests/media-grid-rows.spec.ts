@@ -186,7 +186,7 @@ test('the phone viewer: the file name, then the position on its own line, whole,
 test('an image that doesn’t load: the tile says so and still opens; the viewer says so with Try again', async ({page}) => {
   await presetTweaks(page, 'media-grid', {rows: true, selectable: true});
   let failing = true;
-  await page.route(/\?size=(thumb|preview)/, route => (failing ? route.abort() : route.continue()));
+  await page.route(/\?size=(thumb|mid|preview)/, route => (failing ? route.abort() : route.continue()));
   await page.goto('/render/media-grid');
   await expect(tile(page, 0)).toHaveAttribute('data-state', 'failed');
   await expect(link(page, 0)).toHaveAccessibleName(/, couldn’t be loaded$/);
