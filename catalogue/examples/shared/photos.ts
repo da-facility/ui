@@ -15,15 +15,15 @@ import tree from './photos/tree.svg?no-inline';
  * tests can hold back, while the file served is the same.
  */
 const scenes = [
-  {name: 'Mountains', url: mountains, width: 3000, height: 2000},
-  {name: 'Sea at sunset', url: sea, width: 3000, height: 2000},
-  {name: 'Wheat field', url: field, width: 3000, height: 2000},
-  {name: 'City at night', url: city, width: 3000, height: 2000},
-  {name: 'Lighthouse', url: tower, width: 2000, height: 3000},
-  {name: 'Forest', url: forest, width: 3000, height: 2000},
-  {name: 'Desert', url: desert, width: 3000, height: 2000},
-  {name: 'Floodlights', url: lights, width: 3000, height: 2000},
-  {name: 'Autumn tree', url: tree, width: 2000, height: 3000},
+  {name: 'Mountains', url: mountains, width: 3000, height: 2000, color: '#6f8fae'},
+  {name: 'Sea at sunset', url: sea, width: 3000, height: 2000, color: '#c9774f'},
+  {name: 'Wheat field', url: field, width: 3000, height: 2000, color: '#c8a94c'},
+  {name: 'City at night', url: city, width: 3000, height: 2000, color: '#27304a'},
+  {name: 'Lighthouse', url: tower, width: 2000, height: 3000, color: '#5c87a8'},
+  {name: 'Forest', url: forest, width: 3000, height: 2000, color: '#36573a'},
+  {name: 'Desert', url: desert, width: 3000, height: 2000, color: '#c99a62'},
+  {name: 'Floodlights', url: lights, width: 3000, height: 2000, color: '#2a2f3a'},
+  {name: 'Autumn tree', url: tree, width: 2000, height: 3000, color: '#a8642e'},
 ] as const;
 
 export type DemoPhoto = {
@@ -34,6 +34,10 @@ export type DemoPhoto = {
   thumbUrl: string;
   previewUrl: string;
   fullUrl: string;
+  /** A 1280px copy beside the preview, with the pixel widths of both: the viewer's `sources`. */
+  sources: {url: string; width: number}[];
+  /** The scene's own colour, a tile's `placeholder`. */
+  color: string;
   width: number;
   height: number;
 };
@@ -49,6 +53,8 @@ export function demoPhoto(index: number): DemoPhoto {
     thumbUrl: `${scene.url}?size=thumb`,
     previewUrl: `${scene.url}?size=preview`,
     fullUrl: `${scene.url}?size=full`,
+    sources: [1280, 2048].map(edge => ({url: edge === 2048 ? `${scene.url}?size=preview` : `${scene.url}?size=mid`, width: Math.round(scene.width * edge / Math.max(scene.width, scene.height))})),
+    color: scene.color,
     width: scene.width,
     height: scene.height,
   };

@@ -9,6 +9,13 @@ export type MediaViewerItem = {
   id: string;
   /** The image fitted in the stage, such as a 2048px preview. */
   previewUrl: string;
+  /**
+   * The fitted image in more than one size, such as 1280px and 2048px copies, each with its pixel width: the viewer
+   * shows the smallest that is sharp at the size it is drawn (its width in device pixels), and a larger one only when
+   * the window grows to need it, never a smaller one again for the same item. `previewUrl` stands in where none is
+   * large enough, and is what it shows without them.
+   */
+  sources?: {url: string; width: number}[];
   /** A small rendition shown scaled up while the preview loads, such as the grid's thumbnail. */
   thumbUrl?: string;
   /**
@@ -78,7 +85,22 @@ export type MediaViewerProps = {
    * true; turn it off where zoom is never offered.
    */
   reserveZoom?: boolean;
+  /**
+   * Items to load ahead besides `previous` and `next` (which always are), in the order given, in the size the stage
+   * would show them: such as the next two in the direction of travel. The app leaves it out where the person saves
+   * data.
+   */
+  preload?: MediaViewerItem[];
 };
+
+/** The size of `item` to show on a stage of `stage` CSS pixels (see `MediaViewerItem.sources`). */
+export function viewerSource(item: MediaViewerItem, stage: {width: number; height: number} | null, pixelRatio = 1): {url: string; width: number} {
+  const sources = item.sources?.length ? [...item.sources].sort((a, b) => a.width - b.width) : null;
+  if (!sources || !stage || !item.width || !item.height) return {url: item.previewUrl, width: Infinity};
+  const drawn = Math.min(stage.width, stage.height * (item.width / item.height)) * pixelRatio;
+  // Within 2 %: a copy a few pixels narrower than the drawing is as sharp.
+  return sources.find(s => s.width >= drawn * 0.98) ?? {url: item.previewUrl, width: Infinity};
+}
 
 /** A magnifier with a plus (zoom in) or a minus (back to fit), drawn in the current colour. */
 function ZoomIcon({isOut}: {isOut: boolean}) {
@@ -121,6 +143,7 @@ export function MediaViewer({
   label,
   returnFocus,
   reserveZoom = true,
+  preload,
 }: MediaViewerProps) {
   const t = useMessages();
   const id = useId();
@@ -167,6 +190,37 @@ export function MediaViewer({
     };
   }, []);
 
+  // The stage's size, for the size of image it needs (sources): measured before paint and when the window changes.
+  const [stage, setStage] = useState<{width: number; height: number} | null>(null);
+  useLayoutEffect(() => {
+    const element = stageRef.current;
+    if (!element) return;
+    const measure = () => setStage(current => {
+      const width = element.clientWidth;
+      const height = element.clientHeight;
+      return current && current.width === width && current.height === height ? current : {width, height};
+    });
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+  const pixelRatio = typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1;
+  // Per item, the largest size chosen so far: a smaller window never trades it for a smaller one.
+  const chosen = useRef(new Map<string, {url: string; width: number}>());
+  const pick = (of: MediaViewerItem) => {
+    // Until the stage is measured an item with sizes waits (its thumbnail shows): nothing larger is fetched by mistake.
+    if (!stage && of.sources?.length) return null;
+    const want = viewerSource(of, stage, pixelRatio);
+    const had = chosen.current.get(of.id);
+    // Another set of addresses for the item (a new hour's): the same size from the new set.
+    const fresh = had && of.sources?.find(s => s.width === had.width);
+    const keep = had && (had.width >= want.width) ? (fresh ?? (had.width === Infinity ? {url: of.previewUrl, width: Infinity} : had)) : want;
+    if (!had || keep !== had) chosen.current.set(of.id, keep);
+    return keep.url;
+  };
+  const shownUrl = pick(item);
+
   // A new item starts fitted, and its position is announced.
   const shownId = useRef(item.id);
   useEffect(() => {
@@ -178,15 +232,18 @@ export function MediaViewer({
       : item.alt);
   }, [item.id, item.alt, position, total, t]);
 
-  // The neighbours' previews load ahead, so moving shows them at once.
+  // The neighbours' previews (and what the app names in `preload`) load ahead, in the size the stage would show,
+  // so moving shows them at once.
+  const ahead = [...(preload ?? []), previous, next].filter((x): x is MediaViewerItem => Boolean(x) && x!.id !== item.id).map(pick);
+  const aheadKey = [...new Set(ahead.filter(Boolean))].join(' ');
   useEffect(() => {
-    for (const neighbour of [previous, next]) {
-      if (!neighbour) continue;
+    if (!aheadKey) return;
+    for (const url of aheadKey.split(' ')) {
       const image = new Image();
       image.decoding = 'async';
-      image.src = neighbour.previewUrl;
+      image.src = url;
     }
-  }, [previous?.previewUrl, next?.previewUrl]);
+  }, [aheadKey]);
 
   function setZoom(next: Zoom | null) {
     setZoomState(current => {
@@ -321,7 +378,7 @@ export function MediaViewer({
   }
 
   const ratio = item.width / item.height;
-  const isPreviewLoaded = loaded.preview === item.previewUrl;
+  const isPreviewLoaded = loaded.preview === shownUrl;
   const isFullLoaded = loaded.full === item.fullUrl;
   const titleId = `${id}-title`;
   const hasTitle = title != null && title !== false && title !== '';
@@ -389,7 +446,7 @@ export function MediaViewer({
       >
         {zoom
           ? <div className="media-viewer__zoomed" style={{width: item.width, height: item.height, transform: `translate(${zoom.left}px, ${zoom.top}px)`}}>
-              <img className="media-viewer__image" src={item.previewUrl} alt="" draggable={false} />
+              <img className="media-viewer__image" src={shownUrl ?? item.previewUrl} alt="" draggable={false} />
               <img
                 className="media-viewer__image media-viewer__image--full"
                 src={item.fullUrl}
@@ -405,18 +462,18 @@ export function MediaViewer({
               }} />}
               <img
                 className="media-viewer__image media-viewer__image--preview"
-                src={item.previewUrl}
+                src={shownUrl ?? undefined}
                 alt={item.alt}
                 draggable={false}
                 data-loaded={isPreviewLoaded || !item.thumbUrl || undefined}
                 ref={image => {
-                  if (image?.complete && image.naturalWidth > 0 && loaded.preview !== item.previewUrl) setLoaded(current => ({...current, preview: item.previewUrl}));
+                  if (image?.complete && image.naturalWidth > 0 && loaded.preview !== shownUrl) setLoaded(current => ({...current, preview: shownUrl}));
                 }}
-                onLoad={() => setLoaded(current => ({...current, preview: item.previewUrl}))}
-                onError={() => setFailedPreview(item.previewUrl)}
+                onLoad={() => setLoaded(current => ({...current, preview: shownUrl}))}
+                onError={() => setFailedPreview(shownUrl)}
                 key={attempt}
               />
-              {failedPreview === item.previewUrl && !isPreviewLoaded && <div className="media-viewer__failed" role="alert">
+              {failedPreview === shownUrl && !isPreviewLoaded && <div className="media-viewer__failed" role="alert">
                 {/* With the thumbnail on screen the person still sees the photo: what is missing is the sharper image. */}
                 <span>{t(item.thumbUrl && loaded.thumb === item.thumbUrl ? '@da-facility.mediaViewer.notLoadedLarger' : '@da-facility.mediaViewer.notLoaded')}</span>
                 <button type="button" className="media-viewer__retry" onClick={() => { setFailedPreview(null); setAttempt(n => n + 1); }}>

@@ -13,11 +13,11 @@ export const ROWS_LARGE = 10_000;
 const TOTAL = 240;
 const PAGE = 60;
 
-type Tile = {id: string; src?: string; state?: 'pending' | 'failed'; alt: string; width: number; height: number; caption: {title: string; text: string}; day: number; photo: DemoPhoto};
+type Tile = {id: string; src?: string; state?: 'pending' | 'failed'; alt: string; width: number; height: number; placeholder: string; caption: {title: string; text: string}; day: number; photo: DemoPhoto};
 /** Photos per made-up day, for the sections. */
 const PER_DAY = 37;
 const toTile = (photo: DemoPhoto, index: number): Tile => ({
-  id: photo.id, src: photo.thumbUrl, alt: photo.alt, width: photo.width, height: photo.height,
+  id: photo.id, src: photo.thumbUrl, alt: photo.alt, width: photo.width, height: photo.height, placeholder: photo.color,
   caption: {title: photo.fileName, text: `${photo.alt} · Ana Horvat`},
   day: Math.floor(index / PER_DAY), photo,
 });
@@ -213,6 +213,8 @@ function PagedExample({page, tweaks}: Pick<ExampleProps, 'page' | 'tweaks'>) {
   const [items, setItems] = useState<Tile[]>(() => isLarge || page === 'rows-large' ? demoPhotos(page === 'rows-large' ? ROWS_LARGE : LARGE).map(toTile) : []);
   const [isDone, setDone] = useState(isLarge || page === 'rows-large');
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
+  // The tile last pointed at, touched or focused (onItemIntent), for the tests.
+  const [intent, setIntent] = useState<string | null>(null);
   const loaded = useRef(items.length);
   // The photo the viewer showed last, for the grid to return to.
   const lastOpened = useRef<string | null>(null);
@@ -248,7 +250,7 @@ function PagedExample({page, tweaks}: Pick<ExampleProps, 'page' | 'tweaks'>) {
     ? (item: Tile) => ({key: String(item.day), title: dayTitle(item.day), meta: `${Math.min(PER_DAY, all - item.day * PER_DAY)} photos`})
     : undefined, [tweaks.sections, page, all]);
   const getHref = useMemo(() => (item: Tile) => `#${item.id}`, []);
-  return <main className="media-grid-example">
+  return <main className="media-grid-example" data-intent={intent ?? undefined}>
     <PageHeader
       breadcrumbs={[{label: 'Northern League', href: '#client'}, {label: 'Finals 2026', href: '#project'}, {label: 'Final'}]}
       title="Final"
@@ -282,6 +284,7 @@ function PagedExample({page, tweaks}: Pick<ExampleProps, 'page' | 'tweaks'>) {
       sectionOf={sectionOf}
       stickySections={Boolean(tweaks.sticky)}
       captions={tweaks.captionsAlways ? 'always' : 'hover'}
+      onItemIntent={item => setIntent(item.id)}
     />}
     {isDone && !isLarge && <p className="media-grid-example__end">All {count} photos are loaded.</p>}
     {openIndex < 0 && <SelectionBar

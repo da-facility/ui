@@ -4,7 +4,8 @@
   min-width: 0;
   aspect-ratio: 3 / 2;
   border-radius: var(--da-media-radius, 4px);
-  background: var(--color-background-muted);
+  /* A photo's own colour while its image comes (placeholder), else the quiet well. */
+  background: var(--da-media-tile-placeholder, var(--color-background-muted));
   -webkit-tap-highlight-color: transparent;
 }
 

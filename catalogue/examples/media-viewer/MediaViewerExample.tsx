@@ -12,6 +12,7 @@ export function viewerItem(photo: DemoPhoto, isZoomable = true): MediaViewerItem
     id: photo.id,
     previewUrl: photo.previewUrl,
     thumbUrl: photo.thumbUrl,
+    sources: photo.sources,
     fullUrl: isZoomable ? photo.fullUrl : undefined,
     width: photo.width,
     height: photo.height,
@@ -34,6 +35,7 @@ export function MediaViewerExample({tweaks}: ExampleProps) {
       total={TOTAL}
       previous={at(index - 1)}
       next={at(index + 1)}
+      preload={[at(index + 2), at(index + 3)].filter((x): x is MediaViewerItem => x !== null)}
       onPrevious={() => setIndex(index - 1)}
       onNext={() => setIndex(index + 1)}
       onClose={() => setIndex(null)}

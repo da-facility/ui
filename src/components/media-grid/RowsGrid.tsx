@@ -4,6 +4,7 @@ import {Tile} from './MediaTile';
 import {aspectOf, layoutRows, nearestInRow, type Block, type GridLayout, type LayoutGap, type RowMetrics} from './rows';
 import {currentPath, opened} from './restore';
 import type {MediaGridGap, MediaGridGapRequest, MediaGridItem, MediaGridProps, MediaGridSection} from './MediaGrid';
+import {useItemIntent} from './intent';
 
 /** Blocks within this many screens above and below the window are drawn. */
 const DRAWN_SCREENS = 1;
@@ -63,8 +64,10 @@ export function RowsGrid<Item extends MediaGridItem>({
   gaps,
   onLoadGap,
   scrollToSection,
+  onItemIntent,
 }: MediaGridProps<Item>) {
   const t = useMessages();
+  const intent = useItemIntent(items, onItemIntent);
   const headingId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const probeRef = useRef<HTMLDivElement>(null);
@@ -479,6 +482,7 @@ export function RowsGrid<Item extends MediaGridItem>({
   return <div
     ref={rootRef}
     className="media-grid"
+    {...intent}
     data-layout="rows"
     data-captions={captions}
     data-sticky={stickySections || undefined}
@@ -522,6 +526,7 @@ export function RowsGrid<Item extends MediaGridItem>({
             alt={item.alt}
             width={item.width}
             height={item.height}
+            placeholder={item.placeholder}
             href={(getHref as (item: MediaGridItem, index: number) => string)(item, index)}
             place={{flexGrow: Math.max(minTileAspect, aspectOf(item.width, item.height)), flexBasis: `calc(${Math.max(minTileAspect, aspectOf(item.width, item.height))} * var(--media-grid-row-height))`}}
             caption={item.caption}
@@ -591,6 +596,7 @@ const BlockView = memo(function BlockView({block, isDrawn, marginTop, observe, i
             alt={item.alt}
             width={item.width}
             height={item.height}
+            placeholder={item.placeholder}
             href={(getHref as (item: MediaGridItem, index: number) => string)(item, index)}
             place={place}
             caption={item.caption}

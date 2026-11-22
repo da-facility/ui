@@ -58,7 +58,8 @@ test('the thumbnail shows until the preview loads, and neighbours are preloaded'
   page.on('request', request => requested.push(request.url()));
   let release!: () => void;
   const held = new Promise<void>(resolve => { release = resolve; });
-  await page.route(/size=preview/, async route => {
+  // The fitted image in either of its sizes (sources: 1280px or 2048px, as the stage needs).
+  await page.route(/size=(preview|mid)/, async route => {
     if (route.request().frame() === page.mainFrame() && route.request().resourceType() === 'image' && !route.request().isNavigationRequest()) await held;
     await route.continue();
   });
@@ -69,8 +70,29 @@ test('the thumbnail shows until the preview loads, and neighbours are preloaded'
   await expect(preview(page)).toHaveAttribute('data-loaded', 'true');
   await expect(preview(page)).toHaveCSS('opacity', '1');
   await expect(page.locator('.media-viewer__image--thumb')).toHaveCount(0);
-  // Photos 13, 14 and 15 are three different scenes.
-  expect(new Set(requested.filter(url => url.includes('size=preview'))).size, 'this preview and both neighbours').toBe(3);
+  // Photos 13 to 17 (this one, both neighbours and the two after the next, `preload`) in the size each would show.
+  const sized = new Set(requested.filter(url => /size=(preview|mid)/.test(url)).map(url => url.replace(/^.*\/photos\//, '')));
+  expect(sized.size, 'this image, both neighbours and the two preloaded after the next').toBeGreaterThanOrEqual(3);
+});
+
+test('the smallest sharp size: 1280px where it fills the stage, the 2048px preview only when the window needs it, and never back', async ({page}) => {
+  const shown = () => preview(page).getAttribute('src');
+  const requested: string[] = [];
+  page.on('request', request => requested.push(request.url()));
+  // A landscape photo (3000 x 2000) on a stage under 1,280 px wide: the 1280px copy.
+  await page.setViewportSize({width: 1280, height: 800});
+  await page.goto('/render/media-viewer');
+  await expect(preview(page)).toHaveAttribute('data-loaded', 'true');
+  for (let tries = 0; tries < 9 && (await page.locator('.media-viewer__photo').evaluate(element => element.clientWidth / element.clientHeight)) < 1; tries++) await page.keyboard.press('ArrowRight');
+  await expect(preview(page)).toHaveAttribute('src', /size=mid/);
+  expect(requested.some(url => url.includes('size=preview') && url === (requested.find(u => u.includes('size=mid')) ?? '').replace('size=mid', 'size=preview')), 'the shown photo\'s preview was not fetched as well').toBe(false);
+  // A window wide and tall enough to draw it above 1,280 px: the preview, and it stays when the window is small again.
+  await page.setViewportSize({width: 2600, height: 1600});
+  await expect(preview(page)).toHaveAttribute('src', /size=preview/);
+  const large = await shown();
+  await page.setViewportSize({width: 1280, height: 800});
+  await page.waitForTimeout(300);
+  expect(await shown()).toBe(large);
 });
 
 test('previous and next: buttons and arrow keys, announced, hidden at the ends', async ({page}) => {

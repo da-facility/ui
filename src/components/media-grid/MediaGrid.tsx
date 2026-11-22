@@ -2,6 +2,7 @@ import {memo, useCallback, useEffect, useLayoutEffect, useRef, useState, type CS
 import {useMessages} from '../../i18n';
 import {Tile, type MediaTileCaption, type MediaTileState} from './MediaTile';
 import {RowsGrid} from './RowsGrid';
+import {useItemIntent} from './intent';
 import {currentPath, opened} from './restore';
 import './media-grid.css';
 
@@ -27,6 +28,11 @@ export type MediaGridItem = {
   height?: number;
   /** Two lines shown over the tile on hover and keyboard focus (or always, `captions="always"`); `layout="rows"` only. */
   caption?: MediaTileCaption;
+  /**
+   * A CSS colour the tile shows until its image has arrived, such as the photo's dominant colour, so a screen of
+   * tiles has their colours at once. The tile's size doesn't change when the image comes (it is the image's).
+   */
+  placeholder?: string;
 };
 
 /** A section of a grid of rows: its heading, and the meta beside it (such as how many photos it holds). */
@@ -108,6 +114,11 @@ export type MediaGridProps<Item extends MediaGridItem> = {
   sectionSelection?: {stateOf: (key: string) => 'none' | 'some' | 'all'; onToggle: (key: string) => void};
   /** Called when a tile's link is followed, before it navigates. Call `event.preventDefault()` to open it yourself. */
   onOpen?: (item: Item, index: number, event: MouseEvent<HTMLAnchorElement>) => void;
+  /**
+   * Called once when the mouse comes over a tile, a finger touches it or the keyboard focuses it (again only after
+   * another tile), before it may be opened: the moment to start loading what opening it shows. Not called on scroll.
+   */
+  onItemIntent?: (item: Item, index: number) => void;
   /**
    * Asks for the next page once the end of the grid is within two screens.
    * Return a promise, or set `isLoading`, while it loads. Pages may be
@@ -255,8 +266,10 @@ function EvenGrid<Item extends MediaGridItem>({
   focusId,
   label,
   restoreKey,
+  onItemIntent,
 }: MediaGridProps<Item>) {
   const t = useMessages();
+  const intent = useItemIntent(items, onItemIntent);
   const rootRef = useRef<HTMLDivElement>(null);
   const probeRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -412,6 +425,7 @@ function EvenGrid<Item extends MediaGridItem>({
     ref={rootRef}
     className="media-grid"
     role="group"
+    {...intent}
     aria-label={label ?? t('@da-facility.mediaGrid.label')}
     aria-busy={isWaiting || undefined}
     data-selecting={selected.size > 0 || undefined}
@@ -468,6 +482,7 @@ const Chunk = memo(function Chunk({items, start, end, layout, selected, isSelect
           alt={item.alt}
           width={item.width}
           height={item.height}
+          placeholder={item.placeholder}
           href={(getHref as (item: MediaGridItem, index: number) => string)(item, index)}
           isSelected={selected.has(item.id)}
           isSelectable={isSelectable}

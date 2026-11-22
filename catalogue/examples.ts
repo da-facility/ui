@@ -190,7 +190,7 @@ export const examples: Example[] = [
     id: 'media-viewer',
     name: 'Media viewer',
     kind: 'Component',
-    description: 'Full-window image viewer on a dark canvas: fitted image, previous and next, zoom, and a side panel.',
+    description: 'Full-window image viewer on a dark canvas: fitted image in the smallest sharp size (1280px or 2048px), previous and next and the two after the next loaded ahead, zoom, and a side panel.',
     tweaks: [
       {id: 'noPanel', label: 'Without the side panel', group: 'Parts'},
       {id: 'noZoom', label: 'No larger image to zoom into', group: 'Parts'},

@@ -217,3 +217,40 @@ test('the selection mark reads on any photo: a white ring with a tick, on a scri
   expect(look.scrim).toContain('radial-gradient');
   expect(look.shadow).not.toBe('none');
 });
+
+test('a tile shows its photo\'s colour (placeholder) until its image arrives, and keeps its size', async ({page}) => {
+  let release!: () => void;
+  const held = new Promise<void>(resolve => { release = resolve; });
+  await page.route(/size=thumb/, async route => {
+    await held;
+    await route.continue();
+  });
+  await presetTweaks(page, 'media-grid', {rows: true, selectable: true});
+  await page.goto('/render/media-grid');
+  const tile = page.locator('.media-tile[data-index="0"]');
+  await expect(tile).toBeVisible();
+  // The grid's rows laid out (their first measurement), the images still held back.
+  await page.waitForTimeout(500);
+  const before = await tile.boundingBox();
+  // The first photo is the mountains (#6f8fae).
+  await expect(tile).toHaveCSS('background-color', 'rgb(111, 143, 174)');
+  release();
+  await expect(tile.locator('img')).toHaveJSProperty('complete', true);
+  expect(await tile.boundingBox()).toEqual(before);
+});
+
+test('onItemIntent: the tile the mouse comes over or the keyboard focuses, once each', async ({page}, testInfo) => {
+  await presetTweaks(page, 'media-grid', {rows: true, selectable: true});
+  await page.goto('/render/media-grid');
+  const main = page.locator('main.media-grid-example');
+  await expect(page.locator('.media-tile[data-index="2"]')).toBeVisible();
+  if (testInfo.project.name === 'mobile') {
+    await page.locator('.media-tile[data-index="2"] .media-tile__link').dispatchEvent('touchstart');
+    await expect(main).toHaveAttribute('data-intent', 'photo-2');
+    return;
+  }
+  await page.locator('.media-tile[data-index="2"]').hover();
+  await expect(main).toHaveAttribute('data-intent', 'photo-2');
+  await page.locator('.media-tile[data-index="0"] .media-tile__link').focus();
+  await expect(main).toHaveAttribute('data-intent', 'photo-0');
+});

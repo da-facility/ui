@@ -70,6 +70,8 @@ export type MediaTileProps = {
   /** The image's intrinsic size, so the browser can reserve space; the tile is 3:2 either way. */
   width?: number;
   height?: number;
+  /** A CSS colour shown until the image arrives, such as the photo's dominant colour. */
+  placeholder?: string;
   /** Where the tile leads, such as the viewer's route for this photo. Goes through Astryx's `LinkProvider`. */
   href: string;
   /** Whether the tile is selected: a ring around it and a filled tick. */
@@ -89,7 +91,7 @@ export type MediaTileProps = {
 };
 
 /** One image in a grid: a 3:2 tile that is a link and, optionally, selectable. */
-export function MediaTile({src, state, alt, width, height, href, isSelected = false, onSelectedChange, isSelecting, onClick, tabIndex}: MediaTileProps) {
+export function MediaTile({src, state, alt, width, height, placeholder, href, isSelected = false, onSelectedChange, isSelecting, onClick, tabIndex}: MediaTileProps) {
   const toggle = onSelectedChange && ((_: number, isRange: boolean) => onSelectedChange(!isSelected, {isRange}));
   return <Tile
     index={0}
@@ -98,6 +100,7 @@ export function MediaTile({src, state, alt, width, height, href, isSelected = fa
     alt={alt}
     width={width}
     height={height}
+    placeholder={placeholder}
     href={href}
     isSelected={isSelected}
     isSelectable={Boolean(onSelectedChange)}
@@ -144,7 +147,7 @@ function fitsInside(width: number | undefined, height: number | undefined, place
   return Math.abs(width / height - place.width / place.height) / (width / height) > 0.04;
 }
 
-export const Tile = memo(function Tile({src, state, alt, width, height, href, index, place, caption, position, setSize, isSelected, isSelectable, isSelecting, tabIndex, onToggle, onOpen, onKeyDown}: TileProps) {
+export const Tile = memo(function Tile({src, state, alt, width, height, placeholder, href, index, place, caption, position, setSize, isSelected, isSelectable, isSelecting, tabIndex, onToggle, onOpen, onKeyDown}: TileProps) {
   const t = useMessages();
   const Link = useLinkComponent();
   const press = useRef<{timer: number; x: number; y: number; fired: boolean} | null>(null);
@@ -191,7 +194,7 @@ export const Tile = memo(function Tile({src, state, alt, width, height, href, in
     onOpen?.(index, event);
   }
 
-  return <div className="media-tile" data-index={index} data-selected={isSelected || undefined} data-selecting={isSelecting || undefined} data-state={missing} data-narrow={typeof place?.width === 'number' && place.width < 96 ? true : undefined} data-fit={fitsInside(width, height, place) ? 'contain' : undefined} style={place} {...listItem}>
+  return <div className="media-tile" data-index={index} data-selected={isSelected || undefined} data-selecting={isSelecting || undefined} data-state={missing} data-narrow={typeof place?.width === 'number' && place.width < 96 ? true : undefined} data-fit={fitsInside(width, height, place) ? 'contain' : undefined} style={placeholder && src ? {...place, '--da-media-tile-placeholder': placeholder} as CSSProperties : place} {...listItem}>
     <Link
       className="media-tile__link"
       href={href}
