@@ -194,6 +194,7 @@ export const examples: Example[] = [
     tweaks: [
       {id: 'noPanel', label: 'Without the side panel', group: 'Parts'},
       {id: 'noZoom', label: 'No larger image to zoom into', group: 'Parts'},
+      {id: 'saveData', label: 'Saving data: nothing loaded ahead', group: 'Loading'},
     ],
     Component: MediaViewerExample,
   },

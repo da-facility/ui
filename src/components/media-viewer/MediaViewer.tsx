@@ -91,6 +91,8 @@ export type MediaViewerProps = {
    * data.
    */
   preload?: MediaViewerItem[];
+  /** Whether `previous` and `next` load ahead (true by default). Off, with no `preload`, nothing is fetched ahead: where the person saves data. */
+  preloadNeighbours?: boolean;
 };
 
 /** The size of `item` to show on a stage of `stage` CSS pixels (see `MediaViewerItem.sources`). */
@@ -144,6 +146,7 @@ export function MediaViewer({
   returnFocus,
   reserveZoom = true,
   preload,
+  preloadNeighbours = true,
 }: MediaViewerProps) {
   const t = useMessages();
   const id = useId();
@@ -234,7 +237,7 @@ export function MediaViewer({
 
   // The neighbours' previews (and what the app names in `preload`) load ahead, in the size the stage would show,
   // so moving shows them at once.
-  const ahead = [...(preload ?? []), previous, next].filter((x): x is MediaViewerItem => Boolean(x) && x!.id !== item.id).map(pick);
+  const ahead = [...(preload ?? []), ...(preloadNeighbours ? [previous, next] : [])].filter((x): x is MediaViewerItem => Boolean(x) && x!.id !== item.id).map(pick);
   const aheadKey = [...new Set(ahead.filter(Boolean))].join(' ');
   useEffect(() => {
     if (!aheadKey) return;

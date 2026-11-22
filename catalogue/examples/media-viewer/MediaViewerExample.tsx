@@ -35,7 +35,8 @@ export function MediaViewerExample({tweaks}: ExampleProps) {
       total={TOTAL}
       previous={at(index - 1)}
       next={at(index + 1)}
-      preload={[at(index + 2), at(index + 3)].filter((x): x is MediaViewerItem => x !== null)}
+      preload={tweaks.saveData ? undefined : [at(index + 2), at(index + 3)].filter((x): x is MediaViewerItem => x !== null)}
+      preloadNeighbours={!tweaks.saveData}
       onPrevious={() => setIndex(index - 1)}
       onNext={() => setIndex(index + 1)}
       onClose={() => setIndex(null)}

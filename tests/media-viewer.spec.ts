@@ -315,3 +315,14 @@ test('phones: the sheet’s line keeps room under its buttons, and its chevron p
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   await expect.poll(rotation).toBe('0deg');
 });
+
+test('saving data: nothing is loaded ahead, only the image shown', async ({page}) => {
+  await presetTweaks(page, 'media-viewer', {saveData: true});
+  const requested: string[] = [];
+  page.on('request', request => requested.push(request.url()));
+  await page.goto('/render/media-viewer');
+  await expect(preview(page)).toHaveAttribute('data-loaded', 'true');
+  await page.waitForTimeout(500);
+  const shown = await preview(page).getAttribute('src');
+  expect(requested.filter(url => /size=(preview|mid)/.test(url) && !url.endsWith(shown!.replace(/^.*\//, '')))).toEqual([]);
+});
