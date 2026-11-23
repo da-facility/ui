@@ -220,6 +220,7 @@ export const examples: Example[] = [
     tweaks: [
       {id: 'textLevel', label: 'A level without a page', group: 'Content'},
       {id: 'shallow', label: 'One level above', group: 'Content'},
+      {id: 'noPhoneMenu', label: 'Phones: back link alone', group: 'Content'},
     ],
     Component: PageTrailExample,
   },

@@ -125,6 +125,14 @@ test.describe('phones', () => {
     expect(errors).toEqual([]);
   });
 
+  test('hasPhoneMenu={false}: the back link alone, however deep', async ({page}) => {
+    await presetTweaks(page, 'page-trail', {noPhoneMenu: true});
+    await page.goto('/render/page-trail');
+    const nav = trail(page, 'Full width');
+    await expect(nav.getByRole('link', {name: 'Morning race'})).toBeVisible();
+    await expect(nav.getByRole('button')).toHaveCount(0);
+  });
+
   test('one level above: the back link alone', async ({page}) => {
     await presetTweaks(page, 'page-trail', {shallow: true});
     await page.goto('/render/page-trail');

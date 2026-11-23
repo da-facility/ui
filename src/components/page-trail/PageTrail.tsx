@@ -22,6 +22,11 @@ export type PageTrailProps = {
   label?: string;
   /** Class on the `<nav>`, to place the trail in the app's layout. */
   className?: string;
+  /**
+   * Phones: the levels above the parent in a "…" menu before the back link (the default). `false`: the back link
+   * alone, for pages whose header has a "…" of its own, so two controls that look alike don't stand together.
+   */
+  hasPhoneMenu?: boolean;
 };
 
 /**
@@ -35,13 +40,14 @@ export type PageTrailProps = {
  *   late fonts. Only when even the first level, "…" and the page don't fit is
  *   the first level cut. Long names are cut, with the full name as a tooltip.
  * - Phones: a back link to the parent and, when there are levels above the
- *   parent, a "…" button before it, where those levels stand, listing them.
+ *   parent, a "…" button before it, where those levels stand, listing them
+ *   (`hasPhoneMenu={false}`: the back link alone).
  *
  * A CSS media query picks between the two, so server-rendered pages start right.
  * `PageHeader`'s `breadcrumbs` stay as they are; use this above a
  * `PageHeader` without them.
  */
-export function PageTrail({levels, label, className}: PageTrailProps) {
+export function PageTrail({levels, label, className, hasPhoneMenu = true}: PageTrailProps) {
   const t = useMessages();
   const Link = useLinkComponent();
   const nav = useRef<HTMLElement>(null);
@@ -108,7 +114,7 @@ export function PageTrail({levels, label, className}: PageTrailProps) {
     </ol>}
     {/* Phones: the levels above the parent folded into "…" where they stand, first; then the parent as the way back. */}
     <div className="page-trail__phone">
-      {ancestors.length > 1 && <DropdownMenu
+      {hasPhoneMenu && ancestors.length > 1 && <DropdownMenu
         button={{label: t('@da-facility.pageTrail.allLevels'), children: '…', variant: 'secondary', className: 'page-trail__all'}}
         hasChevron={false}
         placement="below"

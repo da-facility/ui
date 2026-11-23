@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+New:
+
+- `PageTrail`: `hasPhoneMenu={false}` makes the phone form the back link alone, without the "…" button of the levels above it, for pages whose header has a "…" of its own, so two controls that look alike and do different things don't stand together.
+
 ## 1.11.0
 
 Other changes:

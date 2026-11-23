@@ -22,7 +22,7 @@ export function PageTrailExample({tweaks}: ExampleProps) {
     <h1>Page trail</h1>
     {[['Full width', 'wide'], ['720 px', 'medium'], ['480 px', 'narrow']].map(([name, size]) => <section key={size} className={`page-trail-example__box page-trail-example__box--${size}`}>
       <h2 className="page-trail-example__caption">{name}</h2>
-      <PageTrail levels={levels} label={`Breadcrumb, ${name}`} />
+      <PageTrail levels={levels} label={`Breadcrumb, ${name}`} hasPhoneMenu={!tweaks.noPhoneMenu} />
       <PageHeader title={title} headingLevel={2} />
     </section>)}
   </main>;
