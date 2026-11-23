@@ -60,7 +60,7 @@ export type MediaTileProps = {
   src?: string;
   /**
    * Why there is no image yet, for an item that exists: `pending` while it is
-   * being made (a quiet well), `failed` when it can't be (the well with a
+   * being made (a quiet well that says so in small words, where the tile is wide enough), `failed` when it can't be (the well with a
    * broken-image mark). The tile stays a link and selectable, and screen
    * readers hear the state after `alt`. Ignored when `src` is set.
    */
@@ -215,6 +215,8 @@ export const Tile = memo(function Tile({src, state, alt, width, height, placehol
               <path d="m4 15 4-4 3 3M14 14l2-2 4 4" />
               <path d="M3 3l18 18" />
             </svg>}
+            {/* Being made: the words, quiet, where the tile has room (screen readers hear them with the name below). */}
+            {missing === 'pending' && <span className="media-tile__label" aria-hidden="true">{t('@da-facility.mediaTile.pending')}</span>}
             <span className="media-tile__visually-hidden">{alt}, {t(notLoaded ? '@da-facility.mediaTile.notLoaded' : missing === 'failed' ? '@da-facility.mediaTile.failed' : '@da-facility.mediaTile.pending')}</span>
           </span>
         : <img className="media-tile__image" src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async" draggable={false} onError={() => setBrokenSrc(src ?? null)} />}

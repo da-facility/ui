@@ -50,6 +50,22 @@
   color: var(--color-text-secondary);
 }
 
+/* Being made: the words, small and quiet, their first letter a capital; not in a tile too narrow for them. */
+.media-tile__label {
+  max-width: 90%;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.media-tile__label::first-letter {
+  text-transform: uppercase;
+}
+.media-tile[data-narrow] .media-tile__label {
+  display: none;
+}
+
 .media-tile__mark {
   width: min(24px, 30%);
   height: auto;

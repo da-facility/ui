@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+Other changes:
+
+- `MediaTile` and `MediaGrid`: a tile whose image is still being made (`state: "pending"`) says so in small, quiet words in its well ("Being prepared", "U pripremi"), where the tile is wide enough, instead of a plain grey area that said nothing; screen readers hear it once, after the name, as before.
+
 ## 1.10.0
 
 New:

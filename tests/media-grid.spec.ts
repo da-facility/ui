@@ -181,6 +181,10 @@ test('tiles without an image yet (state) still open and select, and say why', as
   expect([pending!.width, pending!.height]).toEqual([image!.width, image!.height]);
   await expect(tile(page, 1).locator('img')).toHaveCount(0);
   await expect(tile(page, 1).locator('.media-tile__mark')).toHaveCount(0);
+  // The pending one says so in quiet words (heard once, with its name); the failed one has its mark.
+  await expect(tile(page, 1).locator('.media-tile__label')).toBeVisible();
+  await expect(tile(page, 1).locator('.media-tile__label')).toHaveAttribute('aria-hidden', 'true');
+  await expect(tile(page, 4).locator('.media-tile__label')).toHaveCount(0);
   await expect(tile(page, 4).locator('.media-tile__mark')).toBeVisible();
   // Links with a name that says what happened.
   await expect(link(page, 1)).toHaveAccessibleName(/, being prepared$/);
