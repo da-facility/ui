@@ -41,11 +41,12 @@
     "LICENSE.third-party"
   ],
   "sideEffects": [
-    "**/*.css"
+    "**/*.css",
+    "./dist/index.js"
   ],
   "scripts": {
     "dev": "vite --host",
-    "build": "rm -rf dist && vite build --config vite.lib.config.ts && tsc --project tsconfig.lib.json && cp -R src/locales dist/locales",
+    "build": "rm -rf dist && vite build --config vite.lib.config.ts && tsc --project tsconfig.lib.json && mkdir -p dist/locales && cp src/locales/*.json dist/locales/",
     "build:catalogue": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "playwright test --project=desktop --project=mobile --project=webkit --project=native-desktop --project=native-mobile",

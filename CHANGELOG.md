@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+Other changes:
+
+- The package is built a file per module (`dist/components/…/X.js`), `dist/index.js` re-exporting them, so an app's bundler takes only the components it imports. Nothing in the API changes: everything is imported from `@da-facility/ui` as before, and its CSS still loads with it. In Kolektiff the sign-in page's first load fell from 1,345 to 1,104 KB of JavaScript (398 to 330 KB gzip).
+
 ## 1.12.0
 
 New:

@@ -125,10 +125,16 @@ test.afterAll(async () => {
 
 test('the package ships only its own code and shares the app’s Astryx', async () => {
   const installed = join(app, 'node_modules/@da-facility/ui');
-  const code = await readFile(join(installed, 'dist/index.js'), 'utf8');
-  // The package’s own code is about 130 KB unminified; a bundled Astryx would add
-  // megabytes, and the imports below check it stays external.
-  expect(code.length, 'Astryx must not be bundled').toBeLessThan(250_000);
+  // A file per source module (dist/index.js re-exports them), so an app's bundler
+  // takes only what it imports: all of them together are the package's code.
+  const {readdir} = await import('node:fs/promises');
+  const files = (await readdir(join(installed, 'dist'), {recursive: true})).filter(file => String(file).endsWith('.js'));
+  expect(files.length, 'a file per module').toBeGreaterThan(10);
+  const code = (await Promise.all(files.map(file => readFile(join(installed, 'dist', String(file)), 'utf8')))).join('\n');
+  // The package’s own code is about 130 KB unminified (254 KB with its comments,
+  // 240 KB as one file: a file per module adds its imports and exports); a
+  // bundled Astryx would add megabytes, and the imports below check it stays external.
+  expect(code.length, 'Astryx must not be bundled').toBeLessThan(300_000);
   expect(code, 'Astryx components are re-exported from their own entry points').toMatch(/from "@astryxdesign\/core\/Table"/);
   expect(code).toMatch(/from "@astryxdesign\/core\/SideNav"/);
   expect(code, 'Sonner is a dependency, not bundled').toMatch(/from "sonner"/);
